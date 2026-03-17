@@ -15,15 +15,15 @@ function ConfirmContent() {
     // then hard-navigate so AuthProvider picks it up on mount
     const syncAndRedirect = async () => {
       try {
-        // Force the browser client to read cookies and detect the session
-        const { data } = await supabase.auth.getSession()
-        if (!data?.session) {
-          // If session not found yet, retry after a short delay
-          await new Promise(r => setTimeout(r, 500))
-          await supabase.auth.getSession()
+        if (supabase) {
+          // Force the browser client to read cookies and detect the session (with timeout)
+          await Promise.race([
+            supabase.auth.getSession(),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000))
+          ])
         }
       } catch (e) {
-        // ignore — redirect will still work
+        // ignore — redirect will still work, AuthProvider will pick up session on next page
       }
       window.location.href = next
     }

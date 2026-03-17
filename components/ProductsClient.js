@@ -83,7 +83,7 @@ export default function ProductsClient({
 
   const updateFilters = useCallback((newFilters) => {
     setIsLoading(true)
-    router.push(buildUrl(newFilters, 1))
+    router.push(buildUrl(newFilters, 1), { scroll: false })
   }, [router, buildUrl])
 
   const handleMultiSelect = (key, value) => {
@@ -109,7 +109,7 @@ export default function ProductsClient({
     // On any category/subcategory page, navigate back to /products
     if (categoryPage) {
       setIsLoading(true)
-      router.push('/products')
+      router.push('/products', { scroll: false })
       return
     }
     const cleared = {
@@ -330,11 +330,12 @@ export default function ProductsClient({
                         className={`chip ${filters.categories.includes(cat.slug) ? 'active' : ''}`}
                         onClick={() => {
                           if (categoryPage) {
+                            setIsLoading(true)
                             // On category/subcategory page — navigate
                             if (!categoryPage.isSubCategory && filters.categories.includes(cat.slug)) {
-                              router.push('/products')
+                              router.push('/products', { scroll: false })
                             } else {
-                              router.push(`/products/category/${cat.slug}`)
+                              router.push(`/products/category/${cat.slug}`, { scroll: false })
                             }
                           } else {
                             // On /products — multi-select
@@ -369,11 +370,12 @@ export default function ProductsClient({
                           className={`chip ${isActive ? 'active' : ''}`}
                           onClick={() => {
                             if (categoryPage?.isSubCategory) {
+                              setIsLoading(true)
                               // If clicking the active subcategory, deselect by going to /products
                               if (categoryPage.slug === sub.slug || categoryPage.tagSlug === sub.slug) {
-                                router.push('/products')
+                                router.push('/products', { scroll: false })
                               } else {
-                                router.push(`/products/category/${sub.slug}`)
+                                router.push(`/products/category/${sub.slug}`, { scroll: false })
                               }
                             } else {
                               // On /products or main category page — multi-select
@@ -457,9 +459,7 @@ export default function ProductsClient({
           {/* Main Content */}
           <main className="products-main">
             {isLoading && (
-              <div className="loading-overlay">
-                <div className="loading-spinner" />
-              </div>
+              <div className="loading-bar" />
             )}
 
             {products.length === 0 && !isLoading ? (
@@ -481,6 +481,7 @@ export default function ProductsClient({
                 <motion.div 
                   className={`products-grid ${view === 'list' ? 'list-view' : ''}`}
                   layout
+                  style={{ opacity: isLoading ? 0.4 : 1, transition: 'opacity 0.2s ease' }}
                 >
                   <AnimatePresence mode="popLayout">
                     {products.map((product, index) => (
@@ -603,7 +604,7 @@ export default function ProductsClient({
 
         .page-header {
           background: #fff;
-          padding: 28px 0 20px;
+          padding: 14px 0 10px;
           border-bottom: 1px solid #eee;
         }
 
@@ -994,29 +995,22 @@ export default function ProductsClient({
           position: relative;
         }
 
-        .loading-overlay {
+        .loading-bar {
           position: absolute;
-          inset: 0;
-          background: rgba(250,250,250,0.7);
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 3px;
+          background: linear-gradient(90deg, #e67e22, #f39c12, #e67e22);
+          background-size: 200% 100%;
+          animation: loading-slide 1.2s ease-in-out infinite;
           z-index: 10;
-          display: flex;
-          align-items: flex-start;
-          justify-content: center;
-          padding-top: 100px;
-          backdrop-filter: blur(2px);
+          border-radius: 2px;
         }
 
-        .loading-spinner {
-          width: 36px;
-          height: 36px;
-          border: 3px solid #eee;
-          border-top-color: #e67e22;
-          border-radius: 50%;
-          animation: spin 0.7s linear infinite;
-        }
-
-        @keyframes spin {
-          to { transform: rotate(360deg); }
+        @keyframes loading-slide {
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
         }
 
         .sidebar-open .products-grid {

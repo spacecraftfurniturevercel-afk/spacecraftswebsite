@@ -25,7 +25,8 @@ export function AuthProvider({ children }) {
         const session = result?.data?.session
         if (session?.user) {
           setUser(session.user)
-          await fetchProfile(session.user.id)
+          // Fetch profile in background — don't block loading state
+          fetchProfile(session.user.id)
         } else {
           setUser(null)
           setProfile(null)
