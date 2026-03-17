@@ -3185,7 +3185,7 @@ export default function ProductDetailClient({
           </div>
 
           <style>{`
-            .bnc-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.55); z-index: 9999; display: flex; align-items: flex-end; justify-content: center; font-family: 'Inter', system-ui, sans-serif; }
+            .bnc-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.55); z-index: 9999; display: flex; align-items: flex-end; justify-content: center; font-family: Inter, system-ui, sans-serif; }
             @media (min-width: 640px) { .bnc-overlay { align-items: center; } }
             .bnc-panel { background: #fff; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; border-radius: 20px 20px 0 0; padding: 0; animation: bncSlide 0.3s ease; }
             @media (min-width: 640px) { .bnc-panel { border-radius: 16px; } }
@@ -3321,12 +3321,12 @@ function RelatedProductCard({ product }) {
         .rpc-action-btn { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.92); border: 1px solid rgba(255,255,255,0.4); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 3px 10px rgba(0,0,0,0.10); transition: transform 0.2s ease; }
         .rpc-action-btn:hover { transform: scale(1.1); }
         .rpc-info { padding: 14px 16px 16px; }
-        .rpc-name { font-size: 14px; font-weight: 600; color: #1a1a1a; line-height: 1.35; margin: 0 0 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-family: 'Inter', system-ui, sans-serif; }
+        .rpc-name { font-size: 14px; font-weight: 600; color: #1a1a1a; line-height: 1.35; margin: 0 0 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-family: Inter, system-ui, sans-serif; }
         .rpc-rating { display: flex; align-items: center; gap: 5px; margin-bottom: 8px; }
         .rpc-stars { display: flex; gap: 1px; font-size: 13px; }
         .rpc-rev-count { font-size: 12px; color: #999; font-weight: 500; }
         .rpc-price-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
-        .rpc-price { font-size: 18px; font-weight: 700; color: #1a1a1a; letter-spacing: -0.02em; font-family: 'Inter', sans-serif; }
+        .rpc-price { font-size: 18px; font-weight: 700; color: #1a1a1a; letter-spacing: -0.02em; font-family: Inter, sans-serif; }
         .rpc-orig { font-size: 13px; color: #b0aaa0; text-decoration: line-through; }
         .rpc-save { font-size: 12px; color: #c0392b; font-weight: 600; }
       `}</style>
