@@ -24,7 +24,7 @@ export default function TopNavigationBar() {
             </a>
           </div>
           <div className={styles.gstin_info}>
-            <span className={styles.info_label}>GSTIN/UINC:</span>
+            <span className={styles.info_label}>GSTIN/UIN:</span>
             <span className={styles.gstin_value}>33AASFH4116N1Z2</span>
           </div>
         </div>
