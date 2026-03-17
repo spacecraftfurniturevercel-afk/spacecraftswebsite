@@ -88,16 +88,17 @@ export async function POST(request) {
     }
 
     // Log the confirmation
-    await adminSupabase
-      .from('payment_logs')
-      .insert({
-        order_id,
-        razorpay_order_id: order.razorpay_order_id,
-        razorpay_payment_id: paymentId,
-        status: 'completed',
-        response_data: { source: 'confirm-pending-fallback', rzp_status: rzpOrder.status }
-      })
-      .catch(() => {})
+    try {
+      await adminSupabase
+        .from('payment_logs')
+        .insert({
+          order_id,
+          razorpay_order_id: order.razorpay_order_id,
+          razorpay_payment_id: paymentId,
+          status: 'completed',
+          response_data: { source: 'confirm-pending-fallback', rzp_status: rzpOrder.status }
+        })
+    } catch (_) {}
 
     console.log('[confirm-pending] Order', order_id, 'confirmed via fallback')
 

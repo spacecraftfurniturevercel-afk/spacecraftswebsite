@@ -222,16 +222,16 @@ export async function POST(request) {
       console.error('Razorpay order creation error:', razorpayError)
       
       // Log the error (non-blocking)
-      supabase
-        .from('payment_logs')
-        .insert({
-          order_id: order.id,
-          status: 'razorpay_order_failed',
-          error_message: razorpayError.message,
-          response_data: { error: razorpayError }
-        })
-        .then(() => {})
-        .catch(() => {})
+      try {
+        await supabase
+          .from('payment_logs')
+          .insert({
+            order_id: order.id,
+            status: 'razorpay_order_failed',
+            error_message: razorpayError.message,
+            response_data: { error: razorpayError.message }
+          })
+      } catch (_) {}
 
       return NextResponse.json(
         { error: 'Failed to create payment order. Please try again.' },
