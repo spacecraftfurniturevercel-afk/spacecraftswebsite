@@ -239,6 +239,48 @@ export async function POST(request) {
       .then(() => {})
       .catch(() => {})
 
+    // Send order confirmation emails to customer & admin (non-blocking)
+    ;(async () => {
+      try {
+        const { sendOrderConfirmationEmails } = await import('../../../../lib/email')
+
+        // Fetch order items
+        const { data: orderItems } = await supabase
+          .from('order_items')
+          .select('*')
+          .eq('order_id', order_id)
+
+        // Fetch address
+        let address = null
+        if (order.address_id) {
+          const { data: addr } = await supabase
+            .from('addresses')
+            .select('*')
+            .eq('id', order.address_id)
+            .single()
+          address = addr
+        }
+
+        // Fetch profile
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name, email, phone')
+          .eq('id', user.id)
+          .single()
+
+        await sendOrderConfirmationEmails({
+          order,
+          items: orderItems || [],
+          address,
+          customerName: profile?.full_name || address?.full_name || 'Customer',
+          customerEmail: profile?.email || user.email,
+          customerPhone: profile?.phone || address?.phone || '',
+        })
+      } catch (emailErr) {
+        console.error('Order confirmation email error:', emailErr)
+      }
+    })()
+
     return NextResponse.json({
       success: true,
       message: 'Payment verified and confirmed successfully',

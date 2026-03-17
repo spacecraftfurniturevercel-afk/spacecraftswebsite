@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createSupabaseRouteHandlerClient } from '../../../../lib/supabaseClient'
 import { createBigShipOrder, getShippingRates, manifestSingleOrder, getAWB } from '../../../../lib/bigship'
+import { sendShipmentCreatedEmails } from '../../../../lib/email'
 
 const BIGSHIP_CONFIGURED = !!(
   process.env.BIGSHIP_USER_NAME &&
@@ -193,6 +194,17 @@ export async function POST(request) {
         created_at: new Date().toISOString(),
       })
       .catch(() => {})
+
+    // Send shipment created emails to customer & admin (non-blocking)
+    sendShipmentCreatedEmails({
+      order,
+      awb: awbCode,
+      courierName: courierName || 'BigShip',
+      shippingCost,
+      systemOrderId,
+      customerName: fullName,
+      customerEmail: profile?.email || user.email,
+    }).catch((e) => console.error('Shipment email error:', e))
 
     return NextResponse.json({
       success: true,

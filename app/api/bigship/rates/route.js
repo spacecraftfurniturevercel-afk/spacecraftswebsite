@@ -96,7 +96,7 @@ export async function GET(request) {
   } catch (error) {
     console.error('BigShip rates error:', error)
     return NextResponse.json(
-      { error: 'Failed to calculate shipping rates' },
+      { error: error.message || 'Failed to calculate shipping rates' },
       { status: 500 }
     )
   }

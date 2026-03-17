@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createSupabaseRouteHandlerClient } from '../../../../lib/supabaseClient'
 import { getTrackingDetails } from '../../../../lib/bigship'
+import { sendShippingStatusEmail, sendDeliveryConfirmedEmails } from '../../../../lib/email'
 
 const BIGSHIP_CONFIGURED = !!(
   process.env.BIGSHIP_USER_NAME &&
@@ -170,6 +171,9 @@ export async function GET(request) {
             'LOST': 'failed_delivery',
           }
           const dbStatus = statusMap[latestStatus] || 'processing'
+          const previousStatus = order.shipping_status
+          const statusChanged = previousStatus !== latestStatus
+
           await supabase
             .from('orders')
             .update({
@@ -178,6 +182,53 @@ export async function GET(request) {
               updated_at: new Date().toISOString(),
             })
             .eq('id', order.id)
+
+          // If status changed, log to shipping_events and send email
+          if (statusChanged) {
+            const latestScan = scans[0] || {}
+
+            // Log shipping event to DB
+            await supabase.from('shipping_events').insert({
+              order_id: order.id,
+              status: latestStatus,
+              description: latestScan.scan_remarks || `Status changed to ${latestStatus}`,
+              location: latestScan.scan_location || null,
+              raw_data: JSON.stringify({ previous: previousStatus, current: latestStatus, scan: latestScan }),
+            }).then(({ error }) => { if (error) console.error('shipping_events insert error:', error) })
+
+            // Get customer info for email
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('full_name, email, phone')
+              .eq('id', order.user_id)
+              .single()
+
+            const customerEmail = profile?.email || order.email
+            const customerName = profile?.full_name || order.customer_name
+
+            if (customerEmail) {
+              if (latestStatus === 'DELIVERED') {
+                sendDeliveryConfirmedEmails({
+                  order,
+                  awb: trackingAwb,
+                  courierName: orderDetail.courier_name || order.courier_name,
+                  customerName,
+                  customerEmail,
+                }).catch(err => console.error('Delivery email error:', err))
+              } else {
+                sendShippingStatusEmail({
+                  order,
+                  status: latestStatus,
+                  awb: trackingAwb,
+                  courierName: orderDetail.courier_name || order.courier_name,
+                  customerName,
+                  customerEmail,
+                  scanLocation: latestScan.scan_location,
+                  scanRemarks: latestScan.scan_remarks,
+                }).catch(err => console.error('Status email error:', err))
+              }
+            }
+          }
         }
 
         return NextResponse.json({
