@@ -68,7 +68,10 @@ function OrderSuccessContent() {
           const data = await response.json()
           setOrder(data.order)
           setAddress(data.address)
-          authenticatedFetch('/api/shipping/create-order', { method: 'POST', body: JSON.stringify({ order_id: orderId }) }).catch(() => {})
+          // Delay shipping order creation to ensure payment verification has updated the DB
+          setTimeout(() => {
+            authenticatedFetch('/api/shipping/create-order', { method: 'POST', body: JSON.stringify({ order_id: orderId }) }).catch(() => {})
+          }, 3000)
         } else {
           setError('Failed to fetch order details')
         }
