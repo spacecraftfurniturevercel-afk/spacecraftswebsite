@@ -49,7 +49,16 @@ export default function CartClient() {
         return
       }
 
-      const { data: { session } } = await supabase.auth.getSession()
+      let session = null
+      try {
+        const result = await Promise.race([
+          supabase.auth.getSession(),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Session timeout')), 5000))
+        ])
+        session = result?.data?.session
+      } catch (e) {
+        console.warn('getSession timed out in cart:', e.message)
+      }
       setSessionToken(session?.access_token || null)
       setUserId(session?.user?.id || null)
 

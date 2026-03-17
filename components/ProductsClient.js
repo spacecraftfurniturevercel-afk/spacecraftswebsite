@@ -106,8 +106,14 @@ export default function ProductsClient({
   }
 
   const clearFilters = () => {
+    // On any category/subcategory page, navigate back to /products
+    if (categoryPage) {
+      setIsLoading(true)
+      router.push('/products')
+      return
+    }
     const cleared = {
-      categories: categoryPage ? [categoryPage.slug] : [],
+      categories: [],
       brands: [],
       subcategories: [],
       minPrice: '',
@@ -130,7 +136,11 @@ export default function ProductsClient({
 
   const activeFilterCount = (() => {
     let count = filters.brands.length + (filters.subcategories?.length || 0) + (filters.minPrice ? 1 : 0) + (filters.maxPrice ? 1 : 0)
-    // On a category page, don't count the current category as an active filter
+    // On any category/subcategory page, count it as an active filter
+    if (categoryPage) {
+      count += 1
+    }
+    // Count extra categories beyond the current page
     if (categoryPage) {
       count += filters.categories.filter(c => c !== categoryPage.slug).length
     } else {
@@ -310,7 +320,7 @@ export default function ProductsClient({
               </div>
 
               {/* Categories */}
-              {categories.length > 0 && (!categoryPage || categoryPage.isSubCategory) && (
+              {categories.length > 0 && (
                 <div className="filter-group">
                   <div className="filter-group-title">Category</div>
                   <div className="filter-chips">
@@ -319,9 +329,15 @@ export default function ProductsClient({
                         key={cat.id}
                         className={`chip ${filters.categories.includes(cat.slug) ? 'active' : ''}`}
                         onClick={() => {
-                          if (categoryPage?.isSubCategory) {
-                            router.push(`/products/category/${cat.slug}`)
+                          if (categoryPage) {
+                            // On category/subcategory page — navigate
+                            if (!categoryPage.isSubCategory && filters.categories.includes(cat.slug)) {
+                              router.push('/products')
+                            } else {
+                              router.push(`/products/category/${cat.slug}`)
+                            }
                           } else {
+                            // On /products — multi-select
                             handleMultiSelect('categories', cat.slug)
                           }
                         }}
@@ -353,8 +369,14 @@ export default function ProductsClient({
                           className={`chip ${isActive ? 'active' : ''}`}
                           onClick={() => {
                             if (categoryPage?.isSubCategory) {
-                              router.push(`/products/category/${sub.slug}`)
+                              // If clicking the active subcategory, deselect by going to /products
+                              if (categoryPage.slug === sub.slug || categoryPage.tagSlug === sub.slug) {
+                                router.push('/products')
+                              } else {
+                                router.push(`/products/category/${sub.slug}`)
+                              }
                             } else {
+                              // On /products or main category page — multi-select
                               handleMultiSelect('subcategories', sub.slug)
                             }
                           }}

@@ -9,7 +9,6 @@ import ReviewForm from './ReviewForm'
 import ReviewsList from './ReviewsList'
 import ProductQA from './ProductQA'
 import RazorpayPayment from './RazorpayPayment'
-import { supabase } from '../lib/supabaseClient'
 import { authenticatedFetch } from '../lib/authenticatedFetch'
 import { trackProductView } from '../lib/useProductViewTracker'
 import { useAuth } from '../app/providers/AuthProvider'
@@ -116,9 +115,7 @@ export default function ProductDetailClient({
         return
       }
 
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-      
-      if (sessionError || !session?.access_token) {
+      if (!isAuthenticated) {
         setCartError('Please login to add items to cart')
         setCartLoading(false)
         router.push('/login')
@@ -143,6 +140,9 @@ export default function ProductDetailClient({
 
       setCartSuccess(`${data.cartItem?.product_name || product.name} added to cart!`)
       
+      // Notify Header to update cart count
+      window.dispatchEvent(new Event('cart-updated'))
+
       // Reset quantity to 1 after successful add
       setTimeout(() => {
         setQuantity(1)
@@ -163,9 +163,7 @@ export default function ProductDetailClient({
     setWishlistLoading(true)
 
     try {
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-      
-      if (sessionError || !session?.access_token) {
+      if (!isAuthenticated) {
         setWishlistError('Please login to add items to wishlist')
         setWishlistLoading(false)
         return
@@ -193,9 +191,7 @@ export default function ProductDetailClient({
   }
 
   const handleBuyNow = async () => {
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-    
-    if (sessionError || !session?.access_token) {
+    if (!isAuthenticated) {
       setCartError('Please login to proceed with payment')
       router.push('/login')
       return

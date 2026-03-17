@@ -13,7 +13,16 @@ export function AuthProvider({ children }) {
     // Check active session on mount
     const checkAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession()
+        if (!supabase) {
+          setLoading(false)
+          return
+        }
+        // Timeout after 5s to prevent infinite loading if token refresh hangs
+        const result = await Promise.race([
+          supabase.auth.getSession(),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Session check timeout')), 5000))
+        ])
+        const session = result?.data?.session
         if (session?.user) {
           setUser(session.user)
           await fetchProfile(session.user.id)
@@ -23,12 +32,16 @@ export function AuthProvider({ children }) {
         }
       } catch (error) {
         console.error('Auth check failed:', error)
+        setUser(null)
+        setProfile(null)
       } finally {
         setLoading(false)
       }
     }
 
     checkAuth()
+
+    if (!supabase) return
 
     // Listen for auth state changes (login, logout, token refresh)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(

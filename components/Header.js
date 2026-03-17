@@ -240,6 +240,13 @@ export default function Header() {
     }
   }, [isAuthenticated])
 
+  // Listen for cart-updated events (fired after add-to-cart)
+  useEffect(() => {
+    const onCartUpdated = () => { if (isAuthenticated) fetchCartCount() }
+    window.addEventListener('cart-updated', onCartUpdated)
+    return () => window.removeEventListener('cart-updated', onCartUpdated)
+  }, [isAuthenticated])
+
   // Add shadow on scroll
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10)

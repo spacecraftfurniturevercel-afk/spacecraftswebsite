@@ -369,6 +369,7 @@ export default function ProductCard({ product }) {
               }).then(res => res.json()).then(data => {
                 if (data.cartItem) {
                   setFeedbackMsg('Added to cart!')
+                  window.dispatchEvent(new Event('cart-updated'))
                 } else {
                   setFeedbackMsg(data.error || 'Failed to add')
                 }

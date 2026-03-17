@@ -485,9 +485,7 @@ export default async function CategoryPage({ params, searchParams }) {
   const meta2 = categoryMeta[slug]
   const tagSlugResolved = meta2?.tagSlug || slug
   const currentSubCat = isSubCategory ? SUB_CATEGORIES.find(sc => sc.slug === slug || sc.slug === tagSlugResolved) : null
-  const relevantSubCategories = isSubCategory
-    ? (currentSubCat ? SUB_CATEGORIES.filter(s => s.parent === currentSubCat.parent) : [])
-    : SUB_CATEGORIES.filter(s => s.parent === currentCategory.name)
+  const relevantSubCategories = SUB_CATEGORIES
 
   return (
     <ProductsClient 

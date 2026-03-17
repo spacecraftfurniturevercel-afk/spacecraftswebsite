@@ -100,6 +100,7 @@ export default function WishlistClient() {
 
       if (res.ok) {
         setSuccessMessage(`${productName} added to cart!`)
+        window.dispatchEvent(new Event('cart-updated'))
         setTimeout(() => setSuccessMessage(null), 2000)
       } else {
         alert(data.error || 'Failed to add to cart')
