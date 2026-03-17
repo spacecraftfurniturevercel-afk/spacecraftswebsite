@@ -1,0 +1,389 @@
+/* ─── DelayedSignupModal ─── */
+/* Uses project design tokens from globals.css :root */
+/* z-index 9999 — above TopNavigationBar (1000) */
+
+/* ════════════════════════════════════════
+   OVERLAY
+   ════════════════════════════════════════ */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(26, 26, 26, 0.45); /* --primary-color with soft opacity */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  opacity: 0;
+  transition: opacity var(--transition-base);
+  padding: var(--spacing-md);
+}
+
+.overlayVisible {
+  opacity: 1;
+}
+
+/* ════════════════════════════════════════
+   MODAL CONTAINER
+   ════════════════════════════════════════ */
+
+.modal {
+  position: relative;
+  background: var(--background);
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18), 0 4px 16px rgba(0, 0, 0, 0.08);
+  max-width: 460px;
+  width: 100%;
+  overflow: hidden;
+  transform: scale(0.95);
+  opacity: 0;
+  transition: transform var(--transition-base), opacity var(--transition-base);
+}
+
+.modalVisible {
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* ════════════════════════════════════════
+   CLOSE BUTTON
+   ════════════════════════════════════════ */
+
+.closeButton {
+  position: absolute;
+  top: var(--spacing-sm);
+  right: var(--spacing-sm);
+  z-index: 2;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--background);
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 18px;
+  line-height: 1;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+}
+
+.closeButton:hover {
+  color: var(--text-primary);
+  border-color: var(--text-muted);
+  box-shadow: var(--shadow-md);
+}
+
+.closeButton:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+/* ════════════════════════════════════════
+   TWO-COLUMN HERO
+   ════════════════════════════════════════ */
+
+.heroGrid {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Promo Text */
+.promoPanel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--spacing-sm) var(--spacing-md) var(--spacing-xs);
+  background: var(--background);
+}
+
+.promoHeadline {
+  font-family: var(--font-family);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--text-primary);
+  margin: 0 0 4px 0;
+  white-space: nowrap;
+}
+
+.promoHighlight {
+  color: var(--accent-color);
+}
+
+.promoSubtext {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin: 0 0 var(--spacing-xs) 0;
+}
+
+.couponBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: 6px 16px;
+  border: 2px dashed var(--accent-color);
+  border-radius: 6px;
+  background: rgba(11, 107, 88, 0.06); /* --accent-color tint */
+  color: var(--accent-color);
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  letter-spacing: 2px;
+  user-select: all;
+}
+
+.couponIcon {
+  font-size: var(--font-size-xl);
+  line-height: 1;
+}
+
+/* Top — Image Banner */
+.imagePanel {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px 12px 0 0;
+  background: var(--background-alt);
+  height: 150px;
+}
+
+.imagePanel img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.heroImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ════════════════════════════════════════
+   FORM SECTION
+   ════════════════════════════════════════ */
+
+.formSection {
+  padding: var(--spacing-xs) var(--spacing-md) var(--spacing-sm);
+  border-top: 1px solid var(--border-color);
+}
+
+.formTitle {
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-xs) 0;
+  text-align: center;
+}
+
+/* Input row */
+.inputGroup {
+  display: flex;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-sm);
+}
+
+.inputField {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
+  background: var(--background);
+  transition: border-color var(--transition-fast);
+  outline: none;
+}
+
+.inputField::placeholder {
+  color: var(--text-muted);
+}
+
+.inputField:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(11, 107, 88, 0.1);
+}
+
+.continueButton {
+  width: 100%;
+  padding: 10px 24px;
+  background: var(--primary-color);
+  color: var(--background);
+  border: 2px solid var(--primary-color);
+  border-radius: 8px;
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: center;
+}
+
+.continueButton:hover {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.continueButton:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+/* Terms */
+.termsText {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: center;
+  margin: var(--spacing-xs) 0;
+  line-height: 1.4;
+}
+
+.termsText a {
+  color: var(--accent-color);
+  text-decoration: underline;
+}
+
+/* Divider */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin: var(--spacing-xs) 0;
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-color);
+}
+
+/* Google Button */
+.googleButton {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  padding: 10px 20px;
+  background: var(--background);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.googleButton:hover {
+  background: var(--background-alt);
+  border-color: var(--text-muted);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+
+.googleButton:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+.googleIcon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* ════════════════════════════════════════
+   RESPONSIVE — TABLET (≤ 768px)
+   ════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .overlay {
+    padding: var(--spacing-sm);
+    align-items: flex-end;
+  }
+
+  .modal {
+    max-width: 100%;
+    border-radius: 16px 16px 0 0;
+    max-height: 92vh;
+  }
+
+  .imagePanel {
+    height: 150px;
+    border-radius: 16px 16px 0 0;
+  }
+
+  .promoPanel {
+    padding: var(--spacing-sm) var(--spacing-sm);
+  }
+
+  .promoHeadline {
+    font-size: var(--font-size-lg);
+  }
+
+  .formSection {
+    padding: var(--spacing-xs) var(--spacing-sm) var(--spacing-sm);
+  }
+
+  .closeButton {
+    top: var(--spacing-xs);
+    right: var(--spacing-xs);
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+  }
+}
+
+/* ════════════════════════════════════════
+   RESPONSIVE — SMALL MOBILE (≤ 480px)
+   ════════════════════════════════════════ */
+
+@media (max-width: 480px) {
+  .imagePanel {
+    height: 120px;
+  }
+
+  .couponBadge {
+    font-size: var(--font-size-sm);
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+}
+
+/* ════════════════════════════════════════
+   SCROLLBAR (MODAL)
+   ════════════════════════════════════════ */
+
+.modal::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.modal::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+
+.modal::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}

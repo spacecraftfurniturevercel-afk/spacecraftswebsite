@@ -1,0 +1,27 @@
+.section { width:100%; background:#fff; padding:48px 20px; }
+.container { max-width:1260px; margin:0 auto; }
+.row { display:flex; gap:16px; align-items:flex-start; }
+.guides { display:grid; grid-template-columns: repeat(5, 1fr); gap:14px; flex:1 1 auto; }
+.appPromo { flex:0 0 300px; }
+
+.cardLink { text-decoration:none; color:inherit; }
+.card { border-radius:10px; overflow:hidden; background:#fff; box-shadow:0 6px 18px rgba(17,24,39,0.06); display:flex; flex-direction:column; }
+.media { width:100%; aspect-ratio: 4/3; background:#fbf7f4; display:flex; align-items:center; justify-content:center; }
+.mediaImg { width:100%; height:100%; object-fit:cover; }
+.meta { padding:10px 12px; display:flex; justify-content:space-between; align-items:center; }
+.title { font-size:14px; color:#111827; font-weight:600; }
+.linkRow { display:flex; align-items:center; gap:8px; }
+.readLink { color:#ff6a00; font-weight:600; }
+.chev { }
+
+.appCard { background:#fff6ef; border-radius:10px; padding:18px; box-shadow:0 6px 18px rgba(17,24,39,0.06); }
+.appInner { display:flex; flex-direction:column; gap:12px; }
+.appOffer { font-size:18px; font-weight:700; color:#111827; }
+.appSub { color:#374151; }
+.qrRow { display:flex; gap:12px; align-items:center; }
+.qr img { width:84px; height:84px; background:#fff; border-radius:8px; }
+.downloadBtn { background:#ff6a00; color:#fff; border:none; padding:8px 12px; border-radius:8px; font-weight:700; cursor:pointer; }
+.tc { font-size:12px; color:#6b7280; margin-top:6px; }
+
+@media (max-width: 1100px) { .guides { grid-template-columns: repeat(3, 1fr); } .appPromo { order:2; } }
+@media (max-width: 720px) { .row { flex-direction:column; } .guides { grid-template-columns: repeat(2, 1fr); } .appPromo { width:100%; } }

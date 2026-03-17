@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
+  <rect width="100%" height="100%" fill="#fff7f2" rx="12"/>
+  <g fill="#b36b3f">
+    <rect x="40" y="120" width="320" height="80" rx="12" />
+    <rect x="80" y="80" width="240" height="50" rx="10" fill="#ffe6cf" />
+  </g>
+  <text x="200" y="280" font-size="18" fill="#7a4a2b" font-family="sans-serif" text-anchor="middle">Hydraulic Bed</text>
+</svg>

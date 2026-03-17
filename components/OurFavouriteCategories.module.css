@@ -1,0 +1,45 @@
+.section {
+  width: 100%;
+  background: #ffffff;
+  padding: 44px 20px; /* match Brands section vertical spacing */
+}
+.container {
+  max-width: 1260px;
+  margin: 0 auto;
+}
+.title { }
+.tabsWrap { display:flex; justify-content:center; margin-bottom:18px; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+.gridItem { }
+
+.cardLink { text-decoration: none; color: inherit; }
+.card {
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(17,24,39,0.06);
+  transition: transform .15s ease, box-shadow .15s ease;
+  display:flex;
+  flex-direction:column;
+}
+.card:hover { transform: translateY(-6px); box-shadow: 0 12px 30px rgba(17,24,39,0.08); }
+.media { width:100%; aspect-ratio: 4 / 3; background: #fbf7f4; display:flex; align-items:center; justify-content:center; }
+.mediaImg { width:100%; height:100%; object-fit:cover; display:block; }
+.textRow { display:flex; justify-content:space-between; align-items:center; padding:12px 14px; }
+.catName { color: #ff6a00; font-weight:600; font-size:14px; }
+.priceRow { display:flex; align-items:center; gap:8px; color:#ff6a00; font-size:13px; }
+.price { }
+.chev { display:block; }
+
+@media (max-width: 1024px) {
+  .grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 720px) {
+  .grid { grid-template-columns: repeat(2, 1fr); }
+  .media { aspect-ratio: 16/9; }
+}

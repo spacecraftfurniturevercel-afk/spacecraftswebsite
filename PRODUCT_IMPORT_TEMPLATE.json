@@ -1,0 +1,107 @@
+{
+  "products": [
+    {
+      "name": "Premium Leather Sofa - 3 Seater",
+      "slug": "premium-leather-sofa-3-seater",
+      "category": "Sofas",
+      "brand": "LuxeComfort",
+      "description": "Elegant 3-seater premium leather sofa with high-back design, perfect for modern living rooms. Features genuine Italian leather, hardwood frame, and comfortable cushioning.",
+      "price": 45999,
+      "discount_price": 38499,
+      "stock": 12,
+      "material": "100% Genuine Italian Leather, Hardwood Frame",
+      "warranty": "5 Years",
+      "delivery_info": "Free Delivery across India | 7-10 Days",
+      "dimensions": "L: 2.1m, W: 0.9m, H: 0.85m",
+      "tags": ["leather", "sofa", "seating", "living-room", "premium"],
+      "images": [
+        {
+          "url": "https://your-cdn.com/products/sofa-1-main.jpg",
+          "alt": "Premium Leather Sofa front view",
+          "position": 1
+        },
+        {
+          "url": "https://your-cdn.com/products/sofa-1-side.jpg",
+          "alt": "Premium Leather Sofa side view",
+          "position": 2
+        },
+        {
+          "url": "https://your-cdn.com/products/sofa-1-close.jpg",
+          "alt": "Premium Leather Sofa detail view",
+          "position": 3
+        }
+      ]
+    },
+    {
+      "name": "Modern Wooden Dining Table - 6 Seater",
+      "slug": "modern-wooden-dining-table-6-seater",
+      "category": "Dining",
+      "brand": "WoodCraft",
+      "description": "Contemporary 6-seater dining table crafted from solid acacia wood with a sleek natural finish. Spacious tabletop accommodates family meals and gatherings.",
+      "price": 28999,
+      "discount_price": 24499,
+      "stock": 8,
+      "material": "Solid Acacia Wood with Natural Polish",
+      "warranty": "3 Years",
+      "delivery_info": "Free Delivery across India | 5-7 Days",
+      "dimensions": "L: 1.8m, W: 1.0m, H: 0.75m",
+      "tags": ["dining", "wood", "table", "acacia", "6-seater"],
+      "images": [
+        {
+          "url": "https://your-cdn.com/products/dining-table-1-main.jpg",
+          "alt": "Modern Dining Table top view",
+          "position": 1
+        },
+        {
+          "url": "https://your-cdn.com/products/dining-table-1-full.jpg",
+          "alt": "Modern Dining Table full view",
+          "position": 2
+        }
+      ]
+    }
+  ],
+  "notes": {
+    "required_fields": [
+      "name",
+      "slug (must be unique, use hyphens)",
+      "category",
+      "brand",
+      "description",
+      "price",
+      "stock",
+      "images (at least 1 image URL required)"
+    ],
+    "optional_fields": [
+      "discount_price",
+      "material",
+      "warranty",
+      "delivery_info",
+      "dimensions",
+      "tags (comma-separated or array)"
+    ],
+    "image_requirements": {
+      "url": "Image URL (must be publicly accessible)",
+      "alt": "Short description for accessibility",
+      "position": "Order (1 = first image, 2 = second, etc.)"
+    },
+    "category_examples": [
+      "Sofas",
+      "Beds",
+      "Dining",
+      "Office",
+      "Storage",
+      "Chairs",
+      "Tables",
+      "Mattresses"
+    ],
+    "tips": {
+      "slug": "Use lowercase, hyphens only, no spaces. Examples: 'premium-leather-sofa', 'wooden-bed-frame'",
+      "price": "In INR (₹), whole numbers or decimals. E.g., 25999 or 25999.50",
+      "discount_price": "Optional. Leave blank if no discount. Must be less than price.",
+      "stock": "Integer number. E.g., 0, 5, 100",
+      "images": "Ensure URLs are valid. Format: https://... or http://...",
+      "dimensions": "Format example: 'L: 2.1m, W: 0.9m, H: 0.85m' or leave blank",
+      "warranty": "Examples: '1 Year', '3 Years', '5 Years', 'Lifetime'"
+    }
+  }
+}

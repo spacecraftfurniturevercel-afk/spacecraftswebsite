@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600" viewBox="0 0 1200 600">
+  <rect width="100%" height="100%" fill="#fff7f3" rx="12"/>
+  <g transform="translate(80,80)" fill="#a85f33">
+    <rect x="0" y="200" width="1040" height="260" rx="16" />
+    <rect x="260" y="120" width="360" height="120" rx="12" fill="#ffdcbf" />
+  </g>
+  <text x="600" y="560" font-size="28" fill="#7a4a2b" font-family="sans-serif" text-anchor="middle">Heritage Collection</text>
+</svg>

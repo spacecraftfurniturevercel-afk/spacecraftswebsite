@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+  <rect width="100%" height="100%" fill="#fff6f3" rx="20"/>
+  <g transform="translate(70,70)" fill="#b06a36">
+    <rect x="30" y="80" width="180" height="80" rx="12" />
+    <rect x="80" y="40" width="40" height="40" rx="6" fill="#ffe1c7" />
+  </g>
+  <text x="200" y="360" font-size="26" fill="#7a4a2b" font-family="sans-serif" text-anchor="middle">woodbuzz</text>
+</svg>

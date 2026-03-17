@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 500">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1">
+      <stop offset="0" stop-color="#b02b2b" />
+      <stop offset="1" stop-color="#f4c79f" />
+    </linearGradient>
+  </defs>
+  <rect width="100%" height="100%" fill="#f5efe9" />
+  <rect x="40" y="30" width="820" height="420" rx="8" fill="url(#g)" opacity="0.95" />
+  <g transform="translate(80,60)">
+    <rect x="0" y="0" width="420" height="320" rx="8" fill="#fff" />
+    <text x="20" y="60" font-family="Arial" font-size="36" fill="#111">Christmas Mania</text>
+    <text x="20" y="110" font-family="Arial" font-size="20" fill="#222">Upto 70% Off + 20% Cashback</text>
+  </g>
+  <g transform="translate(960,80)">
+    <rect x="0" y="0" width="360" height="280" rx="8" fill="#efe6d9" />
+    <text x="20" y="60" font-family="Arial" font-size="22" fill="#333">Bedroom Collections</text>
+    <text x="20" y="100" font-family="Arial" font-size="16" fill="#666">Get Extra 15% Off | Use code: ELITE15</text>
+  </g>
+</svg>

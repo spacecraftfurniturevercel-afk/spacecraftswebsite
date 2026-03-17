@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="200" viewBox="0 0 300 200">
+  <rect width="100%" height="100%" fill="#fff8f4" rx="12"/>
+  <g fill="#b36b3f">
+    <rect x="60" y="70" width="180" height="40" rx="12" />
+    <rect x="90" y="50" width="40" height="30" rx="8" />
+  </g>
+  <text x="150" y="170" font-size="14" fill="#7a5a48" font-family="sans-serif" text-anchor="middle">Recliners</text>
+</svg>

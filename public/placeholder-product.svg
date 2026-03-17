@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200">
+  <rect width="1200" height="1200" fill="#e8e8e8"/>
+  <g opacity="0.5">
+    <rect width="1200" height="1200" fill="#f5f5f5"/>
+    <circle cx="600" cy="400" r="80" fill="#b0b0b0"/>
+    <path d="M 300 800 L 600 500 L 900 800 Z" fill="#b0b0b0"/>
+  </g>
+  <text x="600" y="1050" font-size="48" text-anchor="middle" fill="#999999" font-family="Arial">
+    Product Image
+  </text>
+  <text x="600" y="1110" font-size="36" text-anchor="middle" fill="#cccccc" font-family="Arial">
+    Not Available
+  </text>
+</svg>

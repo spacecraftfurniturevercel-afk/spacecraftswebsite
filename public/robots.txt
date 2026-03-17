@@ -1,0 +1,21 @@
+# Spacecrafts Furniture - Robots.txt
+# https://www.spacecraftsfurniture.in/robots.txt
+
+# Allow all bots to crawl the site
+User-agent: *
+Allow: /
+
+# Disallow admin and private areas
+Disallow: /admin/
+Disallow: /api/
+Disallow: /account/
+Disallow: /cart/
+Disallow: /checkout/
+Disallow: /orders/
+Disallow: /wishlist/
+
+# Allow crawling of product pages
+Allow: /products/
+
+# Sitemap location
+Sitemap: https://www.spacecraftsfurniture.in/sitemap.xml

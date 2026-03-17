@@ -1,0 +1,40 @@
+.section { width:100%; background:#fff; padding:48px 20px; }
+.container { max-width:1260px; margin:0 auto; }
+.layout { display:flex; gap:20px; align-items:flex-start; }
+.leftCol { flex: 0 0 360px; }
+.rightCol { flex: 1 1 auto; }
+
+.promoCard {
+  border-radius:10px;
+  background: linear-gradient(180deg, #fff6ed 0%, #fff9f6 100%);
+  padding:18px;
+  height:100%;
+  box-shadow: 0 6px 18px rgba(17,24,39,0.06);
+}
+.promoInner { position:relative; min-height:220px; display:flex; flex-direction:column; }
+.promoHeadline { font-size:16px; color:#374151; margin-bottom:8px; }
+.promoOffer { font-size:22px; color:#111827; font-weight:700; margin-bottom:12px; }
+.benefits { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:8px; }
+.benefits li { display:flex; gap:10px; align-items:center; color:#374151; font-size:14px; }
+.benefitIcon { width:14px; height:14px; border-radius:50%; background:#ff6a00; display:inline-block; flex:0 0 14px; }
+.promoFooter { position:absolute; right:8px; bottom:8px; font-size:12px; color:#6b7280; }
+
+.carouselWrapOuter { display:flex; align-items:center; gap:12px; }
+.arrowLeft, .arrowRight { background:#fff; border:1px solid rgba(15,23,42,0.06); width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+.carouselWrap { overflow-x:auto; -webkit-overflow-scrolling:touch; padding:8px 4px; }
+.carousel { display:flex; gap:16px; align-items:center; }
+.carouselItem { flex: 0 0 auto; width: 310px; }
+
+.cityCard { display:block; text-decoration:none; color:inherit; }
+.cityBg { width:100%; height:220px; background-size:cover; background-position:center; border-radius:10px; position:relative; overflow:hidden; }
+.cityOverlay { position:absolute; left:0; right:0; top:0; bottom:0; background: linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.6) 100%); display:flex; align-items:center; justify-content:center; }
+.cityContent { text-align:center; color:#fff; }
+.cityName { font-size:18px; font-weight:600; }
+.cityCount { font-size:13px; margin-top:6px; opacity:0.95; }
+
+@media (max-width: 900px) {
+  .layout { flex-direction:column; }
+  .leftCol { width:100%; }
+  .carouselItem { width: 72vw; }
+  .cityBg { height:180px; }
+}

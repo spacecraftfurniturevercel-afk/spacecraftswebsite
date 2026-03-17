@@ -1,0 +1,377 @@
+/* ── MoreIdeasSection — Editorial Masonry Grid ── */
+
+/* ─── Section ─── */
+.section {
+  padding: 32px clamp(16px, 4vw, 48px) 16px;
+  background: #ffffff;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  position: relative;
+}
+
+/* ─── Header ─── */
+.header {
+  margin-bottom: 12px;
+}
+
+.title {
+  font-size: clamp(20px, 3vw, 28px);
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 6px;
+  letter-spacing: -0.8px;
+  line-height: 1.1;
+}
+
+.subtitle {
+  font-size: 15px;
+  color: #888;
+  margin: 0;
+  line-height: 1.6;
+  max-width: 460px;
+}
+
+/* ─── Sticky Tabs Wrapper ─── */
+.tabsSticky {
+  position: sticky;
+  top: 0;
+  z-index: 990;
+  background: #fff;
+  padding: 8px 0 12px;
+  transition: box-shadow 0.3s ease, top 0.3s ease;
+}
+
+.tabsSticky.isStuck {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+/* ─── Tabs Container ─── */
+.tabsScroll {
+  display: flex;
+  overflow-x: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  padding: 0;
+}
+
+.tabsScroll::-webkit-scrollbar {
+  display: none;
+}
+
+.tabsBar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px;
+  border-radius: 50px;
+  background: #ffffff;
+  position: relative;
+  width: 100%;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+}
+
+/* ─── Sliding Pill Indicator ─── */
+.tabIndicator {
+  position: absolute;
+  top: 5px;
+  left: 0;
+  height: calc(100% - 10px);
+  border-radius: 40px;
+  background: #1a1a1a;
+  transition: left 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              width 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  z-index: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+/* ─── Tab Button ─── */
+.tabBtn {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 0%;
+  padding: 10px 8px;
+  border: none;
+  border-radius: 40px;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  white-space: nowrap;
+  font-family: inherit;
+  color: #777;
+  text-align: center;
+}
+
+.tabBtn:hover {
+  color: #333;
+}
+
+.tabBtnActive {
+  color: #fff;
+}
+
+.tabBtnActive:hover {
+  color: #fff;
+}
+
+/* ─── Masonry Grid ─── */
+.masonryGrid {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+}
+
+.masonryColumn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Middle column offset for staggered editorial look */
+.masonryColumnMiddle {
+  margin-top: 48px;
+}
+
+/* ─── Image Card ─── */
+.card {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  background: #ffffff;
+}
+
+.cardInner {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 14px;
+}
+
+.cardImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.card:hover .cardImage {
+  transform: scale(1.06);
+}
+
+/* Aspect ratios for masonry variety */
+.cardTall .cardInner {
+  aspect-ratio: 3 / 4.2;
+}
+
+.cardMedium .cardInner {
+  aspect-ratio: 4 / 3.5;
+}
+
+.cardWide .cardInner {
+  aspect-ratio: 16 / 10;
+}
+
+.cardSquare .cardInner {
+  aspect-ratio: 1 / 1;
+}
+
+/* ─── Card Overlay ─── */
+.cardOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 24px 20px 20px;
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0) 100%);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.card:hover .cardOverlay {
+  opacity: 1;
+}
+
+.cardLabel {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 4px;
+  letter-spacing: 0.2px;
+}
+
+.cardCategory {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0;
+  text-transform: capitalize;
+}
+
+/* ─── Load More Button ─── */
+.loadMoreWrap {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.loadMoreBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 32px;
+  border: 2px solid #1a1a1a;
+  color: #1a1a1a;
+  background: transparent;
+  border-radius: 60px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: inherit;
+}
+
+.loadMoreBtn:hover {
+  background: #1a1a1a;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.loadMoreBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.loadMoreBtn:disabled:hover {
+  background: transparent;
+  color: #1a1a1a;
+}
+
+.loadMoreIcon {
+  font-size: 16px;
+  transition: transform 0.3s ease;
+}
+
+.loadMoreBtn:hover .loadMoreIcon {
+  transform: translateY(2px);
+}
+
+/* ─── Count Badge ─── */
+.countText {
+  font-size: 13px;
+  color: #999;
+  margin-top: 10px;
+  font-weight: 500;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 1024px) {
+  .masonryColumnMiddle {
+    margin-top: 32px;
+  }
+}
+
+@media (max-width: 900px) {
+  .masonryGrid {
+    gap: 14px;
+  }
+
+  .masonryColumn {
+    gap: 14px;
+  }
+
+  .masonryColumnMiddle {
+    margin-top: 24px;
+  }
+
+  .tabsBar {
+    width: auto;
+    display: inline-flex;
+  }
+
+  .tabBtn {
+    flex: none;
+    padding: 9px 18px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .section {
+    padding: 14px 14px 16px;
+  }
+
+  /* 2-column masonry on tablet */
+  .masonryGrid {
+    gap: 12px;
+  }
+
+  .masonryColumn {
+    gap: 12px;
+  }
+
+  .masonryColumnMiddle {
+    margin-top: 20px;
+  }
+
+  .card {
+    border-radius: 12px;
+  }
+
+  .cardInner {
+    border-radius: 12px;
+  }
+
+  .tabsBar {
+    gap: 4px;
+    padding: 4px;
+    width: auto;
+    display: inline-flex;
+  }
+
+  .tabBtn {
+    flex: none;
+    padding: 8px 14px;
+    font-size: 11px;
+  }
+
+  .loadMoreWrap {
+    margin-top: 16px;
+  }
+}
+
+@media (max-width: 520px) {
+  /* Single column on mobile */
+  .masonryGrid {
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .masonryColumnMiddle {
+    margin-top: 0;
+  }
+
+  .cardOverlay {
+    opacity: 1;
+  }
+
+  .title {
+    font-size: 20px;
+  }
+
+  .loadMoreBtn {
+    padding: 12px 32px;
+    font-size: 13px;
+  }
+}
+
+

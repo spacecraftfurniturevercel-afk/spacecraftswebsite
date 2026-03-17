@@ -1,0 +1,553 @@
+/* KeepShoppingSection.module.css */
+/* Premium "Keep Shopping" section — recently viewed products with related items */
+
+.section {
+  padding: 28px clamp(16px, 4vw, 48px) 30px;
+  background: #fff;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Section header ── */
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  gap: 12px;
+}
+
+.titleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sectionTitle {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: clamp(18px, 2vw, 24px);
+  font-weight: 700;
+  color: #1a1a1a;
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.sectionSubtitle {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 13px;
+  color: #888;
+  font-weight: 400;
+  margin: 0;
+  letter-spacing: 0.2px;
+}
+
+/* Carousel navigation arrows (for > 3 main products) */
+.navArrows {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.navBtn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1.5px solid #e6e6e6;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #1a1a1a;
+  flex-shrink: 0;
+}
+
+.navBtn:hover:not(:disabled) {
+  background: #1a1a1a;
+  border-color: #1a1a1a;
+  color: #fff;
+}
+
+.navBtn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* ── Carousel container ── */
+.carouselViewport {
+  overflow: hidden;
+  position: relative;
+}
+
+.carouselTrack {
+  display: flex;
+  gap: 16px;
+  transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* ── Each "group" = 1 main product + its related products ── */
+.productGroup {
+  flex: 0 0 calc(33.333% - 11px);
+  min-width: 0;
+}
+
+/* ── Main (hero) product card — horizontal layout ── */
+.mainCard {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid #e6e6e6;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: row;
+}
+
+.mainCard:hover {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.09);
+  transform: translateY(-2px);
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+.mainImageWrap {
+  position: relative;
+  width: 44%;
+  flex-shrink: 0;
+  aspect-ratio: 4 / 4.2;
+  overflow: hidden;
+}
+
+.mainImage {
+  object-fit: cover;
+  transition: transform 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform;
+}
+
+.mainCard:hover .mainImage {
+  transform: scale(1.05);
+}
+
+/* Badge on main card */
+.viewedBadge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 3px 9px;
+  border-radius: 60px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  color: #1a1a1a;
+  letter-spacing: 0.2px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.viewedDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #0b6b58;
+  display: inline-block;
+}
+
+/* Discount badge */
+.discountBadge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: #1a1a1a;
+  color: #fff;
+  padding: 3px 8px;
+  border-radius: 60px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  z-index: 2;
+}
+
+/* Main card info panel */
+.mainInfo {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+
+.mainName {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 5px 0;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.mainPriceRow {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.mainPrice {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.mainOriginalPrice {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 11px;
+  color: #999;
+  text-decoration: line-through;
+}
+
+.mainRating {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 11px;
+  color: #888;
+}
+
+.starIcon {
+  color: #f39c12;
+  font-size: 13px;
+}
+
+/* ── Related products row (below main card) ── */
+.relatedLabel {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin: 10px 0 6px;
+}
+
+.relatedRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.relatedRow2 { grid-template-columns: repeat(2, 1fr); }
+.relatedRow3 { grid-template-columns: repeat(3, 1fr); }
+.relatedRow4 { grid-template-columns: repeat(4, 1fr); }
+
+/* ── Related (small) product card ── */
+.relatedCard {
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #e6e6e6;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.relatedCard:hover {
+  border-color: #1a1a1a;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.07);
+  transform: translateY(-1px);
+}
+
+.relatedImageWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.relatedImage {
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.relatedCard:hover .relatedImage {
+  transform: scale(1.05);
+}
+
+.relatedInfo {
+  padding: 5px 7px 6px;
+}
+
+.relatedName {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  color: #1a1a1a;
+  margin: 0 0 2px 0;
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.relatedPrice {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.relatedOriginalPrice {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 9px;
+  color: #999;
+  text-decoration: line-through;
+  margin-left: 3px;
+}
+
+/* ── Dots indicator for carousel ── */
+.dotsRow {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 18px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #e6e6e6;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.3s ease;
+}
+
+.dot:hover {
+  background: #ccc;
+}
+
+.dotActive {
+  width: 24px;
+  border-radius: 60px;
+  background: #1a1a1a;
+}
+
+/* ── Loading skeleton ── */
+.skeletonGroup {
+  flex: 0 0 calc(33.333% - 16px);
+}
+
+.skeletonMain {
+  border-radius: 14px;
+  overflow: hidden;
+  background: #ffffff;
+  animation: shimmer 1.5s ease infinite;
+}
+
+.skeletonImage {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease infinite;
+}
+
+.skeletonInfo {
+  padding: 10px 14px 12px;
+}
+
+.skeletonLine {
+  height: 14px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease infinite;
+  margin-bottom: 8px;
+}
+
+.skeletonLine:nth-child(1) { width: 80%; }
+.skeletonLine:nth-child(2) { width: 50%; height: 18px; }
+.skeletonLine:nth-child(3) { width: 40%; height: 12px; }
+
+.skeletonRelated {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.skeletonRelatedCard {
+  border-radius: 10px;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.skeletonRelatedImg {
+  width: 100%;
+  aspect-ratio: 1;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease infinite;
+}
+
+.skeletonRelatedInfo {
+  padding: 5px 7px;
+}
+
+.skeletonRelatedLine {
+  height: 10px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease infinite;
+  margin-bottom: 4px;
+}
+
+.skeletonRelatedLine:last-child {
+  width: 60%;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ── Empty state ── */
+.emptyState {
+  display: none;
+}
+
+/* ── "View All" CTA ── */
+.viewAllBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 32px;
+  border: 2px solid #1a1a1a;
+  border-radius: 60px;
+  background: transparent;
+  color: #1a1a1a;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.viewAllBtn:hover {
+  background: #1a1a1a;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .productGroup {
+    flex: 0 0 calc(50% - 12px);
+  }
+  
+  .relatedRow3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .relatedRow4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .skeletonGroup {
+    flex: 0 0 calc(50% - 12px);
+  }
+}
+
+@media (max-width: 768px) {
+  .section {
+    padding: 24px 16px 32px;
+  }
+
+  .headerRow {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 14px;
+  }
+
+  .navArrows {
+    align-self: flex-end;
+    margin-top: -28px;
+  }
+
+  .carouselTrack {
+    gap: 12px;
+  }
+
+  .productGroup {
+    flex: 0 0 calc(80vw - 12px);
+  }
+
+  .skeletonGroup {
+    flex: 0 0 calc(80vw - 12px);
+  }
+
+  .mainCard {
+    flex-direction: column;
+  }
+
+  .mainImageWrap {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+  }
+
+  .mainInfo {
+    padding: 10px 12px 12px;
+  }
+
+  .mainName {
+    font-size: 13px;
+  }
+
+  .relatedRow3,
+  .relatedRow4 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .productGroup {
+    flex: 0 0 calc(85vw - 12px);
+  }
+  
+  .skeletonGroup {
+    flex: 0 0 calc(85vw - 12px);
+  }
+
+  .relatedRow4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .navBtn {
+    width: 32px;
+    height: 32px;
+  }
+}

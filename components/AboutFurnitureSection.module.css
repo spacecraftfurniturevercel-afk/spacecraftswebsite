@@ -1,0 +1,191 @@
+/* ── AboutFurnitureSection — SEO Content Block ── */
+
+.section {
+  padding: 32px clamp(16px, 4vw, 48px) 16px;
+  background: #ffffff;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+
+.container {
+  /* max-width: 960px; */
+  margin: 0 auto;
+}
+
+/* ─── Main Title ─── */
+.mainTitle {
+  font-size: clamp(20px, 3vw, 28px);
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 16px 0;
+  line-height: 1.35;
+  letter-spacing: -0.3px;
+}
+
+/* ─── Intro Paragraphs ─── */
+.intro {
+  font-size: 0.875rem;
+  color: #555;
+  line-height: 1.75;
+  margin: 0 0 12px 0;
+  font-weight: 400;
+}
+
+/* ─── Section Heading (h2) ─── */
+.sectionHeading {
+  font-size: clamp(17px, 2.5vw, 22px);
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 32px 0 16px 0;
+  line-height: 1.35;
+  letter-spacing: -0.2px;
+}
+
+/* ─── Sub Heading (h3) — Room / Material categories ─── */
+.subHeading {
+  font-size: clamp(14px, 2vw, 16px);
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 20px 0 8px 0;
+  line-height: 1.4;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.subHeading::before {
+  content: '';
+  display: inline-block;
+  width: 3px;
+  height: 16px;
+  background: linear-gradient(180deg, #e74c3c, #e67e22);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* ─── Body Text ─── */
+.bodyText {
+  font-size: 0.875rem;
+  color: #555;
+  line-height: 1.75;
+  margin: 0 0 8px 0;
+  font-weight: 400;
+}
+
+/* ─── Bullet Lists ─── */
+.bulletList {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bulletItem {
+  font-size: 0.875rem;
+  color: #555;
+  line-height: 1.65;
+  padding-left: 20px;
+  position: relative;
+  font-weight: 400;
+}
+
+.bulletItem::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 9px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #e67e22;
+}
+
+/* ─── Highlight Box — "Why Choose" section ─── */
+.highlightGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin: 16px 0 24px 0;
+}
+
+.highlightCard {
+  padding: 20px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  background: #fafafa;
+  transition: border-color 0.3s ease;
+}
+
+.highlightCard:hover {
+  border-color: #e67e22;
+}
+
+.highlightTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 6px 0;
+  line-height: 1.4;
+}
+
+.highlightDesc {
+  font-size: 0.8125rem;
+  color: #666;
+  line-height: 1.65;
+  margin: 0;
+  font-weight: 400;
+}
+
+/* ─── CTA / Closing ─── */
+.closingText {
+  font-size: 0.875rem;
+  color: #555;
+  line-height: 1.75;
+  margin: 24px 0 0 0;
+  font-weight: 400;
+}
+
+.closingTextBold {
+  font-size: 0.875rem;
+  color: #333;
+  line-height: 1.75;
+  margin: 8px 0 0 0;
+  font-weight: 500;
+}
+
+/* ─── Divider ─── */
+.divider {
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, #e74c3c, #e67e22);
+  border: none;
+  margin: 28px 0;
+  border-radius: 1px;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 768px) {
+  .section {
+    padding: 24px 16px 16px;
+  }
+
+  .mainTitle {
+    margin-bottom: 12px;
+  }
+
+  .sectionHeading {
+    margin-top: 24px;
+  }
+
+  .highlightGrid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .highlightCard {
+    padding: 16px;
+  }
+}
