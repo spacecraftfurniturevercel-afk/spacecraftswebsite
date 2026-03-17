@@ -30,6 +30,11 @@ export default function RazorpayPayment({
       script.async = true
       document.body.appendChild(script)
     }
+    return () => {
+      // Clean up Razorpay script on unmount to prevent webpack module conflicts
+      const script = document.querySelector('script[src*="checkout.razorpay.com"]')
+      if (script) script.remove()
+    }
   }, [])
 
   const handlePaymentClick = async () => {

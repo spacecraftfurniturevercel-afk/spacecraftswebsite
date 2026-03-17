@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import Link from 'next/link'
 import { Suspense } from 'react'
 import { motion } from 'framer-motion'
 import { authenticatedFetch } from '../../../lib/authenticatedFetch'
@@ -122,7 +121,7 @@ function OrderSuccessContent() {
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="1.5" style={{ marginBottom: 16 }}><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
         <h2 style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a', margin: '0 0 8px' }}>Something went wrong</h2>
         <p style={{ color: '#888', fontSize: 14, margin: '0 0 24px' }}>{error}</p>
-        <Link href="/orders" style={{ display: 'inline-block', padding: '12px 32px', background: '#1a1a1a', color: '#fff', borderRadius: 8, textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>View Orders</Link>
+        <a href="/orders" style={{ display: 'inline-block', padding: '12px 32px', background: '#1a1a1a', color: '#fff', borderRadius: 8, textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>View Orders</a>
       </div>
     </div>
   )
@@ -247,14 +246,14 @@ function OrderSuccessContent() {
 
         {/* Buttons */}
         <motion.div className="osp-btns" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.65 }}>
-          <Link href={`/orders/${order?.id}`} className="osp-btn osp-btn-dark">
+          <a href={`/orders/${order?.id}`} className="osp-btn osp-btn-dark">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             View Order Details
-          </Link>
-          <Link href="/products" className="osp-btn osp-btn-light">
+          </a>
+          <a href="/products" className="osp-btn osp-btn-light">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
             Continue Shopping
-          </Link>
+          </a>
         </motion.div>
       </div>
 
