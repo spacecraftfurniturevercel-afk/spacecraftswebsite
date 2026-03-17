@@ -2,6 +2,7 @@
 import { useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
+import { supabase } from '../../../lib/supabaseClient'
 
 function ConfirmContent() {
   const router = useRouter()
@@ -9,10 +10,25 @@ function ConfirmContent() {
 
   useEffect(() => {
     const next = searchParams.get('next') || '/account'
-    // Small delay to let cookies fully propagate, then hard navigate
-    const timer = setTimeout(() => {
+
+    // Wait for the client-side Supabase to detect the session from cookies
+    // then hard-navigate so AuthProvider picks it up on mount
+    const syncAndRedirect = async () => {
+      try {
+        // Force the browser client to read cookies and detect the session
+        const { data } = await supabase.auth.getSession()
+        if (!data?.session) {
+          // If session not found yet, retry after a short delay
+          await new Promise(r => setTimeout(r, 500))
+          await supabase.auth.getSession()
+        }
+      } catch (e) {
+        // ignore — redirect will still work
+      }
       window.location.href = next
-    }, 100)
+    }
+
+    const timer = setTimeout(syncAndRedirect, 150)
     return () => clearTimeout(timer)
   }, [searchParams, router])
 

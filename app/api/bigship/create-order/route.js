@@ -50,7 +50,7 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
-    if (order.payment_status !== 'completed') {
+    if (order.payment_status !== 'completed' && order.status !== 'confirmed') {
       return NextResponse.json({ error: 'Payment not completed' }, { status: 400 })
     }
 

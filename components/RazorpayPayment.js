@@ -20,6 +20,7 @@ export default function RazorpayPayment({
   const [isProcessing, setIsProcessing] = useState(false)
   const [error, setError] = useState(null)
   const [paymentState, setPaymentState] = useState(null) // null | 'verifying' | 'success'
+  const [confirmedAmount, setConfirmedAmount] = useState(0)
 
   useEffect(() => {
     if (typeof window !== 'undefined' && !document.querySelector('script[src*="checkout.razorpay.com"]')) {
@@ -85,6 +86,7 @@ export default function RazorpayPayment({
               setIsProcessing(false)
               return
             }
+            setConfirmedAmount(orderData.amount || amount)
             setPaymentState('success')
             setTimeout(() => {
               window.location.href = `/orders/success?order_id=${orderData.order_id}`
@@ -148,7 +150,7 @@ export default function RazorpayPayment({
               </div>
               <h2 className="rp-result-title">Payment Successful</h2>
               <p className="rp-result-desc">Your order has been confirmed. Redirecting you to your order details.</p>
-              <div className="rp-result-amount">₹{Number(amount).toLocaleString('en-IN')}</div>
+              <div className="rp-result-amount">₹{Number(confirmedAmount || amount).toLocaleString('en-IN')}</div>
               <div className="rp-result-progress">
                 <div className="rp-result-bar" />
               </div>

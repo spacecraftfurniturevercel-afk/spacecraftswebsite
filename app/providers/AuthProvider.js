@@ -45,7 +45,26 @@ export function AuthProvider({ children }) {
       }
     )
 
-    return () => subscription?.unsubscribe()
+    // Re-check auth when tab becomes visible (handles OAuth redirect return)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          if (session?.user && !user) {
+            setUser(session.user)
+            fetchProfile(session.user.id)
+          } else if (!session?.user && user) {
+            setUser(null)
+            setProfile(null)
+          }
+        }).catch(() => {})
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    return () => {
+      subscription?.unsubscribe()
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
   }, [])
 
   const fetchProfile = async (userId) => {
