@@ -65,17 +65,20 @@ export async function POST(request) {
         .update({ status: 'cancelled', shipping_status: 'CANCELLED', updated_at: new Date().toISOString() })
         .eq('id', order_id)
 
-      await supabase
-        .from('shipping_events')
-        .insert({
-          order_id,
-          status: 'CANCELLED',
-          awb_code: order.tracking_number,
-          courier: order.courier_name,
-          raw_payload: result,
-          created_at: new Date().toISOString(),
-        })
-        .catch(() => {})
+      try {
+        await supabase
+          .from('shipping_events')
+          .insert({
+            order_id,
+            status: 'CANCELLED',
+            awb_code: order.tracking_number,
+            courier: order.courier_name,
+            raw_payload: result,
+            created_at: new Date().toISOString(),
+          })
+      } catch (e) {
+        console.warn('Could not log shipping event:', e.message)
+      }
     }
 
     return NextResponse.json({

@@ -185,19 +185,24 @@ export async function POST(request) {
       .eq('id', order_id)
 
     // Log shipping event
-    await supabase
-      .from('shipping_events')
-      .insert({
-        order_id: order_id,
-        status: 'ORDER_PLACED',
-        awb_code: awbCode,
-        courier: courierName,
-        raw_payload: { addOrderResult, manifestResult, shippingCost },
-        created_at: new Date().toISOString(),
-      })
-      .catch(() => {})
+    try {
+      await supabase
+        .from('shipping_events')
+        .insert({
+          order_id: order_id,
+          status: 'ORDER_PLACED',
+          awb_code: awbCode,
+          courier: courierName,
+          raw_payload: { addOrderResult, manifestResult, shippingCost },
+          created_at: new Date().toISOString(),
+        })
+    } catch (e) {
+      console.warn('Could not log shipping event:', e.message)
+    }
 
     // Send shipment created emails to customer & admin (non-blocking)
+    const emailTo = profile?.email || user.email
+    console.log('[create-order] Sending shipment emails to:', emailTo, 'admin:', 'anandanathurelangovan94@gmail.com')
     sendShipmentCreatedEmails({
       order,
       awb: awbCode,
@@ -205,8 +210,10 @@ export async function POST(request) {
       shippingCost,
       systemOrderId,
       customerName: fullName,
-      customerEmail: profile?.email || user.email,
-    }).catch((e) => console.error('Shipment email error:', e))
+      customerEmail: emailTo,
+    }).then((results) => {
+      console.log('[create-order] Email results:', JSON.stringify(results))
+    }).catch((e) => console.error('[create-order] Shipment email error:', e))
 
     return NextResponse.json({
       success: true,
