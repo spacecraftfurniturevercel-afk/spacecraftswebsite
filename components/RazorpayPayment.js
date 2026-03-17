@@ -23,19 +23,19 @@ export default function RazorpayPayment({
   const [confirmedAmount, setConfirmedAmount] = useState(0)
   const [verifyTimeout, setVerifyTimeout] = useState(false)
 
-  useEffect(() => {
-    if (typeof window !== 'undefined' && !document.querySelector('script[src*="checkout.razorpay.com"]')) {
+  // Load Razorpay script on-demand (not eagerly) to prevent webpack module conflicts
+  function loadRazorpayScript() {
+    return new Promise((resolve) => {
+      if (window.Razorpay) return resolve(true)
+      const existing = document.querySelector('script[src*="checkout.razorpay.com"]')
+      if (existing) { existing.onload = () => resolve(true); return }
       const script = document.createElement('script')
       script.src = 'https://checkout.razorpay.com/v1/checkout.js'
-      script.async = true
+      script.onload = () => resolve(true)
+      script.onerror = () => resolve(false)
       document.body.appendChild(script)
-    }
-    return () => {
-      // Clean up Razorpay script on unmount to prevent webpack module conflicts
-      const script = document.querySelector('script[src*="checkout.razorpay.com"]')
-      if (script) script.remove()
-    }
-  }, [])
+    })
+  }
 
   const handlePaymentClick = async () => {
     setError(null)
@@ -167,7 +167,8 @@ export default function RazorpayPayment({
         theme: { color: '#222' }
       }
 
-      if (window.Razorpay) {
+      const loaded = await loadRazorpayScript()
+      if (loaded && window.Razorpay) {
         new window.Razorpay(options).open()
       } else {
         setError('Payment gateway not loaded. Please refresh.')

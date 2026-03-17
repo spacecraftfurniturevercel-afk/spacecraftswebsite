@@ -36,14 +36,14 @@ export default function CheckoutPage() {
           const cartData = await cartResponse.json()
           setCartItems(cartData.items || [])
           
-          // Calculate order summary
-          const summary = {
-            subtotal: cartData.items?.reduce((sum, item) => sum + (item.price * item.quantity), 0) || 0,
-            tax: 0,
-            shipping: 0,
-            total: cartData.items?.reduce((sum, item) => sum + (item.price * item.quantity), 0) || 0
+          // Use summary from API (includes 18% GST)
+          if (cartData.summary) {
+            setOrderSummary(cartData.summary)
+          } else {
+            const sub = cartData.items?.reduce((sum, item) => sum + (item.price * item.quantity), 0) || 0
+            const gst = Math.round(sub * 0.18)
+            setOrderSummary({ subtotal: sub, tax: gst, shipping: 0, total: sub + gst })
           }
-          setOrderSummary(summary)
         }
 
         // Fetch addresses

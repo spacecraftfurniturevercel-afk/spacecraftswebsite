@@ -100,7 +100,7 @@ export async function GET(request) {
       }
     })
 
-    const tax = Math.round(subtotal * 0.05 * 100) / 100 // 5% tax
+    const tax = Math.round(subtotal * 0.18 * 100) / 100 // 18% GST
     const shipping = subtotal > 500 ? 0 : 50 // Free shipping above 500
     const total = subtotal + tax + shipping
 

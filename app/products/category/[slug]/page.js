@@ -110,7 +110,8 @@ const categoryMeta = {
   'study-chair': {
     title: 'Study Chairs',
     description: 'Buy study chairs online — comfortable seating for students & kids. Ergonomic designs with back support. Affordable prices.',
-    h1: 'Study Chairs'
+    h1: 'Study Chairs',
+    tagSlug: 'study-chairs'
   },
   'dining-tables': {
     title: 'Dining Tables',
@@ -180,7 +181,8 @@ const categoryMeta = {
   'study-office-tables': {
     title: 'Study & Office Tables',
     description: 'Buy study & office tables online — work desks, computer tables & writing desks. Ergonomic designs for productivity.',
-    h1: 'Study & Office Tables'
+    h1: 'Study & Office Tables',
+    tagSlug: 'study-&-office-tables'
   },
   'wardrobes': {
     title: 'Wardrobes',
@@ -391,7 +393,11 @@ export default async function CategoryPage({ params, searchParams }) {
 
     if (isSubCategory) {
       // Filter by sub-category tag (e.g. "bunk-beds", "corner-sofas")
-      query = query.contains('tags', [slug])
+      // Use tagSlug from categoryMeta if available (handles slug mismatches like study-chair vs study-chairs)
+      const meta = categoryMeta[slug]
+      const subCatMatch = SUB_CATEGORIES.find(sc => sc.slug === slug)
+      const tagToFilter = meta?.tagSlug || subCatMatch?.slug || slug
+      query = query.contains('tags', [tagToFilter])
     } else {
       query = query.eq('category_id', currentCategory.id)
     }
@@ -476,7 +482,9 @@ export default async function CategoryPage({ params, searchParams }) {
   const totalPages = Math.ceil(totalCount / PRODUCTS_PER_PAGE)
 
   // Filter sub-categories to show only relevant ones for the current category
-  const currentSubCat = isSubCategory ? SUB_CATEGORIES.find(sc => sc.slug === slug) : null
+  const meta2 = categoryMeta[slug]
+  const tagSlugResolved = meta2?.tagSlug || slug
+  const currentSubCat = isSubCategory ? SUB_CATEGORIES.find(sc => sc.slug === slug || sc.slug === tagSlugResolved) : null
   const relevantSubCategories = isSubCategory
     ? (currentSubCat ? SUB_CATEGORIES.filter(s => s.parent === currentSubCat.parent) : [])
     : SUB_CATEGORIES.filter(s => s.parent === currentCategory.name)
@@ -493,6 +501,7 @@ export default async function CategoryPage({ params, searchParams }) {
       }}
       categoryPage={{
         slug: currentCategory.slug,
+        tagSlug: meta2?.tagSlug || currentCategory.slug,
         name: categoryTitle,
         description: meta?.description || `Browse our collection of ${currentCategory.name}`,
         isSubCategory: isSubCategory

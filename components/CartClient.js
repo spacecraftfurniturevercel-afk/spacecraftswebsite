@@ -38,6 +38,17 @@ export default function CartClient() {
     setLoading(true)
     setError(null)
     try {
+      if (!supabase) {
+        // Not logged in / supabase not ready — show guest cart
+        const ls = typeof window !== 'undefined' ? localStorage.getItem('cart') : null
+        const guestItems = ls ? JSON.parse(ls) : []
+        setItems(guestItems)
+        const guestSubtotal = guestItems.reduce((s, it) => s + (it.price || 0) * (it.quantity || 1), 0)
+        setSummary({ subtotal: guestSubtotal, discount: 0, tax: 0, shipping: 0, total: guestSubtotal })
+        setLoading(false)
+        return
+      }
+
       const { data: { session } } = await supabase.auth.getSession()
       setSessionToken(session?.access_token || null)
       setUserId(session?.user?.id || null)
@@ -49,14 +60,21 @@ export default function CartClient() {
         const guestSubtotal = guestItems.reduce((s, it) => s + (it.price || 0) * (it.quantity || 1), 0)
         setSummary({ subtotal: guestSubtotal, discount: 0, tax: 0, shipping: 0, total: guestSubtotal })
       } else {
-        const res = await authenticatedFetch('/api/cart/get')
+        const controller = new AbortController()
+        const timeout = setTimeout(() => controller.abort(), 10000)
+        const res = await authenticatedFetch('/api/cart/get', { signal: controller.signal })
+        clearTimeout(timeout)
         const data = await res.json()
         if (!res.ok) throw new Error(data.error || 'Failed to load cart')
         setItems(data.items || [])
         setSummary(data.summary || { subtotal: 0, discount: 0, tax: 0, shipping: 0, total: 0 })
       }
     } catch (err) {
-      setError(err.message || 'Failed to load cart')
+      if (err.name === 'AbortError') {
+        setError('Cart loading timed out. Please refresh the page.')
+      } else {
+        setError(err.message || 'Failed to load cart')
+      }
     } finally {
       setLoading(false)
     }
@@ -65,15 +83,19 @@ export default function CartClient() {
   useEffect(() => { fetchCart() }, [])
   useEffect(() => { if (sessionToken) fetchAddresses() }, [sessionToken])
 
-  // Load Razorpay script
-  useEffect(() => {
-    if (typeof window !== 'undefined' && !document.querySelector('script[src*="checkout.razorpay.com"]')) {
+  // Load Razorpay script on-demand (not eagerly) to prevent webpack module conflicts
+  function loadRazorpayScript() {
+    return new Promise((resolve) => {
+      if (window.Razorpay) return resolve(true)
+      const existing = document.querySelector('script[src*="checkout.razorpay.com"]')
+      if (existing) { existing.onload = () => resolve(true); return }
       const script = document.createElement('script')
       script.src = 'https://checkout.razorpay.com/v1/checkout.js'
-      script.async = true
+      script.onload = () => resolve(true)
+      script.onerror = () => resolve(false)
       document.body.appendChild(script)
-    }
-  }, [])
+    })
+  }
 
   const fetchAddresses = async () => {
     try {
@@ -235,7 +257,8 @@ export default function CartClient() {
         theme: { color: '#222' }
       }
 
-      if (window.Razorpay) {
+      const loaded = await loadRazorpayScript()
+      if (loaded && window.Razorpay) {
         new window.Razorpay(options).open()
       } else { setPaymentError('Payment gateway not loaded. Please refresh.'); setIsProcessing(false) }
     } catch (err) { setPaymentError(err.message || 'An error occurred'); setIsProcessing(false) }
@@ -484,7 +507,7 @@ export default function CartClient() {
               <h3>Order Summary</h3>
               <div className="sum-row"><span>Subtotal ({items.length} items)</span><span>₹{totals.subtotal.toLocaleString('en-IN')}</span></div>
               {totals.discount > 0 && <div className="sum-row green"><span>Discount{appliedCoupon ? ` (${appliedCoupon.discount_percentage}%)` : ''}</span><span>−₹{totals.discount.toLocaleString('en-IN')}</span></div>}
-              <div className="sum-row"><span>Tax</span><span>₹{totals.tax.toLocaleString('en-IN')}</span></div>
+              <div className="sum-row"><span>GST (18%)</span><span>₹{totals.tax.toLocaleString('en-IN')}</span></div>
               <div className="sum-row"><span>Shipping</span><span>{totals.shipping === 0 ? 'Free' : `₹${totals.shipping.toLocaleString('en-IN')}`}</span></div>
               <div className="sum-divider"></div>
               <div className="sum-total"><span>Total</span><span>₹{totals.total.toLocaleString('en-IN')}</span></div>

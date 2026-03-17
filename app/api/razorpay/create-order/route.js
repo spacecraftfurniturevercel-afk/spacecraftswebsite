@@ -52,7 +52,7 @@ export async function POST(request) {
 
     // Determine items for order
     let orderItems = items
-    let totalAmount = 0
+    let subtotal = 0
 
     // If direct payment (from product page)
     if (resolvedPaymentType === 'direct' && resolvedProductId) {
@@ -78,7 +78,7 @@ export async function POST(request) {
       }
 
       orderItems = [{ product_id: resolvedProductId, quantity }]
-      totalAmount = (product.discount_price || product.price) * quantity
+      subtotal = (product.discount_price || product.price) * quantity
     } 
     // Cart checkout
     else if (resolvedPaymentType === 'cart' && items.length > 0) {
@@ -99,7 +99,7 @@ export async function POST(request) {
           )
         }
 
-        totalAmount += (product.discount_price || product.price) * item.quantity
+        subtotal += (product.discount_price || product.price) * item.quantity
       }
     } else {
       return NextResponse.json(
@@ -107,6 +107,10 @@ export async function POST(request) {
         { status: 400 }
       )
     }
+
+    // Add 18% GST to subtotal
+    const gst = Math.round(subtotal * 0.18)
+    const totalAmount = subtotal + gst
 
     if (totalAmount <= 0) {
       return NextResponse.json(

@@ -116,24 +116,15 @@ export default function ProductDetailClient({
         return
       }
 
-      console.log('Getting session...')
       const { data: { session }, error: sessionError } = await supabase.auth.getSession()
       
-      if (sessionError) {
-        console.error('Session error:', sessionError)
-        setCartError('Session error. Please try logging in again.')
-        setCartLoading(false)
-        return
-      }
-
-      if (!session?.access_token) {
-        console.log('No session found')
+      if (sessionError || !session?.access_token) {
         setCartError('Please login to add items to cart')
         setCartLoading(false)
+        router.push('/login')
         return
       }
 
-      console.log('Making API call with token:', session.access_token.substring(0, 20) + '...')
       const response = await authenticatedFetch('/api/cart/add', {
         method: 'POST',
         body: JSON.stringify({ 
@@ -142,9 +133,7 @@ export default function ProductDetailClient({
         })
       })
 
-      console.log('Response status:', response.status)
       const data = await response.json()
-      console.log('Response data:', data)
 
       if (!response.ok) {
         setCartError(data.error || 'Failed to add item to cart')
@@ -152,7 +141,7 @@ export default function ProductDetailClient({
         return
       }
 
-      setCartSuccess(`${data.cartItem.product_name} added to cart! (${data.cartItem.quantity} ${data.cartItem.quantity > 1 ? 'items' : 'item'})`)
+      setCartSuccess(`${data.cartItem?.product_name || product.name} added to cart!`)
       
       // Reset quantity to 1 after successful add
       setTimeout(() => {
@@ -162,8 +151,7 @@ export default function ProductDetailClient({
 
     } catch (error) {
       console.error('Error adding to cart:', error)
-      setCartError('An error occurred while adding to cart. Please try again.')
-      setCartLoading(false)
+      setCartError('Failed to add to cart. Please try again.')
     } finally {
       setCartLoading(false)
     }

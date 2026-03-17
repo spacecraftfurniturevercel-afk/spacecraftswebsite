@@ -345,7 +345,7 @@ export default function ProductsClient({
                   <div className="filter-chips filter-chips-scroll">
                     {subCategories.map(sub => {
                       const isActive = categoryPage?.isSubCategory
-                        ? categoryPage.slug === sub.slug
+                        ? (categoryPage.slug === sub.slug || categoryPage.tagSlug === sub.slug)
                         : filters.subcategories?.includes(sub.slug)
                       return (
                         <button
