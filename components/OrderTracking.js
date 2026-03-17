@@ -62,7 +62,7 @@ export default function OrderTracking({ orderId, initialStatus }) {
 
   const fetchTracking = async () => {
     try {
-      const res = await authenticatedFetch(`/api/shiprocket/track?order_id=${orderId}`)
+      const res = await authenticatedFetch(`/api/shipping/track?order_id=${orderId}`)
       if (res.ok) {
         const data = await res.json()
         setTracking(data.tracking)

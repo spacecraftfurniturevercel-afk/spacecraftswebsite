@@ -68,7 +68,7 @@ function OrderSuccessContent() {
           const data = await response.json()
           setOrder(data.order)
           setAddress(data.address)
-          authenticatedFetch('/api/shiprocket/create-order', { method: 'POST', body: JSON.stringify({ order_id: orderId }) }).catch(() => {})
+          authenticatedFetch('/api/shipping/create-order', { method: 'POST', body: JSON.stringify({ order_id: orderId }) }).catch(() => {})
         } else {
           setError('Failed to fetch order details')
         }
