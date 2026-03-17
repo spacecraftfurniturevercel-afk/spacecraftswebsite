@@ -21,6 +21,7 @@ export default function RazorpayPayment({
   const [error, setError] = useState(null)
   const [paymentState, setPaymentState] = useState(null) // null | 'verifying' | 'success'
   const [confirmedAmount, setConfirmedAmount] = useState(0)
+  const [verifyTimeout, setVerifyTimeout] = useState(false)
 
   useEffect(() => {
     if (typeof window !== 'undefined' && !document.querySelector('script[src*="checkout.razorpay.com"]')) {
@@ -70,28 +71,81 @@ export default function RazorpayPayment({
           paymentHandled = true
           try {
             setPaymentState('verifying')
-            const verifyRes = await authenticatedFetch('/api/razorpay/verify-payment', {
-              method: 'POST',
-              body: JSON.stringify({
-                razorpay_order_id: orderData.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-                order_id: orderData.order_id
-              })
+            setVerifyTimeout(false)
+
+            // Show fallback link after 15 seconds
+            const fallbackTimer = setTimeout(() => setVerifyTimeout(true), 15000)
+
+            // Abort fetch after 30 seconds to prevent hanging forever
+            const controller = new AbortController()
+            const abortTimer = setTimeout(() => controller.abort(), 30000)
+
+            console.log('[RazorpayPayment] Verifying payment:', response.razorpay_payment_id)
+
+            const verifyBody = JSON.stringify({
+              razorpay_order_id: orderData.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              order_id: orderData.order_id
             })
-            const verifyData = await verifyRes.json()
+
+            let verifyRes
+            try {
+              // Try authenticated fetch first
+              verifyRes = await authenticatedFetch('/api/razorpay/verify-payment', {
+                method: 'POST',
+                signal: controller.signal,
+                body: verifyBody
+              })
+            } catch (authFetchErr) {
+              console.warn('[RazorpayPayment] authenticatedFetch failed, falling back to plain fetch:', authFetchErr.message)
+              // Fallback: plain fetch without auth (verify-payment no longer requires user session)
+              if (authFetchErr.name !== 'AbortError') {
+                verifyRes = await fetch('/api/razorpay/verify-payment', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  signal: controller.signal,
+                  body: verifyBody
+                })
+              } else {
+                throw authFetchErr
+              }
+            } finally {
+              clearTimeout(abortTimer)
+              clearTimeout(fallbackTimer)
+            }
+
+            let verifyData
+            try {
+              verifyData = await verifyRes.json()
+            } catch (parseErr) {
+              console.error('[RazorpayPayment] Failed to parse verify response:', parseErr)
+              // Payment likely succeeded on server even if response parsing failed
+              window.location.href = `/orders/success?order_id=${orderData.order_id}`
+              return
+            }
+
             if (!verifyRes.ok) {
+              console.error('[RazorpayPayment] Verification failed:', verifyData)
               setPaymentState(null)
               setError(verifyData.error || 'Payment verification failed')
               setIsProcessing(false)
               return
             }
+
+            console.log('[RazorpayPayment] Payment verified successfully')
             setConfirmedAmount(orderData.amount || amount)
             setPaymentState('success')
             setTimeout(() => {
               window.location.href = `/orders/success?order_id=${orderData.order_id}`
             }, 2200)
           } catch (err) {
+            console.error('[RazorpayPayment] Verification error:', err)
+            if (err.name === 'AbortError') {
+              // Timed out — payment likely went through, redirect to orders
+              window.location.href = `/orders/success?order_id=${orderData.order_id}`
+              return
+            }
             setPaymentState(null)
             setError('Failed to verify payment. Please check your orders page.')
             setIsProcessing(false)
@@ -140,6 +194,12 @@ export default function RazorpayPayment({
               <div className="rp-result-dots">
                 <span className="rp-dot" /><span className="rp-dot" /><span className="rp-dot" />
               </div>
+              {verifyTimeout && (
+                <div style={{ marginTop: '24px' }}>
+                  <p className="rp-result-desc" style={{ marginBottom: '12px' }}>Taking longer than expected? Your payment was received.</p>
+                  <a href="/orders" style={{ color: '#1a1a1a', fontWeight: 600, textDecoration: 'underline', fontSize: '14px' }}>Check Order Status →</a>
+                </div>
+              )}
             </>
           ) : (
             <>

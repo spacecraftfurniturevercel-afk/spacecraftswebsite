@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createRazorpayOrder, formatAmountToPaise } from '../../../../lib/razorpay'
-import { createSupabaseRouteHandlerClient } from '../../../../lib/supabaseClient'
+import { createSupabaseRouteHandlerClient, createSupabaseServerClient } from '../../../../lib/supabaseClient'
 
 /**
  * Create a Razorpay order for checkout or direct payment
@@ -196,13 +196,16 @@ export async function POST(request) {
         }
       )
 
-      // Update order with Razorpay order ID (non-blocking, column may not exist)
-      supabase
-        .from('orders')
-        .update({ razorpay_order_id: razorpayOrder.id })
-        .eq('id', order.id)
-        .then(() => {})
-        .catch(() => {})
+      // Update order with Razorpay order ID using admin client (RLS may block user client)
+      try {
+        const adminSupabase = createSupabaseServerClient()
+        await adminSupabase
+          .from('orders')
+          .update({ razorpay_order_id: razorpayOrder.id })
+          .eq('id', order.id)
+      } catch (e) {
+        console.warn('[create-order] Failed to save razorpay_order_id:', e.message)
+      }
 
       return NextResponse.json({
         success: true,

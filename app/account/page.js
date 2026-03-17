@@ -30,12 +30,11 @@ export default function AccountPage() {
   })
 
   useEffect(() => {
-    console.log('Account page auth state:', { user: user?.email, isAuthenticated, authLoading })
     if (!authLoading && !isAuthenticated) {
-      console.log('Not authenticated, redirecting to /login')
-      router.push('/login')
+      // Use hard redirect to avoid client-side routing issues
+      window.location.href = '/login'
     }
-  }, [authLoading, isAuthenticated, router])
+  }, [authLoading, isAuthenticated])
 
   useEffect(() => {
     if (isAuthenticated && activeTab === 'addresses') {
@@ -217,7 +216,19 @@ export default function AccountPage() {
   }
 
   if (!isAuthenticated) {
-    return null
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f5f7', fontFamily: 'Inter, system-ui, sans-serif' }}>
+        <div style={{ textAlign: 'center', maxWidth: 380, padding: 20 }}>
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="1.5" style={{ marginBottom: 16 }}>
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          <h2 style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a', margin: '0 0 8px' }}>Please Log In</h2>
+          <p style={{ color: '#888', fontSize: 14, margin: '0 0 24px' }}>You need to be logged in to view your account.</p>
+          <a href="/login" style={{ display: 'inline-block', padding: '12px 32px', background: '#1a1a1a', color: '#fff', borderRadius: 8, textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>Go to Login</a>
+        </div>
+      </div>
+    )
   }
 
   return (

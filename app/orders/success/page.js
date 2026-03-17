@@ -68,6 +68,28 @@ function OrderSuccessContent() {
           const data = await response.json()
           setOrder(data.order)
           setAddress(data.address)
+
+          // If order is still pending, try to confirm it via the verify-confirm API
+          if (data.order && (data.order.payment_status === 'pending' || data.order.status === 'pending')) {
+            console.log('[OrderSuccess] Order still pending, attempting to confirm via API')
+            try {
+              const confirmRes = await fetch('/api/razorpay/confirm-pending', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ order_id: orderId })
+              })
+              if (confirmRes.ok) {
+                const confirmData = await confirmRes.json()
+                if (confirmData.success) {
+                  console.log('[OrderSuccess] Order confirmed via fallback')
+                  setOrder(prev => ({ ...prev, status: 'confirmed', payment_status: 'completed' }))
+                }
+              }
+            } catch (e) {
+              console.warn('[OrderSuccess] Fallback confirm failed:', e)
+            }
+          }
+
           // Delay shipping order creation to ensure payment verification has updated the DB
           setTimeout(() => {
             authenticatedFetch('/api/shipping/create-order', { method: 'POST', body: JSON.stringify({ order_id: orderId }) }).catch(() => {})

@@ -1,10 +1,14 @@
 import { NextResponse } from 'next/server'
 import { verifyPaymentSignature, fetchPaymentDetails, fetchOrderDetails, razorpay } from '../../../../lib/razorpay'
-import { createSupabaseRouteHandlerClient } from '../../../../lib/supabaseClient'
+import { createSupabaseServerClient } from '../../../../lib/supabaseClient'
 
 /**
  * Verify Razorpay payment signature and confirm payment
  * POST /api/razorpay/verify-payment
+ * 
+ * Uses service-role client (adminSupabase) for all DB operations because
+ * the user's session token may expire during the Razorpay payment popup.
+ * Security is ensured by Razorpay signature verification.
  * 
  * Body:
  * - razorpay_order_id: Razorpay order ID
@@ -13,19 +17,20 @@ import { createSupabaseRouteHandlerClient } from '../../../../lib/supabaseClient
  * - order_id: Our database order ID
  */
 export async function POST(request) {
-  try {
-    const supabase = createSupabaseRouteHandlerClient(request)
-    const { data: { user } } = await supabase.auth.getUser()
+  let order_id = null
+  let razorpay_order_id = null
+  let razorpay_payment_id = null
 
-    if (!user) {
-      return NextResponse.json(
-        { error: 'You must be logged in' },
-        { status: 401 }
-      )
-    }
+  try {
+    const adminSupabase = createSupabaseServerClient()
 
     const body = await request.json()
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, order_id } = body
+    razorpay_order_id = body.razorpay_order_id
+    razorpay_payment_id = body.razorpay_payment_id
+    const razorpay_signature = body.razorpay_signature
+    order_id = body.order_id
+
+    console.log('[verify-payment] Starting verification for order:', order_id, 'payment:', razorpay_payment_id)
 
     // Validate required fields
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !order_id) {
@@ -35,7 +40,7 @@ export async function POST(request) {
       )
     }
 
-    // Verify signature
+    // Verify Razorpay signature — this proves the payment is legitimate
     const isSignatureValid = verifyPaymentSignature(
       razorpay_order_id,
       razorpay_payment_id,
@@ -43,10 +48,9 @@ export async function POST(request) {
     )
 
     if (!isSignatureValid) {
-      console.error('Invalid Razorpay signature:', { razorpay_order_id, razorpay_payment_id })
+      console.error('[verify-payment] Invalid signature:', { razorpay_order_id, razorpay_payment_id })
       
-      // Log failed verification (non-blocking)
-      supabase
+      await adminSupabase
         .from('payment_logs')
         .insert({
           order_id,
@@ -55,7 +59,6 @@ export async function POST(request) {
           status: 'signature_verification_failed',
           error_message: 'Invalid signature'
         })
-        .then(() => {})
         .catch(() => {})
 
       return NextResponse.json(
@@ -64,29 +67,44 @@ export async function POST(request) {
       )
     }
 
-    // Verify order exists and belongs to user
-    const { data: order, error: orderError } = await supabase
+    console.log('[verify-payment] Signature valid, fetching order:', order_id)
+
+    // Fetch order using admin client (bypasses RLS)
+    const { data: order, error: orderError } = await adminSupabase
       .from('orders')
       .select('*')
       .eq('id', order_id)
-      .eq('profile_id', user.id)
       .single()
 
     if (orderError || !order) {
+      console.error('[verify-payment] Order not found:', order_id, orderError)
       return NextResponse.json(
         { error: 'Order not found' },
         { status: 404 }
       )
     }
 
+    // If already confirmed, return success immediately
+    if (order.payment_status === 'completed') {
+      console.log('[verify-payment] Order already confirmed:', order_id)
+      return NextResponse.json({
+        success: true,
+        message: 'Payment already verified',
+        order_id,
+        razorpay_payment_id,
+        payment_status: 'completed'
+      }, { status: 200 })
+    }
+
     // Fetch payment details from Razorpay to verify
     let paymentDetails
     try {
       paymentDetails = await fetchPaymentDetails(razorpay_payment_id)
+      console.log('[verify-payment] Payment status from Razorpay:', paymentDetails.status)
     } catch (error) {
-      console.error('Error fetching payment details:', error)
+      console.error('[verify-payment] Error fetching payment details:', error)
       
-      supabase
+      await adminSupabase
         .from('payment_logs')
         .insert({
           order_id,
@@ -95,7 +113,6 @@ export async function POST(request) {
           status: 'payment_fetch_failed',
           error_message: error.message
         })
-        .then(() => {})
         .catch(() => {})
 
       return NextResponse.json(
@@ -106,9 +123,9 @@ export async function POST(request) {
 
     // Verify payment is captured (or authorized — we accept both)
     if (paymentDetails.status !== 'captured' && paymentDetails.status !== 'authorized') {
-      console.error('Payment not captured/authorized:', paymentDetails.status)
+      console.error('[verify-payment] Payment not captured/authorized:', paymentDetails.status)
       
-      supabase
+      await adminSupabase
         .from('payment_logs')
         .insert({
           order_id,
@@ -117,7 +134,6 @@ export async function POST(request) {
           status: 'payment_not_captured',
           error_message: `Payment status: ${paymentDetails.status}`
         })
-        .then(() => {})
         .catch(() => {})
 
       return NextResponse.json(
@@ -131,16 +147,16 @@ export async function POST(request) {
       try {
         await razorpay.payments.capture(razorpay_payment_id, paymentDetails.amount, paymentDetails.currency || 'INR')
       } catch (captureErr) {
-        console.warn('Auto-capture failed (may already be captured):', captureErr.message)
+        console.warn('[verify-payment] Auto-capture failed (may already be captured):', captureErr.message)
       }
     }
 
     // Verify amount
     const expectedAmount = Math.round(order.total * 100)
     if (paymentDetails.amount !== expectedAmount) {
-      console.error('Amount mismatch:', { expected: expectedAmount, received: paymentDetails.amount })
+      console.error('[verify-payment] Amount mismatch:', { expected: expectedAmount, received: paymentDetails.amount })
       
-      supabase
+      await adminSupabase
         .from('payment_logs')
         .insert({
           order_id,
@@ -149,7 +165,6 @@ export async function POST(request) {
           status: 'amount_mismatch',
           error_message: `Expected: ${expectedAmount}, Received: ${paymentDetails.amount}`
         })
-        .then(() => {})
         .catch(() => {})
 
       return NextResponse.json(
@@ -159,9 +174,11 @@ export async function POST(request) {
     }
 
     // Update order with payment details
-    const { error: updateError } = await supabase
+    console.log('[verify-payment] Updating order', order_id, 'to confirmed')
+    const { error: updateError } = await adminSupabase
       .from('orders')
       .update({
+        razorpay_order_id,
         razorpay_payment_id,
         razorpay_signature,
         payment_status: 'completed',
@@ -171,10 +188,9 @@ export async function POST(request) {
       .eq('id', order_id)
 
     if (updateError) {
-      console.error('Error updating order (trying minimal update):', updateError)
+      console.error('[verify-payment] Update error (trying minimal):', updateError)
       
-      // Fallback: try with fewer columns in case some don't exist yet
-      const { error: fallbackError } = await supabase
+      const { error: fallbackError } = await adminSupabase
         .from('orders')
         .update({
           status: 'confirmed',
@@ -183,47 +199,40 @@ export async function POST(request) {
         .eq('id', order_id)
 
       if (fallbackError) {
-        // Last resort: just set status
-        const { error: lastResortError } = await supabase
-          .from('orders')
-          .update({ status: 'confirmed' })
-          .eq('id', order_id)
+        console.error('[verify-payment] Minimal update also failed:', fallbackError)
 
-        if (lastResortError) {
-          console.error('All update attempts failed:', lastResortError)
+        await adminSupabase
+          .from('payment_logs')
+          .insert({
+            order_id,
+            razorpay_order_id,
+            razorpay_payment_id,
+            status: 'order_update_failed',
+            error_message: updateError.message
+          })
+          .catch(() => {})
 
-          await supabase
-            .from('payment_logs')
-            .insert({
-              order_id,
-              razorpay_order_id,
-              razorpay_payment_id,
-              status: 'order_update_failed',
-              error_message: updateError.message
-            })
-            .catch(() => {})
-
-          return NextResponse.json(
-            { error: 'Failed to confirm order' },
-            { status: 500 }
-          )
-        }
+        return NextResponse.json(
+          { error: 'Failed to confirm order' },
+          { status: 500 }
+        )
       }
     }
 
-    // Clear cart items for this user if it was a cart checkout
+    console.log('[verify-payment] Order', order_id, 'confirmed successfully')
+
+    // Clear cart items for this user
     try {
-      await supabase
+      await adminSupabase
         .from('cart_items')
         .delete()
-        .eq('profile_id', user.id)
+        .eq('profile_id', order.profile_id)
     } catch (cartError) {
-      console.error('Error clearing cart:', cartError)
-      // Don't fail the whole request just because cart clearing failed
+      console.error('[verify-payment] Error clearing cart:', cartError)
     }
 
-    // Log successful payment (non-blocking)
-    supabase
+    // Log successful payment
+    await adminSupabase
       .from('payment_logs')
       .insert({
         order_id,
@@ -236,24 +245,21 @@ export async function POST(request) {
           acquired_at: paymentDetails.acquired_at
         }
       })
-      .then(() => {})
       .catch(() => {})
 
-    // Send order confirmation emails to customer & admin (non-blocking)
+    // Send order confirmation emails (non-blocking)
     ;(async () => {
       try {
         const { sendOrderConfirmationEmails } = await import('../../../../lib/email')
 
-        // Fetch order items
-        const { data: orderItems } = await supabase
+        const { data: orderItems } = await adminSupabase
           .from('order_items')
           .select('*')
           .eq('order_id', order_id)
 
-        // Fetch address
         let address = null
         if (order.address_id) {
-          const { data: addr } = await supabase
+          const { data: addr } = await adminSupabase
             .from('addresses')
             .select('*')
             .eq('id', order.address_id)
@@ -261,23 +267,22 @@ export async function POST(request) {
           address = addr
         }
 
-        // Fetch profile
-        const { data: profile } = await supabase
+        const { data: profile } = await adminSupabase
           .from('profiles')
           .select('full_name, email, phone')
-          .eq('id', user.id)
+          .eq('id', order.profile_id)
           .single()
 
         await sendOrderConfirmationEmails({
-          order,
+          order: { ...order, payment_status: 'completed', status: 'confirmed' },
           items: orderItems || [],
           address,
           customerName: profile?.full_name || address?.full_name || 'Customer',
-          customerEmail: profile?.email || user.email,
+          customerEmail: profile?.email || '',
           customerPhone: profile?.phone || address?.phone || '',
         })
       } catch (emailErr) {
-        console.error('Order confirmation email error:', emailErr)
+        console.error('[verify-payment] Email error:', emailErr)
       }
     })()
 
@@ -290,7 +295,22 @@ export async function POST(request) {
     }, { status: 200 })
 
   } catch (error) {
-    console.error('Unexpected error in verify-payment:', error)
+    console.error('[verify-payment] Unexpected error:', error)
+
+    // Try to log the error even if everything else failed
+    try {
+      const adminSupabase = createSupabaseServerClient()
+      await adminSupabase
+        .from('payment_logs')
+        .insert({
+          order_id: order_id || 0,
+          razorpay_order_id: razorpay_order_id || '',
+          razorpay_payment_id: razorpay_payment_id || '',
+          status: 'unexpected_error',
+          error_message: error.message
+        })
+    } catch (_) {}
+
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
