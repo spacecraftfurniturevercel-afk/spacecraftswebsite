@@ -30,7 +30,8 @@ export async function POST(request) {
       address_id, 
       paymentType, payment_type,
       productId, product_id,
-      quantity = 1 
+      quantity = 1,
+      delivery_charge = 0
     } = body
 
     const resolvedPaymentType = paymentType || payment_type || 'cart'
@@ -108,9 +109,10 @@ export async function POST(request) {
       )
     }
 
-    // Add 18% GST to subtotal
+    // Add 18% GST to subtotal + delivery charges
     const gst = Math.round(subtotal * 0.18)
-    const totalAmount = subtotal + gst
+    const safeDeliveryCharge = Math.max(0, Math.round(Number(delivery_charge) || 0))
+    const totalAmount = subtotal + gst + safeDeliveryCharge
 
     if (totalAmount <= 0) {
       return NextResponse.json(
@@ -195,7 +197,8 @@ export async function POST(request) {
             order_id: String(order.id),
             user_email: profile.email,
             user_name: profile.full_name,
-            payment_type: resolvedPaymentType
+            payment_type: resolvedPaymentType,
+            delivery_charge: String(safeDeliveryCharge)
           }
         }
       )
@@ -219,7 +222,10 @@ export async function POST(request) {
         amount_paise: amountInPaise,
         currency: 'INR',
         customer_email: profile.email,
-        customer_name: profile.full_name
+        customer_name: profile.full_name,
+        delivery_charge: safeDeliveryCharge,
+        subtotal: subtotal,
+        gst: gst
       }, { status: 201 })
 
     } catch (razorpayError) {

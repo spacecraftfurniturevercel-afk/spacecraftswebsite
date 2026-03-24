@@ -75,6 +75,8 @@ export default function ProductDetailClient({
   const [buyNowAddresses, setBuyNowAddresses] = useState([])
   const [selectedAddressId, setSelectedAddressId] = useState(null)
   const [buyNowLoading, setBuyNowLoading] = useState(false)
+  const [buyNowDeliveryCharge, setBuyNowDeliveryCharge] = useState(null)
+  const [buyNowDeliveryLoading, setBuyNowDeliveryLoading] = useState(false)
 
   console.log('ProductDetailClient Debug:', { product: product.name, productId: product.id, imagesCount: images?.length, images })
 
@@ -190,6 +192,41 @@ export default function ProductDetailClient({
     }
   }
 
+  // Fetch BigShip delivery charges for Buy Now based on address pincode
+  const fetchBuyNowDeliveryCharge = async (postalCode) => {
+    if (!postalCode || postalCode.length !== 6) {
+      setBuyNowDeliveryCharge(null)
+      return
+    }
+    setBuyNowDeliveryLoading(true)
+    try {
+      const productAmount = displayPrice * quantity
+      // Send per-product shipping weight/dimensions (server falls back to defaults if null)
+      const params = new URLSearchParams({ pincode: postalCode, amount: productAmount })
+      if (product.shipping_weight) params.set('weight', product.shipping_weight)
+      if (product.shipping_length) params.set('length', product.shipping_length)
+      if (product.shipping_width) params.set('width', product.shipping_width)
+      if (product.shipping_height) params.set('height', product.shipping_height)
+      const res = await fetch(`/api/delivery-charges?${params}`)
+      const data = await res.json()
+      if (res.ok && data.success && data.available) {
+        setBuyNowDeliveryCharge({
+          charge: data.deliveryCharge,
+          courierName: data.courierName,
+          estimatedDays: data.estimatedDays,
+          freeDelivery: data.freeDelivery,
+        })
+      } else {
+        setBuyNowDeliveryCharge({ charge: 0, courierName: '', estimatedDays: 5, freeDelivery: false, unavailable: !data.available })
+      }
+    } catch (e) {
+      console.error('Failed to fetch buy now delivery charge:', e)
+      setBuyNowDeliveryCharge(null)
+    } finally {
+      setBuyNowDeliveryLoading(false)
+    }
+  }
+
   const handleBuyNow = async () => {
     if (!isAuthenticated) {
       setCartError('Please login to proceed with payment')
@@ -199,6 +236,7 @@ export default function ProductDetailClient({
 
     setBuyNowLoading(true)
     setShowBuyNowConfirm(true)
+    setBuyNowDeliveryCharge(null)
     try {
       const res = await authenticatedFetch('/api/addresses')
       if (res.ok) {
@@ -206,12 +244,28 @@ export default function ProductDetailClient({
         const addrs = data.addresses || []
         setBuyNowAddresses(addrs)
         const def = addrs.find(a => a.is_default)
-        setSelectedAddressId(def ? def.id : (addrs[0]?.id || null))
+        const selectedAddr = def || addrs[0] || null
+        setSelectedAddressId(selectedAddr ? selectedAddr.id : null)
+        // Fetch delivery charges for selected address
+        if (selectedAddr) {
+          const postalCode = selectedAddr.postal_code || selectedAddr.pincode
+          fetchBuyNowDeliveryCharge(postalCode)
+        }
       }
     } catch (e) {
       console.error('Failed to fetch addresses:', e)
     } finally {
       setBuyNowLoading(false)
+    }
+  }
+
+  // When user selects a different address in Buy Now, re-fetch delivery charges
+  const handleBuyNowAddressSelect = (addrId) => {
+    setSelectedAddressId(addrId)
+    const addr = buyNowAddresses.find(a => a.id === addrId)
+    if (addr) {
+      const postalCode = addr.postal_code || addr.pincode
+      fetchBuyNowDeliveryCharge(postalCode)
     }
   }
 
@@ -295,7 +349,7 @@ export default function ProductDetailClient({
     }, 100)
   }
 
-  // Pincode Delivery Checker
+  // Pincode Delivery Checker — now fetches BigShip delivery charges
   const checkDelivery = async (pinCode) => {
     if (!pinCode || pinCode.length !== 6) {
       alert('Please enter a valid 6-digit pincode')
@@ -305,10 +359,19 @@ export default function ProductDetailClient({
     setDeliveryChecking(true)
     
     try {
+      const productAmount = displayPrice * quantity
       const response = await fetch('/api/check-delivery', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pincode: pinCode })
+        body: JSON.stringify({
+          pincode: pinCode,
+          amount: productAmount,
+          // Per-product shipping weight/dimensions (server falls back to defaults if null)
+          weight: product.shipping_weight || null,
+          length: product.shipping_length || null,
+          width: product.shipping_width || null,
+          height: product.shipping_height || null,
+        })
       })
 
       const data = await response.json()
@@ -325,6 +388,8 @@ export default function ProductDetailClient({
           place: data.place,
           freeShipping: data.freeShipping,
           shippingCost: data.shippingCost,
+          deliveryCharge: data.deliveryCharge || 0,
+          courierName: data.courierName || '',
           deliveryDays: data.deliveryDays,
           estimatedDate: data.estimatedDate,
           city: data.city,
@@ -336,6 +401,7 @@ export default function ProductDetailClient({
         setDeliveryInfo({
           available: false,
           place: 'Delivery area not available',
+          deliveryCharge: 0,
           message: data.message || 'We don\'t deliver to this pincode yet'
         })
         setShowRequestForm(true)
@@ -824,18 +890,31 @@ export default function ProductDetailClient({
                       <span className="detail-value">{deliveryInfo.place}</span>
                     </div>
                     <div className="detail-row">
-                      <span className="detail-label">Shipping:</span>
+                      <span className="detail-label">Delivery Charges:</span>
                       <span className="detail-value">
-                        {deliveryInfo.freeShipping ? (
+                        {deliveryInfo.deliveryCharge === 0 ? (
                           <span className="free-shipping">FREE</span>
                         ) : (
-                          `₹${deliveryInfo.shippingCost}`
+                          <span style={{fontWeight: 600}}>₹{Number(deliveryInfo.deliveryCharge).toLocaleString('en-IN')}</span>
                         )}
                       </span>
                     </div>
+                    {deliveryInfo.courierName && (
+                      <div className="detail-row">
+                        <span className="detail-label">Courier:</span>
+                        <span className="detail-value">{deliveryInfo.courierName}</span>
+                      </div>
+                    )}
                     <div className="detail-row">
-                      <span className="detail-label">Delivery:</span>
+                      <span className="detail-label">Estimated Delivery:</span>
                       <span className="detail-value">{deliveryInfo.deliveryDays} days ({deliveryInfo.estimatedDate})</span>
+                    </div>
+                    <div className="detail-row" style={{marginTop: 8, paddingTop: 8, borderTop: '1px solid #e5e5e5'}}>
+                      <span className="detail-label" style={{fontWeight: 700}}>Total Payable:</span>
+                      <span className="detail-value" style={{fontWeight: 700, color: '#1a1a1a'}}>
+                        ₹{Number(Math.round(displayPrice * quantity * 1.18) + (deliveryInfo.deliveryCharge || 0)).toLocaleString('en-IN')}
+                        <span style={{fontSize: 11, fontWeight: 400, color: '#888', marginLeft: 4}}>(incl. GST + Delivery)</span>
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -3127,7 +3206,7 @@ export default function ProductDetailClient({
                       {buyNowAddresses.map(addr => (
                         <label key={addr.id} className={`bnc-addr-card ${selectedAddressId === addr.id ? 'selected' : ''}`}>
                           <div className="bnc-addr-radio">
-                            <input type="radio" name="bnc-addr" checked={selectedAddressId === addr.id} onChange={() => setSelectedAddressId(addr.id)} />
+                            <input type="radio" name="bnc-addr" checked={selectedAddressId === addr.id} onChange={() => handleBuyNowAddressSelect(addr.id)} />
                           </div>
                           <div className="bnc-addr-body">
                             <div className="bnc-addr-top">
@@ -3154,15 +3233,36 @@ export default function ProductDetailClient({
                   <h3 className="bnc-sec-title">Price Details</h3>
                   <div className="bnc-price-row"><span>Subtotal</span><span>₹{Number(displayPrice * quantity).toLocaleString('en-IN')}</span></div>
                   <div className="bnc-price-row"><span>GST (18%)</span><span>₹{Number(Math.round(displayPrice * quantity * 0.18)).toLocaleString('en-IN')}</span></div>
-                  <div className="bnc-price-row bnc-free"><span>Shipping</span><span>Free</span></div>
+                  <div className="bnc-price-row">
+                    <span>Delivery Charges</span>
+                    <span>
+                      {buyNowDeliveryLoading ? (
+                        <span style={{color: '#999', fontSize: 12}}>Calculating...</span>
+                      ) : buyNowDeliveryCharge ? (
+                        buyNowDeliveryCharge.charge === 0 ? (
+                          <span style={{color: '#16a34a', fontWeight: 600}}>FREE</span>
+                        ) : (
+                          <span>₹{Number(buyNowDeliveryCharge.charge).toLocaleString('en-IN')}</span>
+                        )
+                      ) : (
+                        <span style={{color: '#999', fontSize: 12}}>Select address</span>
+                      )}
+                    </span>
+                  </div>
+                  {buyNowDeliveryCharge?.courierName && (
+                    <div className="bnc-price-row" style={{fontSize: 11, color: '#888'}}>
+                      <span>via {buyNowDeliveryCharge.courierName}</span>
+                      <span>~{buyNowDeliveryCharge.estimatedDays} days</span>
+                    </div>
+                  )}
                   <div className="bnc-price-total">
                     <span>Total</span>
-                    <span>₹{Number(Math.round(displayPrice * quantity * 1.18)).toLocaleString('en-IN')}</span>
+                    <span>₹{Number(Math.round(displayPrice * quantity * 1.18) + (buyNowDeliveryCharge?.charge || 0)).toLocaleString('en-IN')}</span>
                   </div>
                 </div>
 
-                <button className="bnc-pay-btn" onClick={handleProceedToPayment} disabled={!selectedAddressId || buyNowAddresses.length === 0}>
-                  Proceed to Payment — ₹{Number(Math.round(displayPrice * quantity * 1.18)).toLocaleString('en-IN')}
+                <button className="bnc-pay-btn" onClick={handleProceedToPayment} disabled={!selectedAddressId || buyNowAddresses.length === 0 || buyNowDeliveryLoading}>
+                  {buyNowDeliveryLoading ? 'Calculating delivery...' : `Proceed to Payment — ₹${Number(Math.round(displayPrice * quantity * 1.18) + (buyNowDeliveryCharge?.charge || 0)).toLocaleString('en-IN')}`}
                 </button>
               </>
             )}
@@ -3224,6 +3324,7 @@ export default function ProductDetailClient({
         productId={product.id}
         quantity={quantity}
         addressId={selectedAddressId}
+        deliveryCharge={buyNowDeliveryCharge?.charge || 0}
         isOpen={isPaymentModalOpen}
         onClose={() => setIsPaymentModalOpen(false)}
         onSuccess={() => {}}

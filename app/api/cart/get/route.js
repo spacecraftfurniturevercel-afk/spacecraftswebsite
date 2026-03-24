@@ -42,7 +42,11 @@ export async function GET(request) {
           description,
           slug,
           stock,
-          category_id
+          category_id,
+          shipping_weight,
+          shipping_length,
+          shipping_width,
+          shipping_height
         )
       `)
       .eq('profile_id', profile.id)
@@ -95,13 +99,18 @@ export async function GET(request) {
         slug: item.products.slug,
         stock: item.products.stock,
         category_id: item.products.category_id,
+        shipping_weight: item.products.shipping_weight || null,
+        shipping_length: item.products.shipping_length || null,
+        shipping_width: item.products.shipping_width || null,
+        shipping_height: item.products.shipping_height || null,
         itemTotal: itemTotal,
         itemDiscount: itemDiscount
       }
     })
 
     const tax = Math.round(subtotal * 0.18 * 100) / 100 // 18% GST
-    const shipping = subtotal > 500 ? 0 : 50 // Free shipping above 500
+    // Shipping is 0 here — actual delivery charges fetched from BigShip on frontend
+    const shipping = 0
     const total = subtotal + tax + shipping
 
     return NextResponse.json({

@@ -11,6 +11,7 @@ export default function RazorpayPayment({
   quantity = 1,
   addressId = null,
   amount = 0,
+  deliveryCharge = 0,
   onSuccess = () => {},
   onFailure = () => {},
   onClose = () => {},
@@ -45,6 +46,7 @@ export default function RazorpayPayment({
         items: paymentType === 'cart' ? items : [],
         address_id: addressId,
         payment_type: paymentType,
+        delivery_charge: deliveryCharge || 0,
         ...(paymentType === 'direct' && { product_id: productId, quantity })
       }
 

@@ -34,6 +34,11 @@ export default function CartClient() {
   const [completedOrderId, setCompletedOrderId] = useState(null)
   const [step, setStep] = useState(1) // 1=cart, 2=review+pay
 
+  // Delivery charges states
+  const [deliveryCharge, setDeliveryCharge] = useState(0)
+  const [deliveryChargeLoading, setDeliveryChargeLoading] = useState(false)
+  const [deliveryChargeInfo, setDeliveryChargeInfo] = useState(null)
+
   const fetchCart = async () => {
     setLoading(true)
     setError(null)
@@ -127,17 +132,70 @@ export default function CartClient() {
   const validatePincode = async (postal_code) => {
     if (!postal_code || postal_code.length !== 6) return
     setValidatingPincode(true)
+    setDeliveryChargeLoading(true)
     try {
       const res = await fetch(`/api/validate-pincode?postal_code=${postal_code}`)
       const data = await res.json()
       if (res.ok) {
         setPincodeValidation(data)
-        if (data.available && data.deliveryInfo?.shippingCharge !== undefined) {
-          setSummary(prev => ({ ...prev, shipping: data.deliveryInfo.shippingCharge, total: prev.subtotal - prev.discount + prev.tax + data.deliveryInfo.shippingCharge }))
-        }
       }
     } catch (err) { console.error('Pincode validation error:', err) }
     finally { setValidatingPincode(false) }
+
+    // Fetch actual delivery charges from BigShip
+    try {
+      const cartTotal = items.reduce((sum, it) => {
+        const price = it.price || it.products?.discount_price || it.products?.price || 0
+        return sum + price * (it.quantity || 1)
+      }, 0)
+      // Calculate total shipping weight and max dimensions from all cart items
+      // Each item's weight is multiplied by its quantity
+      const totalWeight = items.reduce((sum, it) => {
+        const w = it.shipping_weight || 0
+        return sum + w * (it.quantity || 1)
+      }, 0)
+      // Use the largest dimension across all items (box must fit the biggest product)
+      const maxLength = Math.max(...items.map(it => it.shipping_length || 0))
+      const maxWidth = Math.max(...items.map(it => it.shipping_width || 0))
+      const maxHeight = Math.max(...items.map(it => it.shipping_height || 0))
+
+      const params = new URLSearchParams({ pincode: postal_code, amount: cartTotal })
+      if (totalWeight > 0) params.set('weight', totalWeight)
+      if (maxLength > 0) params.set('length', maxLength)
+      if (maxWidth > 0) params.set('width', maxWidth)
+      if (maxHeight > 0) params.set('height', maxHeight)
+
+      const res = await fetch(`/api/delivery-charges?${params}`)
+      const data = await res.json()
+      if (res.ok && data.success && data.available) {
+        const charge = data.deliveryCharge || 0
+        setDeliveryCharge(charge)
+        setDeliveryChargeInfo({
+          courierName: data.courierName,
+          estimatedDays: data.estimatedDays,
+          freeDelivery: data.freeDelivery,
+        })
+        setSummary(prev => ({
+          ...prev,
+          shipping: charge,
+          total: prev.subtotal - prev.discount + prev.tax + charge
+        }))
+      } else {
+        setDeliveryCharge(0)
+        setDeliveryChargeInfo(null)
+        setSummary(prev => ({
+          ...prev,
+          shipping: 0,
+          total: prev.subtotal - prev.discount + prev.tax
+        }))
+      }
+    } catch (err) {
+      console.error('Delivery charges fetch error:', err)
+      setDeliveryCharge(0)
+      setDeliveryChargeInfo(null)
+    } finally {
+      setDeliveryChargeLoading(false)
+    }
   }
 
   const handleAddressSelect = (address) => {
@@ -201,7 +259,7 @@ export default function CartClient() {
       else {
         setAppliedCoupon(data); setCouponError(null)
         const couponDiscount = (totals.subtotal * data.discount_percentage) / 100
-        setSummary(prev => ({ ...prev, discount: couponDiscount, total: prev.subtotal - couponDiscount + prev.tax + prev.shipping }))
+        setSummary(prev => ({ ...prev, discount: couponDiscount, total: prev.subtotal - couponDiscount + prev.tax + (deliveryCharge || prev.shipping) }))
       }
     } catch { setCouponError('Failed to apply coupon') }
     finally { setApplyingCoupon(false) }
@@ -209,7 +267,7 @@ export default function CartClient() {
 
   const handleRemoveCoupon = () => {
     setAppliedCoupon(null); setCouponCode(''); setCouponError(null)
-    setSummary(prev => ({ ...prev, discount: 0, total: prev.subtotal + prev.tax + prev.shipping }))
+    setSummary(prev => ({ ...prev, discount: 0, total: prev.subtotal + prev.tax + (deliveryCharge || prev.shipping) }))
   }
 
   // Proceed to checkout Step 2
@@ -230,6 +288,7 @@ export default function CartClient() {
         items: items.map(it => ({ product_id: it.product_id || it.products?.id, quantity: it.quantity || 1 })),
         address_id: selectedAddress?.id || null,
         payment_type: 'cart',
+        delivery_charge: deliveryCharge || 0,
       }
       const orderResponse = await authenticatedFetch('/api/razorpay/create-order', { method: 'POST', body: JSON.stringify(orderPayload) })
       const orderData = await orderResponse.json()
@@ -473,10 +532,14 @@ export default function CartClient() {
                       <p>{selectedAddress.address_line1}{selectedAddress.address_line2 ? `, ${selectedAddress.address_line2}` : ''}</p>
                       <p>{selectedAddress.city}, {selectedAddress.state} – {selectedAddress.postal_code}</p>
                       <p>Phone: {selectedAddress.phone}</p>
-                      {pincodeValidation?.available && pincodeValidation.deliveryInfo && (
+                      {pincodeValidation?.available && (
                         <div className="delivery-badge">
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2"><path d="M5 13l4 4L19 7"/></svg>
-                          Delivery in {pincodeValidation.deliveryInfo.deliveryDays} days
+                          {deliveryChargeInfo ? (
+                            <>Delivery in ~{deliveryChargeInfo.estimatedDays} days{deliveryChargeInfo.courierName ? ` via ${deliveryChargeInfo.courierName}` : ''}</>
+                          ) : pincodeValidation.deliveryInfo ? (
+                            <>Delivery in {pincodeValidation.deliveryInfo.deliveryDays} days</>
+                          ) : 'Delivery available'}
                         </div>
                       )}
                     </div>
@@ -517,7 +580,24 @@ export default function CartClient() {
               <div className="sum-row"><span>Subtotal ({items.length} items)</span><span>₹{totals.subtotal.toLocaleString('en-IN')}</span></div>
               {totals.discount > 0 && <div className="sum-row green"><span>Discount{appliedCoupon ? ` (${appliedCoupon.discount_percentage}%)` : ''}</span><span>−₹{totals.discount.toLocaleString('en-IN')}</span></div>}
               <div className="sum-row"><span>GST (18%)</span><span>₹{totals.tax.toLocaleString('en-IN')}</span></div>
-              <div className="sum-row"><span>Shipping</span><span>{totals.shipping === 0 ? 'Free' : `₹${totals.shipping.toLocaleString('en-IN')}`}</span></div>
+              <div className="sum-row">
+                <span>Delivery Charges</span>
+                <span>
+                  {deliveryChargeLoading ? (
+                    <span style={{color: '#999', fontSize: 12}}>Calculating...</span>
+                  ) : totals.shipping === 0 ? (
+                    selectedAddress ? <span style={{color: '#16a34a', fontWeight: 600}}>FREE</span> : <span style={{color: '#999', fontSize: 12}}>Select address</span>
+                  ) : (
+                    `₹${totals.shipping.toLocaleString('en-IN')}`
+                  )}
+                </span>
+              </div>
+              {deliveryChargeInfo?.courierName && !deliveryChargeLoading && (
+                <div className="sum-row" style={{fontSize: 11, color: '#888'}}>
+                  <span>via {deliveryChargeInfo.courierName}</span>
+                  <span>~{deliveryChargeInfo.estimatedDays} days</span>
+                </div>
+              )}
               <div className="sum-divider"></div>
               <div className="sum-total"><span>Total</span><span>₹{totals.total.toLocaleString('en-IN')}</span></div>
 

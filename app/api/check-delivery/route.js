@@ -1,9 +1,64 @@
 import { createSupabaseServerClient } from '../../../lib/supabaseClient'
 import { NextResponse } from 'next/server'
 
+const BIGSHIP_CONFIGURED = !!(
+  process.env.BIGSHIP_USER_NAME &&
+  process.env.BIGSHIP_PASSWORD &&
+  process.env.BIGSHIP_ACCESS_KEY
+)
+
+// Helper: fetch delivery charges from BigShip Calculate Rates API (POST /api/calculator)
+// Accepts per-product weight/dimensions; falls back to SHIPPING_DEFAULTS when not provided.
+async function fetchBigShipCharges(pincode, amount = 5000, { weight, length, width, height } = {}) {
+  try {
+    if (!BIGSHIP_CONFIGURED) {
+      // Return fallback estimate when BigShip is not configured
+      const charge = amount >= 50000 ? 0 : 199
+      return { available: true, deliveryCharge: charge, courierId: null, courierName: 'Standard Delivery', estimatedDays: 5 }
+    }
+
+    const { calculateRates, SHIPPING_DEFAULTS } = await import('../../../lib/bigship')
+    const pickupPincode = process.env.BIGSHIP_PICKUP_PINCODE || '400001'
+
+    const result = await calculateRates({
+      shipmentCategory: SHIPPING_DEFAULTS.SHIPMENT_CATEGORY,
+      paymentType: SHIPPING_DEFAULTS.PAYMENT_TYPE,
+      pickupPincode,
+      destinationPincode: pincode,
+      shipmentInvoiceAmount: amount,
+      boxDetails: [{
+        deadWeight: weight || SHIPPING_DEFAULTS.DEAD_WEIGHT,
+        length: length || SHIPPING_DEFAULTS.LENGTH,
+        width: width || SHIPPING_DEFAULTS.WIDTH,
+        height: height || SHIPPING_DEFAULTS.HEIGHT,
+        boxCount: SHIPPING_DEFAULTS.BOX_COUNT,
+      }],
+    })
+
+    if (result.success && result.data?.length) {
+      const cheapest = result.data.reduce((a, b) =>
+        a.total_shipping_charges < b.total_shipping_charges ? a : b
+      )
+      return {
+        available: true,
+        deliveryCharge: Math.round(cheapest.total_shipping_charges),
+        courierId: cheapest.courier_id || null,
+        courierName: cheapest.courier_name,
+        courierType: cheapest.courier_type || null,
+        estimatedDays: cheapest.tat || 5,
+      }
+    }
+
+    return { available: false, deliveryCharge: 0, courierId: null, courierName: '', estimatedDays: 5 }
+  } catch (err) {
+    console.error('BigShip rates fetch error in check-delivery:', err)
+    return { available: false, deliveryCharge: 0, courierId: null, courierName: '', estimatedDays: 5 }
+  }
+}
+
 export async function POST(request) {
   try {
-    const { pincode } = await request.json()
+    const { pincode, amount, weight, length, width, height } = await request.json()
 
     // Validate pincode
     if (!pincode || pincode.length !== 6 || !/^\d{6}$/.test(pincode)) {
@@ -13,54 +68,70 @@ export async function POST(request) {
       )
     }
 
+    // 1) Fetch delivery charges from BigShip Calculate Rates API
+    //    Per-product weight/dimensions passed from frontend; falls back to SHIPPING_DEFAULTS
+    const bigshipData = await fetchBigShipCharges(
+      pincode,
+      amount || 5000,
+      { weight, length, width, height }
+    )
+
+    // 2) Optionally look up local delivery_zones for city/state info
     const supabase = createSupabaseServerClient()
+    let deliveryZone = null
+    try {
+      const { data, error } = await supabase
+        .from('delivery_zones')
+        .select('*')
+        .eq('pincode', pincode)
+        .single()
+      if (!error) deliveryZone = data
+    } catch (_) { /* ignore — local table is optional */ }
 
-    // Check delivery availability
-    const { data: deliveryZone, error } = await supabase
-      .from('delivery_zones')
-      .select('*')
-      .eq('pincode', pincode)
-      .single()
-
-    if (error && error.code !== 'PGRST116') {
-      console.error('Database error:', error)
-      return NextResponse.json(
-        { error: 'Error checking delivery availability' },
-        { status: 500 }
-      )
+    // 3) If BigShip has no couriers available, delivery is not possible
+    if (!bigshipData.deliveryCharge && bigshipData.deliveryCharge !== 0) {
+      // fetchBigShipCharges returned no valid rate
     }
-
-    // If zone not found or not available
-    if (!deliveryZone || !deliveryZone.is_available) {
+    // If BigShip returned deliveryCharge === 0 AND courierName is empty, it means no courier found
+    if (bigshipData.courierName === '' && bigshipData.deliveryCharge === 0 && !bigshipData.available) {
       return NextResponse.json({
         available: false,
         pincode,
-        message: 'We don\'t deliver to this pincode yet, but you can request delivery!',
+        deliveryCharge: 0,
+        message: 'Delivery is not available to this pincode at the moment.',
         suggestion: 'Submit a delivery request and we\'ll notify you when service becomes available.'
       })
     }
 
-    // Calculate estimated delivery date
+    // 4) Delivery is available — build response
+    const estimatedDays = bigshipData.estimatedDays || deliveryZone?.delivery_days || 5
     const deliveryDate = new Date()
-    deliveryDate.setDate(deliveryDate.getDate() + deliveryZone.delivery_days)
+    deliveryDate.setDate(deliveryDate.getDate() + estimatedDays)
+
+    const city = deliveryZone?.city || ''
+    const state = deliveryZone?.state || ''
+    const region = deliveryZone?.region || ''
+    const place = city ? `${region ? region + ', ' : ''}${city}${state ? ', ' + state : ''}` : pincode
 
     return NextResponse.json({
       available: true,
       pincode,
-      city: deliveryZone.city,
-      state: deliveryZone.state,
-      region: deliveryZone.region,
-      shippingCost: parseFloat(deliveryZone.shipping_cost),
-      freeShipping: deliveryZone.shipping_cost === 0,
-      deliveryDays: deliveryZone.delivery_days,
+      city,
+      state,
+      region,
+      deliveryCharge: bigshipData.deliveryCharge,
+      courierName: bigshipData.courierName,
+      shippingCost: bigshipData.deliveryCharge,
+      freeShipping: bigshipData.deliveryCharge === 0,
+      deliveryDays: estimatedDays,
       estimatedDate: deliveryDate.toLocaleDateString('en-IN', {
         year: 'numeric',
         month: 'short',
         day: 'numeric'
       }),
-      codAvailable: deliveryZone.cod_available,
-      place: `${deliveryZone.region}, ${deliveryZone.city}, ${deliveryZone.state}`,
-      message: `Delivery available in ${deliveryZone.city} within ${deliveryZone.delivery_days} days`
+      codAvailable: deliveryZone?.cod_available || false,
+      place,
+      message: `Delivery available${city ? ' in ' + city : ''} within ${estimatedDays} days`
     })
   } catch (error) {
     console.error('Delivery check error:', error)
