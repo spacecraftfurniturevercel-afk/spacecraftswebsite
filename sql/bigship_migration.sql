@@ -13,6 +13,9 @@ ALTER TABLE orders ADD COLUMN IF NOT EXISTS courier_name TEXT;
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS shipping_status TEXT;
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS estimated_delivery TEXT;
 
+-- courier_id: BigShip courier ID used for manifest (needed for tracking + re-manifest)
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS courier_id TEXT;
+
 -- Ensure shipping_events table exists for logging
 CREATE TABLE IF NOT EXISTS shipping_events (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,

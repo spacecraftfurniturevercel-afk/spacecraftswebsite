@@ -231,6 +231,19 @@ export async function POST(request) {
       }
     })()
 
+    // ── Auto-create BigShip shipment (non-blocking) ──────────────────────────
+    // Full flow: Add Order → Get Rates → Manifest → Get AWB → Save to DB
+    ;(async () => {
+      try {
+        const { createShipmentForOrder } = await import('../../../../lib/createShipment')
+        const result = await createShipmentForOrder(order_id, adminSupabase)
+        console.log('[verify-payment] BigShip shipment result for order', order_id, ':', result)
+      } catch (shipErr) {
+        // Non-fatal — order is confirmed, shipment can be retried via /api/bigship/create-order
+        console.error('[verify-payment] BigShip shipment creation failed (non-fatal):', shipErr.message)
+      }
+    })()
+
     return NextResponse.json({
       success: true,
       message: 'Payment verified and confirmed successfully',
