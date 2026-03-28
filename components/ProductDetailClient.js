@@ -200,13 +200,16 @@ export default function ProductDetailClient({
     }
     setBuyNowDeliveryLoading(true)
     try {
+      // shipment_invoice_amount = product price ONLY (no GST, no shipping) as per BigShip docs
       const productAmount = displayPrice * quantity
-      // Send per-product shipping weight/dimensions (server falls back to defaults if null)
+      // box_count = boxes per unit × quantity ordered
+      const totalBoxCount = (product.shipping_box_count || 1) * Math.max(1, parseInt(quantity) || 1)
       const params = new URLSearchParams({ pincode: postalCode, amount: productAmount })
       if (product.shipping_weight) params.set('weight', product.shipping_weight)
       if (product.shipping_length) params.set('length', product.shipping_length)
       if (product.shipping_width) params.set('width', product.shipping_width)
       if (product.shipping_height) params.set('height', product.shipping_height)
+      params.set('box_count', totalBoxCount)
       const res = await fetch(`/api/delivery-charges?${params}`)
       const data = await res.json()
       if (res.ok && data.success && data.available) {
@@ -349,7 +352,8 @@ export default function ProductDetailClient({
     }, 100)
   }
 
-  // Pincode Delivery Checker — now fetches BigShip delivery charges
+  // Pincode Delivery Checker — calls api/check-delivery which internally uses BigShip POST /api/calculator
+  // shipment_invoice_amount sent to BigShip = product price ONLY (no GST, no shipping)
   const checkDelivery = async (pinCode) => {
     if (!pinCode || pinCode.length !== 6) {
       alert('Please enter a valid 6-digit pincode')
@@ -359,18 +363,22 @@ export default function ProductDetailClient({
     setDeliveryChecking(true)
     
     try {
+      // shipment_invoice_amount = product price ONLY (no GST, no shipping) as per BigShip docs
       const productAmount = displayPrice * quantity
+      // box_count = boxes per unit × quantity ordered
+      const totalBoxCount = (product.shipping_box_count || 1) * Math.max(1, parseInt(quantity) || 1)
       const response = await fetch('/api/check-delivery', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           pincode: pinCode,
           amount: productAmount,
-          // Per-product shipping weight/dimensions (server falls back to defaults if null)
+          // Per-product shipping dimensions (server falls back to defaults if null)
           weight: product.shipping_weight || null,
           length: product.shipping_length || null,
           width: product.shipping_width || null,
           height: product.shipping_height || null,
+          box_count: totalBoxCount,
         })
       })
 
@@ -394,7 +402,7 @@ export default function ProductDetailClient({
           estimatedDate: data.estimatedDate,
           city: data.city,
           state: data.state,
-          codAvailable: data.codAvailable
+          codAvailable: data.codAvailable,
         })
         setShowRequestForm(false)
       } else {
@@ -889,33 +897,37 @@ export default function ProductDetailClient({
                       <span className="detail-label">Location:</span>
                       <span className="detail-value">{deliveryInfo.place}</span>
                     </div>
-                    <div className="detail-row">
-                      <span className="detail-label">Delivery Charges:</span>
-                      <span className="detail-value">
-                        {deliveryInfo.deliveryCharge === 0 ? (
-                          <span className="free-shipping">FREE</span>
-                        ) : (
-                          <span style={{fontWeight: 600}}>₹{Number(deliveryInfo.deliveryCharge).toLocaleString('en-IN')}</span>
-                        )}
-                      </span>
-                    </div>
-                    {deliveryInfo.courierName && (
-                      <div className="detail-row">
-                        <span className="detail-label">Courier:</span>
-                        <span className="detail-value">{deliveryInfo.courierName}</span>
+
+                    {/* Price breakdown: Product + Shipping = Total */}
+                    <div className="shipping-breakdown">
+                      <div className="sb-row">
+                        <span className="sb-label">Product ({quantity} × ₹{Number(displayPrice).toLocaleString('en-IN')})</span>
+                        <span className="sb-value">₹{Number(displayPrice * quantity).toLocaleString('en-IN')}</span>
                       </div>
-                    )}
+                      <div className="sb-row">
+                        <span className="sb-label">GST (18%)</span>
+                        <span className="sb-value">₹{Number(Math.round(displayPrice * quantity * 0.18)).toLocaleString('en-IN')}</span>
+                      </div>
+                      <div className="sb-row">
+                        <span className="sb-label">Shipping</span>
+                        <span className="sb-value">
+                          {deliveryInfo.deliveryCharge === 0
+                            ? <span className="free-shipping">FREE</span>
+                            : <span>₹{Number(deliveryInfo.deliveryCharge).toLocaleString('en-IN')}</span>}
+                        </span>
+                      </div>
+                      <div className="sb-row sb-total">
+                        <span className="sb-label">Total Payable</span>
+                        <span className="sb-value">₹{Number(Math.round(displayPrice * quantity * 1.18) + (deliveryInfo.deliveryCharge || 0)).toLocaleString('en-IN')}</span>
+                      </div>
+                    </div>
+
                     <div className="detail-row">
                       <span className="detail-label">Estimated Delivery:</span>
                       <span className="detail-value">{deliveryInfo.deliveryDays} days ({deliveryInfo.estimatedDate})</span>
                     </div>
-                    <div className="detail-row" style={{marginTop: 8, paddingTop: 8, borderTop: '1px solid #e5e5e5'}}>
-                      <span className="detail-label" style={{fontWeight: 700}}>Total Payable:</span>
-                      <span className="detail-value" style={{fontWeight: 700, color: '#1a1a1a'}}>
-                        ₹{Number(Math.round(displayPrice * quantity * 1.18) + (deliveryInfo.deliveryCharge || 0)).toLocaleString('en-IN')}
-                        <span style={{fontSize: 11, fontWeight: 400, color: '#888', marginLeft: 4}}>(incl. GST + Delivery)</span>
-                      </span>
-                    </div>
+
+
                   </div>
                 </div>
               )}
@@ -2660,6 +2672,81 @@ export default function ProductDetailClient({
 
         .detail-label { color: #1a1a1a; font-weight: 600; }
         .detail-value { color: #1a1a1a; font-weight: 600; }
+
+        /* Shipping cost breakdown inside check delivery result */
+        .shipping-breakdown {
+          margin: 10px 0;
+          border: 1px solid #e8e8e8;
+          border-radius: 8px;
+          overflow: hidden;
+          background: #fafafa;
+        }
+        .sb-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 7px 12px;
+          font-size: 13px;
+          color: #555;
+          border-bottom: 1px solid #f0f0f0;
+        }
+        .sb-row:last-child { border-bottom: none; }
+        .sb-total {
+          background: #fff;
+          font-weight: 800;
+          color: #1a1a1a;
+          font-size: 14px;
+          padding: 10px 12px;
+        }
+        .sb-label { color: inherit; }
+        .sb-value { color: inherit; font-weight: 600; }
+        .sb-total .sb-value { color: #1a1a1a; }
+
+        /* Courier options list inside check delivery result */
+        .courier-options {
+          margin-top: 10px;
+        }
+        .co-title {
+          display: block;
+          font-size: 11px;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.7px;
+          color: #999;
+          margin-bottom: 6px;
+        }
+        .co-list {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+        .co-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 8px 10px;
+          border: 1px solid #e8e8e8;
+          border-radius: 6px;
+          background: #fff;
+          font-size: 13px;
+        }
+        .co-cheapest { border-color: #1a1a1a; background: #fafafa; }
+        .co-left { display: flex; flex-direction: column; gap: 2px; }
+        .co-tag {
+          display: inline-block;
+          font-size: 9px;
+          font-weight: 700;
+          color: #16a34a;
+          background: #f0fdf4;
+          padding: 1px 6px;
+          border-radius: 4px;
+          text-transform: uppercase;
+          letter-spacing: 0.3px;
+          margin-bottom: 2px;
+        }
+        .co-name { font-weight: 600; color: #1a1a1a; }
+        .co-days { font-size: 11px; color: #888; }
+        .co-price { font-weight: 700; color: #1a1a1a; white-space: nowrap; }
 
         .free-shipping {
           color: #1a1a1a;

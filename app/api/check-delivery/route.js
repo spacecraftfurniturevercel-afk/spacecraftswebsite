@@ -8,37 +8,48 @@ const BIGSHIP_CONFIGURED = !!(
 )
 
 // Helper: fetch delivery charges from BigShip Calculate Rates API (POST /api/calculator)
-// Accepts per-product weight/dimensions; falls back to SHIPPING_DEFAULTS when not provided.
-async function fetchBigShipCharges(pincode, amount = 5000, { weight, length, width, height } = {}) {
+// Accepts per-product weight/dimensions + box_count; falls back to SHIPPING_DEFAULTS when not provided.
+async function fetchBigShipCharges(pincode, amount = 5000, { weight, length, width, height, box_count } = {}) {
   try {
     if (!BIGSHIP_CONFIGURED) {
       // Return fallback estimate when BigShip is not configured
       const charge = amount >= 50000 ? 0 : 199
-      return { available: true, deliveryCharge: charge, courierId: null, courierName: 'Standard Delivery', estimatedDays: 5 }
+      return {
+        available: true,
+        deliveryCharge: charge,
+        courierId: null,
+        courierName: 'Standard Delivery',
+        estimatedDays: 5,
+      }
     }
 
     const { calculateRates, SHIPPING_DEFAULTS } = await import('../../../lib/bigship')
-    const pickupPincode = process.env.BIGSHIP_PICKUP_PINCODE || '400001'
+    const pickupPincode = process.env.BIGSHIP_PICKUP_PINCODE
+    if (!pickupPincode) {
+      console.warn('[check-delivery] BIGSHIP_PICKUP_PINCODE env var not set — using fallback 400001. Set this to your warehouse pincode.')
+    }
+    const resolvedPickupPincode = pickupPincode || '400001'
 
     const result = await calculateRates({
       shipmentCategory: SHIPPING_DEFAULTS.SHIPMENT_CATEGORY,
       paymentType: SHIPPING_DEFAULTS.PAYMENT_TYPE,
-      pickupPincode,
+      pickupPincode: resolvedPickupPincode,
       destinationPincode: pincode,
+      // shipment_invoice_amount = product price ONLY (no shipping) as per BigShip docs
       shipmentInvoiceAmount: amount,
       boxDetails: [{
         deadWeight: weight || SHIPPING_DEFAULTS.DEAD_WEIGHT,
         length: length || SHIPPING_DEFAULTS.LENGTH,
         width: width || SHIPPING_DEFAULTS.WIDTH,
         height: height || SHIPPING_DEFAULTS.HEIGHT,
-        boxCount: SHIPPING_DEFAULTS.BOX_COUNT,
+        // Use provided box_count; fall back to SHIPPING_DEFAULTS.BOX_COUNT (1)
+        boxCount: box_count || SHIPPING_DEFAULTS.BOX_COUNT,
       }],
     })
 
     if (result.success && result.data?.length) {
-      const cheapest = result.data.reduce((a, b) =>
-        a.total_shipping_charges < b.total_shipping_charges ? a : b
-      )
+      const sorted = [...result.data].sort((a, b) => a.total_shipping_charges - b.total_shipping_charges)
+      const cheapest = sorted[0]
       return {
         available: true,
         deliveryCharge: Math.round(cheapest.total_shipping_charges),
@@ -58,7 +69,7 @@ async function fetchBigShipCharges(pincode, amount = 5000, { weight, length, wid
 
 export async function POST(request) {
   try {
-    const { pincode, amount, weight, length, width, height } = await request.json()
+    const { pincode, amount, weight, length, width, height, box_count } = await request.json()
 
     // Validate pincode
     if (!pincode || pincode.length !== 6 || !/^\d{6}$/.test(pincode)) {
@@ -69,11 +80,11 @@ export async function POST(request) {
     }
 
     // 1) Fetch delivery charges from BigShip Calculate Rates API
-    //    Per-product weight/dimensions passed from frontend; falls back to SHIPPING_DEFAULTS
+    //    Per-product weight/dimensions + box_count passed from frontend; falls back to SHIPPING_DEFAULTS
     const bigshipData = await fetchBigShipCharges(
       pincode,
       amount || 5000,
-      { weight, length, width, height }
+      { weight, length, width, height, box_count }
     )
 
     // 2) Optionally look up local delivery_zones for city/state info

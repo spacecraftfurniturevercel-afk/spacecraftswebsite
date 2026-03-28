@@ -22,6 +22,7 @@ export async function GET(request) {
     const length = searchParams.get('length') ? parseInt(searchParams.get('length')) : null
     const width = searchParams.get('width') ? parseInt(searchParams.get('width')) : null
     const height = searchParams.get('height') ? parseInt(searchParams.get('height')) : null
+    const boxCount = searchParams.get('box_count') ? parseInt(searchParams.get('box_count')) : null
 
     if (!pincode || !/^\d{6}$/.test(pincode)) {
       return NextResponse.json({ error: 'Valid 6-digit pincode required' }, { status: 400 })
@@ -63,7 +64,8 @@ export async function GET(request) {
           length: length || SHIPPING_DEFAULTS.LENGTH,
           width: width || SHIPPING_DEFAULTS.WIDTH,
           height: height || SHIPPING_DEFAULTS.HEIGHT,
-          boxCount: SHIPPING_DEFAULTS.BOX_COUNT,
+          // Use provided box_count; fall back to SHIPPING_DEFAULTS.BOX_COUNT (1)
+          boxCount: boxCount || SHIPPING_DEFAULTS.BOX_COUNT,
         },
       ],
     })

@@ -46,7 +46,8 @@ export async function GET(request) {
           shipping_weight,
           shipping_length,
           shipping_width,
-          shipping_height
+          shipping_height,
+          shipping_box_count
         )
       `)
       .eq('profile_id', profile.id)
@@ -103,6 +104,7 @@ export async function GET(request) {
         shipping_length: item.products.shipping_length || null,
         shipping_width: item.products.shipping_width || null,
         shipping_height: item.products.shipping_height || null,
+        shipping_box_count: item.products.shipping_box_count || 1,
         itemTotal: itemTotal,
         itemDiscount: itemDiscount
       }

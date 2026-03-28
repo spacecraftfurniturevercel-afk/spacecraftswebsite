@@ -128,6 +128,9 @@ export async function POST(request) {
       .insert({
         profile_id: profile.id,
         address_id: address_id || null,
+        subtotal: subtotal,
+        delivery_charge: safeDeliveryCharge,
+        tax: gst,
         total: totalAmount,
         currency: 'INR',
         status: 'pending',
@@ -138,7 +141,7 @@ export async function POST(request) {
       .single()
 
     if (orderError) {
-      // Fallback: try without razorpay-specific columns
+      // Fallback: try without optional columns
       const { data: fallbackOrder, error: fallbackError } = await supabase
         .from('orders')
         .insert({

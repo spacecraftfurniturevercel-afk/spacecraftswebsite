@@ -158,12 +158,19 @@ export default function CartClient() {
       const maxLength = Math.max(...items.map(it => it.shipping_length || 0))
       const maxWidth = Math.max(...items.map(it => it.shipping_width || 0))
       const maxHeight = Math.max(...items.map(it => it.shipping_height || 0))
+      // Total box count = sum of (box_count per unit × quantity) for all items
+      const totalBoxCount = items.reduce((sum, it) => {
+        const bc = it.shipping_box_count || 1
+        return sum + bc * (it.quantity || 1)
+      }, 0)
 
+      // shipment_invoice_amount = product cost ONLY (no GST, no shipping) as per BigShip docs
       const params = new URLSearchParams({ pincode: postal_code, amount: cartTotal })
       if (totalWeight > 0) params.set('weight', totalWeight)
       if (maxLength > 0) params.set('length', maxLength)
       if (maxWidth > 0) params.set('width', maxWidth)
       if (maxHeight > 0) params.set('height', maxHeight)
+      if (totalBoxCount > 0) params.set('box_count', totalBoxCount)
 
       const res = await fetch(`/api/delivery-charges?${params}`)
       const data = await res.json()
