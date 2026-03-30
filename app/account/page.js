@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../providers/AuthProvider'
 import { useRouter } from 'next/navigation'
 import { authenticatedFetch } from '../../lib/authenticatedFetch'
+import { supabase } from '../../lib/supabaseClient'
 
 export default function AccountPage() {
   const { user, profile, isAuthenticated, loading: authLoading } = useAuth()
@@ -16,6 +17,7 @@ export default function AccountPage() {
   const [showAddressForm, setShowAddressForm] = useState(false)
   const [editingAddress, setEditingAddress] = useState(null)
   const [toast, setToast] = useState(null)
+  const [authTimeout, setAuthTimeout] = useState(false)
   
   const [formData, setFormData] = useState({
     label: '',
@@ -31,10 +33,23 @@ export default function AccountPage() {
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
-      // Use hard redirect to avoid client-side routing issues
-      window.location.href = '/login'
+      // Clear stale auth cookies to prevent redirect loop with middleware
+      // (middleware sees cookie → allows /account, but session is expired → redirect to /login → loop)
+      if (supabase) {
+        supabase.auth.signOut().catch(() => {})
+      }
     }
   }, [authLoading, isAuthenticated])
+
+  // Safety timeout: if auth loading takes too long, stop waiting
+  useEffect(() => {
+    if (!authLoading) return
+    const timer = setTimeout(() => {
+      setAuthTimeout(true)
+      if (supabase) supabase.auth.signOut().catch(() => {})
+    }, 8000)
+    return () => clearTimeout(timer)
+  }, [authLoading])
 
   useEffect(() => {
     if (isAuthenticated && activeTab === 'addresses') {
@@ -180,7 +195,7 @@ export default function AccountPage() {
     setShowAddressForm(false)
   }
 
-  if (authLoading) {
+  if (authLoading && !authTimeout) {
     return (
       <div className="loading-container">
         <div className="spinner"></div>

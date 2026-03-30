@@ -16,6 +16,9 @@ export default function CheckoutPage() {
   const [orderSummary, setOrderSummary] = useState(null)
   const [error, setError] = useState(null)
   const [user, setUser] = useState(null)
+  const [deliveryCharge, setDeliveryCharge] = useState(0)
+  const [deliveryLoading, setDeliveryLoading] = useState(false)
+  const [deliveryInfo, setDeliveryInfo] = useState(null)
 
   // Fetch cart items and addresses
   useEffect(() => {
@@ -70,6 +73,58 @@ export default function CheckoutPage() {
 
     fetchCheckoutData()
   }, [router])
+
+  // Calculate delivery charges when address changes
+  const fetchDeliveryCharges = async (postalCode, items) => {
+    if (!postalCode || !items?.length) return
+    setDeliveryLoading(true)
+    try {
+      const cartTotal = items.reduce((sum, it) => sum + (it.price || 0) * (it.quantity || 1), 0)
+      const totalWeight = items.reduce((sum, it) => sum + (it.shipping_weight || 0) * (it.quantity || 1), 0)
+      const maxLength = Math.max(...items.map(it => it.shipping_length || 0))
+      const maxWidth = Math.max(...items.map(it => it.shipping_width || 0))
+      const maxHeight = Math.max(...items.map(it => it.shipping_height || 0))
+      const totalBoxCount = items.reduce((sum, it) => sum + (it.shipping_box_count || 1) * (it.quantity || 1), 0)
+
+      const params = new URLSearchParams({ pincode: postalCode, amount: cartTotal })
+      if (totalWeight > 0) params.set('weight', totalWeight)
+      if (maxLength > 0) params.set('length', maxLength)
+      if (maxWidth > 0) params.set('width', maxWidth)
+      if (maxHeight > 0) params.set('height', maxHeight)
+      if (totalBoxCount > 0) params.set('box_count', totalBoxCount)
+
+      const res = await fetch(`/api/delivery-charges?${params}`)
+      const data = await res.json()
+      if (res.ok && data.success && data.available) {
+        const charge = data.deliveryCharge || 0
+        setDeliveryCharge(charge)
+        setDeliveryInfo({ courierName: data.courierName, estimatedDays: data.estimatedDays })
+        setOrderSummary(prev => prev ? {
+          ...prev,
+          shipping: charge,
+          total: prev.subtotal + prev.tax + charge
+        } : prev)
+      } else {
+        setDeliveryCharge(0)
+        setDeliveryInfo(null)
+      }
+    } catch (err) {
+      console.error('Checkout delivery charge error:', err)
+      setDeliveryCharge(0)
+      setDeliveryInfo(null)
+    } finally {
+      setDeliveryLoading(false)
+    }
+  }
+
+  // Re-fetch delivery charges when selected address changes
+  useEffect(() => {
+    if (!selectedAddress || !cartItems.length) return
+    const addr = addresses.find(a => a.id === selectedAddress)
+    if (addr) {
+      fetchDeliveryCharges(addr.postal_code || addr.pincode, cartItems)
+    }
+  }, [selectedAddress, addresses, cartItems])
 
   const handleProceedToPayment = () => {
     if (!selectedAddress) {
@@ -159,7 +214,10 @@ export default function CheckoutPage() {
                       name="address"
                       value={address.id}
                       checked={selectedAddress === address.id}
-                      onChange={(e) => setSelectedAddress(Number(e.target.value))}
+                      onChange={(e) => {
+                        const addrId = isNaN(e.target.value) ? e.target.value : Number(e.target.value)
+                        setSelectedAddress(addrId)
+                      }}
                     />
                     <div className="address-content">
                       <h4>{address.label}</h4>
@@ -192,8 +250,18 @@ export default function CheckoutPage() {
 
             <div className="summary-row">
               <span>Shipping:</span>
-              <span>{orderSummary?.shipping === 0 ? 'FREE' : `₹${orderSummary?.shipping}`}</span>
+              <span>
+                {deliveryLoading ? 'Calculating...' :
+                 orderSummary?.shipping === 0 ? 'FREE' :
+                 `₹${orderSummary?.shipping?.toFixed(2)}`}
+              </span>
             </div>
+            {deliveryInfo && (
+              <div className="summary-row" style={{ fontSize: 12, color: '#888' }}>
+                <span>{deliveryInfo.courierName}</span>
+                <span>~{deliveryInfo.estimatedDays} days</span>
+              </div>
+            )}
 
             <div className="summary-row">
               <span>Tax:</span>
@@ -261,6 +329,7 @@ export default function CheckoutPage() {
         paymentType="cart"
         addressId={selectedAddress}
         amount={orderSummary?.total || 0}
+        deliveryCharge={deliveryCharge}
         isOpen={isPaymentModalOpen}
         onClose={() => setIsPaymentModalOpen(false)}
         onSuccess={(data) => {

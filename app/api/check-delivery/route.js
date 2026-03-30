@@ -70,6 +70,7 @@ async function fetchBigShipCharges(pincode, amount = 5000, { weight, length, wid
 export async function POST(request) {
   try {
     const { pincode, amount, weight, length, width, height, box_count } = await request.json()
+    console.warn('[check-delivery] Received:', { pincode, amount, weight, length, width, height, box_count })
 
     // Validate pincode
     if (!pincode || pincode.length !== 6 || !/^\d{6}$/.test(pincode)) {

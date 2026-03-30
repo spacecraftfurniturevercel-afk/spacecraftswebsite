@@ -79,6 +79,14 @@ export default function ProductDetailClient({
   const [buyNowDeliveryLoading, setBuyNowDeliveryLoading] = useState(false)
 
   console.log('ProductDetailClient Debug:', { product: product.name, productId: product.id, imagesCount: images?.length, images })
+  // Shipping dimensions debug — uses console.warn so it persists in production builds
+  console.warn('[ProductDetail] Shipping fields for', product.name, ':', {
+    shipping_weight: product.shipping_weight,
+    shipping_length: product.shipping_length,
+    shipping_width: product.shipping_width,
+    shipping_height: product.shipping_height,
+    shipping_box_count: product.shipping_box_count,
+  })
 
   const displayPrice = product.discount_price || product.price
   const discountPercentage = product.discount_price 
@@ -210,6 +218,7 @@ export default function ProductDetailClient({
       if (product.shipping_width) params.set('width', product.shipping_width)
       if (product.shipping_height) params.set('height', product.shipping_height)
       params.set('box_count', totalBoxCount)
+      console.warn('[BuyNow] Delivery charge params:', Object.fromEntries(params))
       const res = await fetch(`/api/delivery-charges?${params}`)
       const data = await res.json()
       if (res.ok && data.success && data.available) {
@@ -367,19 +376,20 @@ export default function ProductDetailClient({
       const productAmount = displayPrice * quantity
       // box_count = boxes per unit × quantity ordered
       const totalBoxCount = (product.shipping_box_count || 1) * Math.max(1, parseInt(quantity) || 1)
-      const response = await fetch('/api/check-delivery', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      const deliveryPayload = {
           pincode: pinCode,
           amount: productAmount,
-          // Per-product shipping dimensions (server falls back to defaults if null)
           weight: product.shipping_weight || null,
           length: product.shipping_length || null,
           width: product.shipping_width || null,
           height: product.shipping_height || null,
           box_count: totalBoxCount,
-        })
+        }
+      console.warn('[CheckDelivery] Sending payload:', deliveryPayload)
+      const response = await fetch('/api/check-delivery', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(deliveryPayload)
       })
 
       const data = await response.json()
@@ -542,6 +552,7 @@ export default function ProductDetailClient({
                   alt={product.name}
                   width={800}
                   height={800}
+                  unoptimized
                   style={{ 
                     objectFit: 'cover', 
                     width: '100%', 
@@ -626,6 +637,7 @@ export default function ProductDetailClient({
                       alt={img.alt || `${product.name} view ${index + 1}`}
                       width={80}
                       height={80}
+                      unoptimized
                       style={{ objectFit: 'cover' }}
                       onError={() => setImageError(true)}
                     />
@@ -1460,6 +1472,7 @@ export default function ProductDetailClient({
                       alt={`Thumb ${idx + 1}`}
                       width={60}
                       height={60}
+                      unoptimized
                       style={{ objectFit: 'cover' }}
                     />
                   </button>
