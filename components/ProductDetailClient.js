@@ -77,6 +77,13 @@ export default function ProductDetailClient({
   const [buyNowLoading, setBuyNowLoading] = useState(false)
   const [buyNowDeliveryCharge, setBuyNowDeliveryCharge] = useState(null)
   const [buyNowDeliveryLoading, setBuyNowDeliveryLoading] = useState(false)
+  const [showEnquiryModal, setShowEnquiryModal] = useState(false)
+  const [enquiryForm, setEnquiryForm] = useState({ name: '', email: '', phone: '', message: '' })
+  const [enquirySending, setEnquirySending] = useState(false)
+  const [enquiryResult, setEnquiryResult] = useState(null)
+
+  // Product is buyable online only when shipping dimensions are set
+  const canBuyOnline = !!(product.shipping_length && product.shipping_width && product.shipping_height)
 
   console.log('ProductDetailClient Debug:', { product: product.name, productId: product.id, imagesCount: images?.length, images })
   // Shipping dimensions debug — uses console.warn so it persists in production builds
@@ -1118,47 +1125,59 @@ export default function ProductDetailClient({
 
             {/* Action Buttons */}
             <div className="action-buttons">
-              {product.stock > 0 ? (
-                <>
-                  <button 
-                    className="btn-primary btn-large" 
-                    onClick={handleBuyNow}
-                    disabled={cartLoading}
-                  >
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
-                      <line x1="3" y1="6" x2="21" y2="6"/>
-                      <path d="M16 10a4 4 0 01-8 0"/>
-                    </svg>
-                    Buy Now
+              {canBuyOnline ? (
+                product.stock > 0 ? (
+                  <>
+                    <button 
+                      className="btn-primary btn-large" 
+                      onClick={handleBuyNow}
+                      disabled={cartLoading}
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+                        <line x1="3" y1="6" x2="21" y2="6"/>
+                        <path d="M16 10a4 4 0 01-8 0"/>
+                      </svg>
+                      Buy Now
+                    </button>
+                    <button 
+                      className="btn-secondary btn-large" 
+                      onClick={handleAddToCart}
+                      disabled={cartLoading || quantity < 1}
+                    >
+                      {cartLoading ? (
+                        <>
+                          <svg className="spinner" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <circle cx="12" cy="12" r="10" opacity="0.3"/>
+                            <path d="M12 2C6.48 2 2 6.48 2 12" strokeLinecap="round"/>
+                          </svg>
+                          Adding...
+                        </>
+                      ) : (
+                        <>
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                            <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/>
+                          </svg>
+                          Add to Cart
+                        </>
+                      )}
+                    </button>
+                  </>
+                ) : (
+                  <button className="btn-disabled btn-large" disabled>
+                    Out of Stock
                   </button>
-                  <button 
-                    className="btn-secondary btn-large" 
-                    onClick={handleAddToCart}
-                    disabled={cartLoading || quantity < 1}
-                  >
-                    {cartLoading ? (
-                      <>
-                        <svg className="spinner" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <circle cx="12" cy="12" r="10" opacity="0.3"/>
-                          <path d="M12 2C6.48 2 2 6.48 2 12" strokeLinecap="round"/>
-                        </svg>
-                        Adding...
-                      </>
-                    ) : (
-                      <>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
-                          <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/>
-                        </svg>
-                        Add to Cart
-                      </>
-                    )}
-                  </button>
-                </>
+                )
               ) : (
-                <button className="btn-disabled btn-large" disabled>
-                  Out of Stock
+                <button
+                  className="btn-enquiry btn-large"
+                  onClick={() => { setEnquiryResult(null); setShowEnquiryModal(true) }}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+                  </svg>
+                  Send Enquiry
                 </button>
               )}
               <button 
@@ -2004,6 +2023,17 @@ export default function ProductDetailClient({
         @keyframes spin {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
+        }
+
+        .btn-enquiry {
+          background: linear-gradient(135deg, #1a1a1a 0%, #333 100%) !important;
+          color: #fff !important;
+          border: none !important;
+          flex: 1 1 100%;
+        }
+
+        .btn-enquiry:hover {
+          background: linear-gradient(135deg, #333 0%, #444 100%) !important;
         }
 
         .btn-wishlist {
@@ -3430,6 +3460,142 @@ export default function ProductDetailClient({
         onSuccess={() => {}}
         onFailure={() => {}}
       />
+
+      {/* Enquiry Modal */}
+      {showEnquiryModal && (
+        <div className="enq-overlay" onClick={() => setShowEnquiryModal(false)}>
+          <div className="enq-panel" onClick={e => e.stopPropagation()}>
+            <div className="enq-header">
+              <div>
+                <h2>Send Enquiry</h2>
+                <p className="enq-subtitle">We'll get back to you within 24 hours</p>
+              </div>
+              <button className="enq-close" onClick={() => setShowEnquiryModal(false)}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
+
+            {enquiryResult?.success ? (
+              <div className="enq-success">
+                <div className="enq-success-icon">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
+                </div>
+                <h3>Enquiry Sent!</h3>
+                <p>Thank you for your interest in <strong>{product.name}</strong>. Our team will reach out to you soon.</p>
+                <button className="enq-done-btn" onClick={() => setShowEnquiryModal(false)}>Done</button>
+              </div>
+            ) : (
+              <>
+                {/* Product Preview */}
+                <div className="enq-product">
+                  <div className="enq-prod-img">
+                    <img src={mainImage} alt={product.name} onError={e => { e.target.src = '/placeholder-product.svg' }} />
+                  </div>
+                  <div className="enq-prod-info">
+                    <span className="enq-prod-name">{product.name}</span>
+                    <span className="enq-prod-price">₹{Number(displayPrice).toLocaleString('en-IN')}</span>
+                  </div>
+                </div>
+
+                <form className="enq-form" onSubmit={async (e) => {
+                  e.preventDefault()
+                  setEnquirySending(true)
+                  setEnquiryResult(null)
+                  try {
+                    const res = await fetch('/api/enquiry', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        ...enquiryForm,
+                        productId: product.id,
+                        productName: product.name,
+                        productSlug: product.slug,
+                        productPrice: displayPrice,
+                      }),
+                    })
+                    const data = await res.json()
+                    if (res.ok) {
+                      setEnquiryResult({ success: true })
+                      setEnquiryForm({ name: '', email: '', phone: '', message: '' })
+                    } else {
+                      setEnquiryResult({ error: data.error || 'Something went wrong' })
+                    }
+                  } catch {
+                    setEnquiryResult({ error: 'Network error. Please try again.' })
+                  } finally {
+                    setEnquirySending(false)
+                  }
+                }}>
+                  <div className="enq-field">
+                    <label>Name <span className="enq-req">*</span></label>
+                    <input type="text" placeholder="Your full name" required value={enquiryForm.name} onChange={e => setEnquiryForm(f => ({ ...f, name: e.target.value }))} />
+                  </div>
+                  <div className="enq-field">
+                    <label>Email <span className="enq-req">*</span></label>
+                    <input type="email" placeholder="your@email.com" required value={enquiryForm.email} onChange={e => setEnquiryForm(f => ({ ...f, email: e.target.value }))} />
+                  </div>
+                  <div className="enq-field">
+                    <label>Phone</label>
+                    <input type="tel" placeholder="+91 XXXXX XXXXX" value={enquiryForm.phone} onChange={e => setEnquiryForm(f => ({ ...f, phone: e.target.value }))} />
+                  </div>
+                  <div className="enq-field">
+                    <label>Message <span className="enq-req">*</span></label>
+                    <textarea placeholder="Tell us about your requirements, preferred delivery date, customisation needs..." required rows={4} value={enquiryForm.message} onChange={e => setEnquiryForm(f => ({ ...f, message: e.target.value }))} />
+                  </div>
+                  {enquiryResult?.error && (
+                    <div className="enq-error">{enquiryResult.error}</div>
+                  )}
+                  <button type="submit" className="enq-submit-btn" disabled={enquirySending}>
+                    {enquirySending ? (
+                      <><span className="enq-btn-spin" /> Sending...</>
+                    ) : (
+                      <><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Send Enquiry</>
+                    )}
+                  </button>
+                </form>
+              </>
+            )}
+
+            <style>{`
+              .enq-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.55); z-index: 9999; display: flex; align-items: flex-end; justify-content: center; font-family: Inter, system-ui, sans-serif; }
+              @media (min-width: 640px) { .enq-overlay { align-items: center; } }
+              .enq-panel { background: #fff; width: 100%; max-width: 460px; max-height: 92vh; overflow-y: auto; border-radius: 20px 20px 0 0; animation: enqSlide 0.3s ease; }
+              @media (min-width: 640px) { .enq-panel { border-radius: 16px; } }
+              @keyframes enqSlide { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+              .enq-header { display: flex; align-items: flex-start; justify-content: space-between; padding: 22px 24px 16px; border-bottom: 1px solid #f0f0f0; }
+              .enq-header h2 { font-size: 18px; font-weight: 800; color: #1a1a1a; margin: 0; }
+              .enq-subtitle { font-size: 13px; color: #888; margin: 4px 0 0; }
+              .enq-close { background: #f5f5f5; border: none; padding: 6px; cursor: pointer; color: #666; border-radius: 50%; transition: background 0.15s; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 12px; }
+              .enq-close:hover { background: #e8e8e8; }
+              .enq-product { display: flex; align-items: center; gap: 14px; padding: 18px 24px; border-bottom: 1px solid #f0f0f0; background: #fafafa; }
+              .enq-prod-img { width: 56px; height: 56px; border-radius: 10px; overflow: hidden; background: #f0f0f0; flex-shrink: 0; border: 1px solid #eee; }
+              .enq-prod-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+              .enq-prod-info { flex: 1; min-width: 0; }
+              .enq-prod-name { display: block; font-size: 14px; font-weight: 600; color: #1a1a1a; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+              .enq-prod-price { display: block; font-size: 15px; font-weight: 700; color: #1a1a1a; margin-top: 4px; }
+              .enq-form { padding: 20px 24px 24px; display: flex; flex-direction: column; gap: 14px; }
+              .enq-field label { display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.4px; }
+              .enq-req { color: #e74c3c; }
+              .enq-field input, .enq-field textarea { width: 100%; padding: 11px 14px; border: 1.5px solid #e0e0e0; border-radius: 10px; font-size: 14px; font-family: inherit; color: #1a1a1a; transition: border-color 0.2s; background: #fff; box-sizing: border-box; resize: vertical; }
+              .enq-field input:focus, .enq-field textarea:focus { outline: none; border-color: #1a1a1a; box-shadow: 0 0 0 3px rgba(26,26,26,0.06); }
+              .enq-field input::placeholder, .enq-field textarea::placeholder { color: #bbb; }
+              .enq-error { background: #fef2f2; color: #dc2626; padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; }
+              .enq-submit-btn { width: 100%; padding: 14px; background: #1a1a1a; color: #fff; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.15s; margin-top: 4px; }
+              .enq-submit-btn:hover { background: #333; }
+              .enq-submit-btn:disabled { background: #999; cursor: not-allowed; }
+              .enq-btn-spin { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: enqSpinAnim 0.7s linear infinite; }
+              @keyframes enqSpinAnim { to { transform: rotate(360deg); } }
+              .enq-success { text-align: center; padding: 40px 24px 32px; }
+              .enq-success-icon { margin-bottom: 16px; }
+              .enq-success h3 { font-size: 20px; font-weight: 800; color: #1a1a1a; margin: 0 0 8px; }
+              .enq-success p { font-size: 14px; color: #666; line-height: 1.5; margin: 0 0 24px; }
+              .enq-success strong { color: #1a1a1a; }
+              .enq-done-btn { padding: 12px 36px; background: #1a1a1a; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; transition: background 0.15s; }
+              .enq-done-btn:hover { background: #333; }
+            `}</style>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
