@@ -22,6 +22,7 @@ export default function ProductCard({ product }) {
 
   const finalPrice = product.discount_price || product.price
   const imageUrl = product.images?.[0] || product.coverImage || '/placeholder-product.jpg'
+  const canBuyOnline = !!(product.shipping_length && product.shipping_width && product.shipping_height)
 
   return (
     <motion.article
@@ -340,7 +341,8 @@ export default function ProductCard({ product }) {
             </div>
           )}
 
-          {/* Add to Cart — luxury pill button */}
+          {/* Action Button */}
+          {canBuyOnline ? (
           <button
             style={{
               width: '100%',
@@ -383,6 +385,32 @@ export default function ProductCard({ product }) {
           >
             {cartLoading ? 'Adding...' : product.stock === 0 ? 'Sold Out' : 'Add to Cart'}
           </button>
+          ) : (
+          <button
+            style={{
+              width: '100%',
+              padding: '11px 20px',
+              backgroundColor: '#1a1a1a',
+              color: '#fff',
+              border: '1.5px solid #1a1a1a',
+              borderRadius: '50px',
+              fontSize: '12px',
+              fontWeight: '700',
+              fontFamily: 'Inter, sans-serif',
+              cursor: 'pointer',
+              transition: 'all 0.4s cubic-bezier(0.25,0.46,0.45,0.94)',
+              textTransform: 'uppercase',
+              letterSpacing: '1.2px',
+            }}
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              router.push(`/products/${product.slug}?enquiry=open`)
+            }}
+          >
+            Send Enquiry
+          </button>
+          )}
         </div>
       </Link>
 

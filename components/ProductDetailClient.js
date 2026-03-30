@@ -85,6 +85,16 @@ export default function ProductDetailClient({
   // Product is buyable online only when shipping dimensions are set
   const canBuyOnline = !!(product.shipping_length && product.shipping_width && product.shipping_height)
 
+  // Auto-open enquiry modal if URL contains ?enquiry=open (e.g. navigated from ProductCard)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      if (params.get('enquiry') === 'open') {
+        setShowEnquiryModal(true)
+      }
+    }
+  }, [])
+
   console.log('ProductDetailClient Debug:', { product: product.name, productId: product.id, imagesCount: images?.length, images })
   // Shipping dimensions debug — uses console.warn so it persists in production builds
   console.warn('[ProductDetail] Shipping fields for', product.name, ':', {
@@ -873,6 +883,7 @@ export default function ProductDetailClient({
             )}
 
             {/* Delivery Checker Section */}
+            {canBuyOnline && (
             <div className="delivery-checker-section">
               <h4>Check Delivery Availability</h4>
               
@@ -1028,6 +1039,7 @@ export default function ProductDetailClient({
                 </div>
               )}
             </div>
+            )}
 
             {/* Quantity Selector */}
             {product.stock > 0 && (
@@ -3499,6 +3511,10 @@ export default function ProductDetailClient({
 
                 <form className="enq-form" onSubmit={async (e) => {
                   e.preventDefault()
+                  if (!enquiryForm.email && !enquiryForm.phone) {
+                    setEnquiryResult({ error: 'Please provide at least your email or phone number' })
+                    return
+                  }
                   setEnquirySending(true)
                   setEnquiryResult(null)
                   try {
@@ -3531,11 +3547,11 @@ export default function ProductDetailClient({
                     <input type="text" placeholder="Your full name" required value={enquiryForm.name} onChange={e => setEnquiryForm(f => ({ ...f, name: e.target.value }))} />
                   </div>
                   <div className="enq-field">
-                    <label>Email <span className="enq-req">*</span></label>
-                    <input type="email" placeholder="your@email.com" required value={enquiryForm.email} onChange={e => setEnquiryForm(f => ({ ...f, email: e.target.value }))} />
+                    <label>Email</label>
+                    <input type="email" placeholder="your@email.com" value={enquiryForm.email} onChange={e => setEnquiryForm(f => ({ ...f, email: e.target.value }))} />
                   </div>
                   <div className="enq-field">
-                    <label>Phone</label>
+                    <label>Phone <span style={{fontSize:'11px',color:'#888',fontWeight:400}}>(email or phone required)</span></label>
                     <input type="tel" placeholder="+91 XXXXX XXXXX" value={enquiryForm.phone} onChange={e => setEnquiryForm(f => ({ ...f, phone: e.target.value }))} />
                   </div>
                   <div className="enq-field">

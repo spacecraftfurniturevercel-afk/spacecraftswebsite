@@ -22,12 +22,12 @@ export async function POST(request) {
   try {
     const { name, email, phone, message, productId, productName, productSlug, productPrice } = await request.json()
 
-    if (!name || !email || !message) {
-      return NextResponse.json({ error: 'Name, email and message are required' }, { status: 400 })
+    if (!name || (!email && !phone) || !message) {
+      return NextResponse.json({ error: 'Name, message, and at least one of email or phone are required' }, { status: 400 })
     }
 
-    // Basic email format check
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    // Basic email format check (only when email is provided)
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json({ error: 'Invalid email address' }, { status: 400 })
     }
 
@@ -94,7 +94,7 @@ export async function POST(request) {
     await getTransporter().sendMail({
       from: `"${SITE_NAME}" <${EMAIL_FROM}>`,
       to: ADMIN_EMAIL,
-      replyTo: email,
+      replyTo: email || undefined,
       subject: `Product Enquiry: ${productName || 'General'} — ${name}`,
       html,
       text: `New enquiry from ${name} (${email}${phone ? ', ' + phone : ''}) about ${productName || 'a product'}:\n\n${message}`,
