@@ -292,7 +292,7 @@ export default function OrderDetailPage() {
               <div className="odp-price-row"><span>Subtotal</span><span>₹{subtotal.toLocaleString('en-IN')}</span></div>
               {order.shipping_cost > 0 && <div className="odp-price-row"><span>Shipping</span><span>₹{Number(order.shipping_cost).toLocaleString('en-IN')}</span></div>}
               {!order.shipping_cost && <div className="odp-price-row odp-price-free"><span>Shipping</span><span>Free</span></div>}
-              {order.tax > 0 && <div className="odp-price-row"><span>Tax (GST)</span><span>₹{Number(order.tax).toLocaleString('en-IN')}</span></div>}
+
               {order.discount > 0 && <div className="odp-price-row odp-price-discount"><span>Discount</span><span>-₹{Number(order.discount).toLocaleString('en-IN')}</span></div>}
               <div className="odp-price-total"><span>Total Amount</span><span>₹{total.toLocaleString('en-IN')}</span></div>
             </div>

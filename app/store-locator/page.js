@@ -24,9 +24,8 @@ export default function StoreLocator() {
     email: 'support@spacecraftsfurniture.in',
     gst: '33AASFH4116N1Z2',
     hours: {
-      weekday: '10:00 AM - 8:00 PM',
-      saturday: '10:00 AM - 8:00 PM',
-      sunday: '11:00 AM - 6:00 PM'
+      weekday: '10:00 AM - 9:30 PM',
+      weekend: '10:00 AM - 10:00 PM',
     },
     facilities: [
       { icon: '📐', label: '8,000 sq. ft. Modern Facility' },
@@ -84,15 +83,14 @@ export default function StoreLocator() {
               <h3>Contact Info</h3>
               <p><strong>Phone:</strong> <a href={`tel:${storeDetails.phone.replace(/\s/g, '')}`}>{storeDetails.phone}</a></p>
               <p><strong>Email:</strong> <a href={`mailto:${storeDetails.email}`}>{storeDetails.email}</a></p>
-              <p><strong>GST:</strong> {storeDetails.gst}</p>
             </div>
 
             <div className={styles.detailCard}>
               <div className={styles.cardIcon}>⏰</div>
               <h3>Store Hours</h3>
-              <p><strong>Mon-Sat:</strong> {storeDetails.hours.weekday}</p>
-              <p><strong>Sunday:</strong> {storeDetails.hours.sunday}</p>
-              <p style={{ fontSize: '12px', marginTop: '10px', color: '#666' }}>*Open on all holidays except national holidays</p>
+              <p><strong>Mon - Fri:</strong> {storeDetails.hours.weekday}</p>
+              <p><strong>Saturday - Sunday:</strong> {storeDetails.hours.weekend}</p>
+              <p style={{ fontSize: '12px', marginTop: '10px', color: '#666' }}>*Open on all holidays</p>
             </div>
           </div>
         </section>

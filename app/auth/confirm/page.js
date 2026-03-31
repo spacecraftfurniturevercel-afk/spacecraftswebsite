@@ -10,27 +10,46 @@ function ConfirmContent() {
 
   useEffect(() => {
     const next = searchParams.get('next') || '/account'
+    let resolved = false
 
-    // Wait for the client-side Supabase to detect the session from cookies
-    // then hard-navigate so AuthProvider picks it up on mount
-    const syncAndRedirect = async () => {
-      try {
-        if (supabase) {
-          // Force the browser client to read cookies and detect the session (with timeout)
-          await Promise.race([
-            supabase.auth.getSession(),
-            new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000))
-          ])
-        }
-      } catch (e) {
-        // ignore — redirect will still work, AuthProvider will pick up session on next page
-      }
+    const resolve = () => {
+      if (resolved) return
+      resolved = true
       window.location.href = next
     }
 
-    const timer = setTimeout(syncAndRedirect, 150)
-    return () => clearTimeout(timer)
-  }, [searchParams, router])
+    if (!supabase) {
+      setTimeout(resolve, 200)
+      return
+    }
+
+    // Listen for SIGNED_IN event — most reliable indicator after OAuth
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session) {
+        subscription.unsubscribe()
+        resolve()
+      }
+    })
+
+    // Also check immediately in case session is already in cookies
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        subscription.unsubscribe()
+        resolve()
+      }
+    }).catch(() => {})
+
+    // Fallback: navigate after 4 seconds regardless
+    const fallback = setTimeout(() => {
+      subscription?.unsubscribe()
+      resolve()
+    }, 4000)
+
+    return () => {
+      clearTimeout(fallback)
+      subscription?.unsubscribe()
+    }
+  }, [searchParams])
 
   return (
     <div style={{

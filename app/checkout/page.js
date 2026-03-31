@@ -263,10 +263,7 @@ export default function CheckoutPage() {
               </div>
             )}
 
-            <div className="summary-row">
-              <span>Tax:</span>
-              <span>₹{orderSummary?.tax.toFixed(2) || '0.00'}</span>
-            </div>
+
 
             <div className="summary-divider"></div>
 

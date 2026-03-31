@@ -17,10 +17,10 @@ export function AuthProvider({ children }) {
           setLoading(false)
           return
         }
-        // Timeout after 5s to prevent infinite loading if token refresh hangs
+        // Timeout after 10s to prevent infinite loading if token refresh hangs
         const result = await Promise.race([
           supabase.auth.getSession(),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('Session check timeout')), 5000))
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Session check timeout')), 10000))
         ])
         const session = result?.data?.session
         if (session?.user) {
@@ -50,7 +50,7 @@ export function AuthProvider({ children }) {
         console.log('Auth state changed:', event, session?.user?.email)
         if (session?.user) {
           setUser(session.user)
-          await fetchProfile(session.user.id)
+          fetchProfile(session.user.id)  // non-blocking
         } else {
           setUser(null)
           setProfile(null)

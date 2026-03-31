@@ -23,10 +23,7 @@ export default function TopNavigationBar() {
               AMBATTUR: 98402 22779
             </a>
           </div>
-          <div className={styles.gstin_info}>
-            <span className={styles.info_label}>GSTIN/UIN:</span>
-            <span className={styles.gstin_value}>33AASFH4116N1Z2</span>
-          </div>
+
         </div>
 
         {/* Mobile Menu Toggle */}

@@ -31,15 +31,9 @@ export default function AccountPage() {
     is_default: false
   })
 
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      // Clear stale auth cookies to prevent redirect loop with middleware
-      // (middleware sees cookie → allows /account, but session is expired → redirect to /login → loop)
-      if (supabase) {
-        supabase.auth.signOut().catch(() => {})
-      }
-    }
-  }, [authLoading, isAuthenticated])
+  // Note: do NOT call signOut here — it would destroy a freshly-set OAuth session
+  // if getSession() resolves slightly after the initial auth check completes.
+  // Just show the login prompt and let the user navigate to /login.
 
   // Safety timeout: if auth loading takes too long, stop waiting
   useEffect(() => {

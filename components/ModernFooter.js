@@ -69,26 +69,7 @@ export default function ModernFooter() {
               >
                 📸
               </a>
-              <a href="mailto:info@spacecraftsfurniture.in" target="_blank" rel="noopener noreferrer"
-                style={{ 
-                  width: '40px', 
-                  height: '40px', 
-                  borderRadius: '50%', 
-                  backgroundColor: 'rgba(255,255,255,0.1)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '18px',
-                  color: '#fff',
-                  textDecoration: 'none',
-                  transition: 'all 0.3s ease'
-                }}
-                onMouseEnter={(e) => e.target.style.backgroundColor = '#D14836'}
-                onMouseLeave={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.1)'}
-                aria-label="Gmail"
-              >
-                ✉️
-              </a>
+
               <a href="https://wa.me/918025123456" target="_blank" rel="noopener noreferrer"
                 style={{ 
                   width: '40px', 
@@ -205,11 +186,6 @@ export default function ModernFooter() {
             
             {/* Contact Info */}
             <div style={{ marginTop: '20px' }}>
-              <p style={{ fontSize: '13px', color: '#ccc', marginBottom: '8px' }}>
-                📧 <a href="mailto:info@spacecraftsfurniture.in" style={{ color: '#ccc', textDecoration: 'none' }}>
-                  info@spacecraftsfurniture.in
-                </a>
-              </p>
               <p style={{ fontSize: '13px', color: '#ccc' }}>
                 📞 <a href="tel:+919003003733" style={{ color: '#ccc', textDecoration: 'none' }}>
                   090030 03733

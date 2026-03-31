@@ -586,7 +586,6 @@ export default function CartClient() {
               <h3>Order Summary</h3>
               <div className="sum-row"><span>Subtotal ({items.length} items)</span><span>₹{totals.subtotal.toLocaleString('en-IN')}</span></div>
               {totals.discount > 0 && <div className="sum-row green"><span>Discount{appliedCoupon ? ` (${appliedCoupon.discount_percentage}%)` : ''}</span><span>−₹{totals.discount.toLocaleString('en-IN')}</span></div>}
-              <div className="sum-row"><span>GST (18%)</span><span>₹{totals.tax.toLocaleString('en-IN')}</span></div>
               <div className="sum-row">
                 <span>Delivery Charges</span>
                 <span>

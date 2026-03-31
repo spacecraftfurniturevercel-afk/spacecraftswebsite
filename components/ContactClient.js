@@ -195,10 +195,7 @@ export default function ContactClient() {
                 <p><strong>Monday - Saturday:</strong> 10:00 AM - 8:00 PM<br /><strong>Sunday:</strong> 11:00 AM - 6:00 PM</p>
               </div>
 
-              <div className={styles.infoCard}>
-                <h4>Tax Information</h4>
-                <p><strong>GST:</strong> 33AASFH4116N1Z2</p>
-              </div>
+
 
               <div className={styles.infoCard}>
                 <h4>Follow Us</h4>

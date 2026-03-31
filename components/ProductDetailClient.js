@@ -77,6 +77,10 @@ export default function ProductDetailClient({
   const [buyNowLoading, setBuyNowLoading] = useState(false)
   const [buyNowDeliveryCharge, setBuyNowDeliveryCharge] = useState(null)
   const [buyNowDeliveryLoading, setBuyNowDeliveryLoading] = useState(false)
+  const [showBncAddrForm, setShowBncAddrForm] = useState(false)
+  const [bncAddrForm, setBncAddrForm] = useState({ label: 'Home', phone: '', line1: '', line2: '', city: '', state: '', postal_code: '', country: 'India' })
+  const [bncAddrSaving, setBncAddrSaving] = useState(false)
+  const [bncAddrError, setBncAddrError] = useState(null)
   const [showEnquiryModal, setShowEnquiryModal] = useState(false)
   const [enquiryForm, setEnquiryForm] = useState({ name: '', email: '', phone: '', message: '' })
   const [enquirySending, setEnquirySending] = useState(false)
@@ -295,6 +299,38 @@ export default function ProductDetailClient({
     if (addr) {
       const postalCode = addr.postal_code || addr.pincode
       fetchBuyNowDeliveryCharge(postalCode)
+    }
+  }
+
+  // Save a new address directly from the Buy Now modal
+  const saveBncAddress = async () => {
+    if (!bncAddrForm.label || !bncAddrForm.phone || !bncAddrForm.line1 || !bncAddrForm.city || !bncAddrForm.state || !bncAddrForm.postal_code) {
+      setBncAddrError('Please fill all required fields')
+      return
+    }
+    setBncAddrSaving(true)
+    setBncAddrError(null)
+    try {
+      const res = await authenticatedFetch('/api/addresses', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bncAddrForm)
+      })
+      const data = await res.json()
+      if (res.ok && data.address) {
+        const newAddr = data.address
+        setBuyNowAddresses(prev => [newAddr, ...prev])
+        setSelectedAddressId(newAddr.id)
+        fetchBuyNowDeliveryCharge(newAddr.postal_code)
+        setShowBncAddrForm(false)
+        setBncAddrForm({ label: 'Home', phone: '', line1: '', line2: '', city: '', state: '', postal_code: '', country: 'India' })
+      } else {
+        setBncAddrError(data.error || 'Failed to save address')
+      }
+    } catch {
+      setBncAddrError('Network error. Please try again.')
+    } finally {
+      setBncAddrSaving(false)
     }
   }
 
@@ -688,6 +724,7 @@ export default function ProductDetailClient({
             </div>
 
             {/* Price */}
+            {canBuyOnline && (
             <div className="product-price">
               <span className="current-price">₹{displayPrice.toLocaleString('en-IN')}</span>
               {product.discount_price && (
@@ -697,6 +734,7 @@ export default function ProductDetailClient({
                 </>
               )}
             </div>
+            )}
 
             {/* Stock Status */}
             <div className="stock-status">
@@ -935,10 +973,6 @@ export default function ProductDetailClient({
                         <span className="sb-value">₹{Number(displayPrice * quantity).toLocaleString('en-IN')}</span>
                       </div>
                       <div className="sb-row">
-                        <span className="sb-label">GST (18%)</span>
-                        <span className="sb-value">₹{Number(Math.round(displayPrice * quantity * 0.18)).toLocaleString('en-IN')}</span>
-                      </div>
-                      <div className="sb-row">
                         <span className="sb-label">Shipping</span>
                         <span className="sb-value">
                           {deliveryInfo.deliveryCharge === 0
@@ -948,7 +982,7 @@ export default function ProductDetailClient({
                       </div>
                       <div className="sb-row sb-total">
                         <span className="sb-label">Total Payable</span>
-                        <span className="sb-value">₹{Number(Math.round(displayPrice * quantity * 1.18) + (deliveryInfo.deliveryCharge || 0)).toLocaleString('en-IN')}</span>
+                        <span className="sb-value">₹{Number(displayPrice * quantity + (deliveryInfo.deliveryCharge || 0)).toLocaleString('en-IN')}</span>
                       </div>
                     </div>
 
@@ -3338,35 +3372,89 @@ export default function ProductDetailClient({
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2" style={{marginRight: '6px', verticalAlign: '-2px'}}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
                     Delivery Address
                   </h3>
-                  {buyNowAddresses.length === 0 ? (
+                  {buyNowAddresses.length === 0 && !showBncAddrForm ? (
                     <div className="bnc-no-addr">
                       <p>No saved addresses found.</p>
-                      <a href="/account" className="bnc-add-addr">Add Address</a>
+                      <button className="bnc-add-addr" onClick={() => setShowBncAddrForm(true)}>+ Add New Address</button>
                     </div>
                   ) : (
-                    <div className="bnc-addr-list">
-                      {buyNowAddresses.map(addr => (
-                        <label key={addr.id} className={`bnc-addr-card ${selectedAddressId === addr.id ? 'selected' : ''}`}>
-                          <div className="bnc-addr-radio">
-                            <input type="radio" name="bnc-addr" checked={selectedAddressId === addr.id} onChange={() => handleBuyNowAddressSelect(addr.id)} />
-                          </div>
-                          <div className="bnc-addr-body">
-                            <div className="bnc-addr-top">
-                              <span className="bnc-addr-name">{addr.full_name}</span>
-                              {addr.is_default && <span className="bnc-default-tag">Default</span>}
-                            </div>
-                            <span className="bnc-addr-line">{addr.line1 || addr.address_line1}{addr.line2 || addr.address_line2 ? `, ${addr.line2 || addr.address_line2}` : ''}</span>
-                            <span className="bnc-addr-city">{addr.city}, {addr.state} – {addr.postal_code || addr.pincode}</span>
-                            {addr.phone && (
-                              <span className="bnc-addr-phone">
-                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
-                                {addr.phone}
-                              </span>
+                    <>
+                      {buyNowAddresses.length > 0 && (
+                        <div className="bnc-addr-list">
+                          {buyNowAddresses.map(addr => (
+                            <label key={addr.id} className={`bnc-addr-card ${selectedAddressId === addr.id ? 'selected' : ''}`}>
+                              <div className="bnc-addr-radio">
+                                <input type="radio" name="bnc-addr" checked={selectedAddressId === addr.id} onChange={() => handleBuyNowAddressSelect(addr.id)} />
+                              </div>
+                              <div className="bnc-addr-body">
+                                <div className="bnc-addr-top">
+                                  <span className="bnc-addr-name">{addr.label || addr.full_name}</span>
+                                  {addr.is_default && <span className="bnc-default-tag">Default</span>}
+                                </div>
+                                <span className="bnc-addr-line">{addr.line1 || addr.address_line1}{addr.line2 || addr.address_line2 ? `, ${addr.line2 || addr.address_line2}` : ''}</span>
+                                <span className="bnc-addr-city">{addr.city}, {addr.state} – {addr.postal_code || addr.pincode}</span>
+                                {addr.phone && (
+                                  <span className="bnc-addr-phone">
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+                                    {addr.phone}
+                                  </span>
+                                )}
+                              </div>
+                            </label>
+                          ))}
+                        </div>
+                      )}
+
+                      {!showBncAddrForm ? (
+                        <button onClick={() => setShowBncAddrForm(true)} style={{display:'flex',alignItems:'center',gap:6,marginTop:buyNowAddresses.length > 0 ? 12 : 0,background:'none',border:'1.5px dashed #ccc',borderRadius:10,padding:'10px 14px',cursor:'pointer',color:'#555',fontSize:13,fontWeight:600,width:'100%',justifyContent:'center',boxSizing:'border-box'}}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                          Add New Address
+                        </button>
+                      ) : (
+                        <div style={{marginTop: buyNowAddresses.length > 0 ? 14 : 0, padding: '14px', background: '#fafafa', borderRadius: 12, border: '1px solid #eee'}}>
+                          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:14}}>
+                            <span style={{fontSize:13,fontWeight:700,color:'#1a1a1a'}}>New Delivery Address</span>
+                            {buyNowAddresses.length > 0 && (
+                              <button onClick={() => { setShowBncAddrForm(false); setBncAddrError(null) }} style={{background:'none',border:'none',cursor:'pointer',color:'#999',fontSize:20,lineHeight:1,padding:0}}>×</button>
                             )}
                           </div>
-                        </label>
-                      ))}
-                    </div>
+                          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
+                            <div style={{gridColumn:'1/-1'}}>
+                              <label style={{display:'block',fontSize:11,fontWeight:600,color:'#888',marginBottom:4,textTransform:'uppercase',letterSpacing:'0.4px'}}>Label (e.g. Home/Office) *</label>
+                              <input style={{width:'100%',padding:'9px 12px',border:'1.5px solid #e0e0e0',borderRadius:8,fontSize:13,outline:'none',boxSizing:'border-box'}} placeholder="Home" value={bncAddrForm.label} onChange={e => setBncAddrForm(f => ({...f, label: e.target.value}))} />
+                            </div>
+                            <div style={{gridColumn:'1/-1'}}>
+                              <label style={{display:'block',fontSize:11,fontWeight:600,color:'#888',marginBottom:4,textTransform:'uppercase',letterSpacing:'0.4px'}}>Phone *</label>
+                              <input style={{width:'100%',padding:'9px 12px',border:'1.5px solid #e0e0e0',borderRadius:8,fontSize:13,outline:'none',boxSizing:'border-box'}} placeholder="+91 XXXXX XXXXX" value={bncAddrForm.phone} onChange={e => setBncAddrForm(f => ({...f, phone: e.target.value}))} />
+                            </div>
+                            <div style={{gridColumn:'1/-1'}}>
+                              <label style={{display:'block',fontSize:11,fontWeight:600,color:'#888',marginBottom:4,textTransform:'uppercase',letterSpacing:'0.4px'}}>Address Line 1 *</label>
+                              <input style={{width:'100%',padding:'9px 12px',border:'1.5px solid #e0e0e0',borderRadius:8,fontSize:13,outline:'none',boxSizing:'border-box'}} placeholder="House no., building, street" value={bncAddrForm.line1} onChange={e => setBncAddrForm(f => ({...f, line1: e.target.value}))} />
+                            </div>
+                            <div style={{gridColumn:'1/-1'}}>
+                              <label style={{display:'block',fontSize:11,fontWeight:600,color:'#888',marginBottom:4,textTransform:'uppercase',letterSpacing:'0.4px'}}>Address Line 2 <span style={{fontWeight:400,textTransform:'none'}}>(optional)</span></label>
+                              <input style={{width:'100%',padding:'9px 12px',border:'1.5px solid #e0e0e0',borderRadius:8,fontSize:13,outline:'none',boxSizing:'border-box'}} placeholder="Area, landmark" value={bncAddrForm.line2} onChange={e => setBncAddrForm(f => ({...f, line2: e.target.value}))} />
+                            </div>
+                            <div>
+                              <label style={{display:'block',fontSize:11,fontWeight:600,color:'#888',marginBottom:4,textTransform:'uppercase',letterSpacing:'0.4px'}}>City *</label>
+                              <input style={{width:'100%',padding:'9px 12px',border:'1.5px solid #e0e0e0',borderRadius:8,fontSize:13,outline:'none',boxSizing:'border-box'}} placeholder="City" value={bncAddrForm.city} onChange={e => setBncAddrForm(f => ({...f, city: e.target.value}))} />
+                            </div>
+                            <div>
+                              <label style={{display:'block',fontSize:11,fontWeight:600,color:'#888',marginBottom:4,textTransform:'uppercase',letterSpacing:'0.4px'}}>Pincode *</label>
+                              <input style={{width:'100%',padding:'9px 12px',border:'1.5px solid #e0e0e0',borderRadius:8,fontSize:13,outline:'none',boxSizing:'border-box'}} placeholder="6-digit pincode" maxLength="6" value={bncAddrForm.postal_code} onChange={e => setBncAddrForm(f => ({...f, postal_code: e.target.value.replace(/\D/g,'').slice(0,6)}))} />
+                            </div>
+                            <div style={{gridColumn:'1/-1'}}>
+                              <label style={{display:'block',fontSize:11,fontWeight:600,color:'#888',marginBottom:4,textTransform:'uppercase',letterSpacing:'0.4px'}}>State *</label>
+                              <input style={{width:'100%',padding:'9px 12px',border:'1.5px solid #e0e0e0',borderRadius:8,fontSize:13,outline:'none',boxSizing:'border-box'}} placeholder="State" value={bncAddrForm.state} onChange={e => setBncAddrForm(f => ({...f, state: e.target.value}))} />
+                            </div>
+                          </div>
+                          {bncAddrError && <p style={{color:'#c0392b',fontSize:12,margin:'8px 0 0',fontFamily:'Inter,sans-serif'}}>{bncAddrError}</p>}
+                          <button onClick={saveBncAddress} disabled={bncAddrSaving} style={{marginTop:14,width:'100%',padding:'11px 0',background:'#1a1a1a',color:'#fff',border:'none',borderRadius:8,fontSize:13,fontWeight:700,cursor:bncAddrSaving ? 'not-allowed' : 'pointer',opacity:bncAddrSaving ? 0.7 : 1,fontFamily:'Inter,sans-serif'}}>
+                            {bncAddrSaving ? 'Saving...' : 'Save & Use This Address'}
+                          </button>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
 
@@ -3374,7 +3462,6 @@ export default function ProductDetailClient({
                 <div className="bnc-section bnc-pricing">
                   <h3 className="bnc-sec-title">Price Details</h3>
                   <div className="bnc-price-row"><span>Subtotal</span><span>₹{Number(displayPrice * quantity).toLocaleString('en-IN')}</span></div>
-                  <div className="bnc-price-row"><span>GST (18%)</span><span>₹{Number(Math.round(displayPrice * quantity * 0.18)).toLocaleString('en-IN')}</span></div>
                   <div className="bnc-price-row">
                     <span>Delivery Charges</span>
                     <span>
@@ -3399,12 +3486,12 @@ export default function ProductDetailClient({
                   )}
                   <div className="bnc-price-total">
                     <span>Total</span>
-                    <span>₹{Number(Math.round(displayPrice * quantity * 1.18) + (buyNowDeliveryCharge?.charge || 0)).toLocaleString('en-IN')}</span>
+                    <span>₹{Number(displayPrice * quantity + (buyNowDeliveryCharge?.charge || 0)).toLocaleString('en-IN')}</span>
                   </div>
                 </div>
 
-                <button className="bnc-pay-btn" onClick={handleProceedToPayment} disabled={!selectedAddressId || buyNowAddresses.length === 0 || buyNowDeliveryLoading}>
-                  {buyNowDeliveryLoading ? 'Calculating delivery...' : `Proceed to Payment — ₹${Number(Math.round(displayPrice * quantity * 1.18) + (buyNowDeliveryCharge?.charge || 0)).toLocaleString('en-IN')}`}
+                <button className="bnc-pay-btn" onClick={handleProceedToPayment} disabled={!selectedAddressId || buyNowDeliveryLoading}>
+                  {buyNowDeliveryLoading ? 'Calculating delivery...' : `Proceed to Payment — ₹${Number(displayPrice * quantity + (buyNowDeliveryCharge?.charge || 0)).toLocaleString('en-IN')}`}
                 </button>
               </>
             )}

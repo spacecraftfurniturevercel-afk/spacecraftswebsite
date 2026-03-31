@@ -281,6 +281,7 @@ export default function ProductCard({ product }) {
           )}
 
           {/* Price block */}
+          {canBuyOnline && (
           <div style={{
             display: 'flex',
             alignItems: 'baseline',
@@ -318,6 +319,7 @@ export default function ProductCard({ product }) {
               </span>
             )}
           </div>
+          )}
 
           {/* Delivery Info */}
           {product.delivery_info && (
