@@ -1133,13 +1133,15 @@ export default function ProductDetailClient({
                   </div>
                   <div className="store-details">
                     <p className="store-address">94A/1, 3rd Main Rd, Old Ambattur, Attipattu, Ambattur Industrial Estate, Chennai, Tamil Nadu 600058</p>
-                    <div className="store-hours">Mon–Sat 10 AM – 8 PM · Sun 11 AM – 6 PM</div>
+                    <div className="store-hours">Mon–Fri 10 AM – 9:30 PM · Sat–Sun 10 AM – 10 PM</div>
                     <div className="store-phone">
                       <span>Call:</span>
                       <a href="tel:09003003733">090030 03733</a>
+                      <span style={{margin:'0 4px'}}>/</span>
+                      <a href="tel:09840222779">98402 22779</a>
                     </div>
                     <a
-                      href="https://maps.google.com/?q=94A/1+3rd+Main+Rd+Ambattur+Chennai"
+                      href="https://www.google.com/maps/place/Spacecrafts+-+Ambattur/@13.0910641,80.1586599,17z/data=!3m1!4b1!4m6!3m5!1s0x3a526390982427af:0x8eb12c2c78d47abd!8m2!3d13.0910641!4d80.1612348!16s%2Fg%2F11y07234vx?hl=en-GB&entry=ttu"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="store-map-link"

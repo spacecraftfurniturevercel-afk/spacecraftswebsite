@@ -188,7 +188,7 @@ export default function ModernFooter() {
             <div style={{ marginTop: '20px' }}>
               <p style={{ fontSize: '13px', color: '#ccc' }}>
                 📞 <a href="tel:+919003003733" style={{ color: '#ccc', textDecoration: 'none' }}>
-                  090030 03733
+                  090030 03733 / 98402 22779
                 </a>
               </p>
             </div>

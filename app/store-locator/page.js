@@ -20,7 +20,7 @@ export default function StoreLocator() {
   const storeDetails = {
     name: 'Spacecrafts Furniture',
     address: '94A/1, 3rd Main Rd, Old Ambattur, Attipattu, Ambattur Industrial Estate, Chennai, Tamil Nadu 600058',
-    phone: '090030 03733',
+    phone: '090030 03733 / 98402 22779',
     email: 'support@spacecraftsfurniture.in',
     gst: '33AASFH4116N1Z2',
     hours: {
@@ -73,7 +73,7 @@ export default function StoreLocator() {
               <div className={styles.cardIcon}>📍</div>
               <h3>Location</h3>
               <p className={styles.addressText}>{storeDetails.address}</p>
-              <a href={`https://maps.google.com/?q=${encodeURIComponent(storeDetails.address)}`} target="_blank" rel="noopener noreferrer" className={styles.mapLink}>
+              <a href="https://www.google.com/maps/place/Spacecrafts+-+Ambattur/@13.0910641,80.1586599,17z/data=!3m1!4b1!4m6!3m5!1s0x3a526390982427af:0x8eb12c2c78d47abd!8m2!3d13.0910641!4d80.1612348!16s%2Fg%2F11y07234vx?hl=en-GB&entry=ttu" target="_blank" rel="noopener noreferrer" className={styles.mapLink}>
                 View on Google Maps →
               </a>
             </div>
@@ -81,7 +81,7 @@ export default function StoreLocator() {
             <div className={styles.detailCard}>
               <div className={styles.cardIcon}>📞</div>
               <h3>Contact Info</h3>
-              <p><strong>Phone:</strong> <a href={`tel:${storeDetails.phone.replace(/\s/g, '')}`}>{storeDetails.phone}</a></p>
+              <p><strong>Phone:</strong> <a href="tel:09003003733">090030 03733</a> / <a href="tel:09840222779">98402 22779</a></p>
               <p><strong>Email:</strong> <a href={`mailto:${storeDetails.email}`}>{storeDetails.email}</a></p>
             </div>
 
@@ -152,7 +152,7 @@ export default function StoreLocator() {
               style={{ border: 0, borderRadius: '10px' }}
               loading="lazy"
               allowFullScreen=""
-              src={`https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3887.2476543214!2d80.10522!3d13.12345!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a52f3f3f3f3f3f3%3A0x0!2sSpacecrafts%20Furniture!5e0!3m2!1sen!2sin!4v1234567890`}
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3886.6197!2d80.1586599!3d13.0910641!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a526390982427af%3A0x8eb12c2c78d47abd!2sSpacecrafts%20-%20Ambattur!5e0!3m2!1sen!2sin!4v1712000000000"
               title="Spacecrafts Furniture Location Map"
             ></iframe>
           </div>

@@ -42,9 +42,9 @@ export default function ContactClient() {
     {
       icon: '📞',
       title: 'Call Us',
-      value: '090030 03733',
+      value: '090030 03733 / 98402 22779',
       link: 'tel:09003003733',
-      desc: 'Mon-Sat: 10 AM - 8 PM'
+      desc: 'Mon-Fri: 10 AM - 9:30 PM, Sat-Sun: 10 AM - 10 PM'
     },
     {
       icon: '📧',
@@ -241,7 +241,7 @@ export default function ContactClient() {
             </div>
             <div className={styles.faqItem}>
               <h4>How can I schedule a consultation?</h4>
-              <p>You can call us at 090030 03733, email us, or visit our showroom directly. Our design consultants are available to help you plan your furniture needs.</p>
+              <p>You can call us at 090030 03733 or 98402 22779, email us, or visit our showroom directly. Our design consultants are available to help you plan your furniture needs.</p>
             </div>
           </div>
         </section>
