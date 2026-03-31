@@ -1141,7 +1141,7 @@ export default function ProductDetailClient({
                       <a href="tel:09840222779">98402 22779</a>
                     </div>
                     <a
-                      href="https://www.google.com/maps/place/Spacecrafts+-+Ambattur/@13.0910641,80.1586599,17z/data=!3m1!4b1!4m6!3m5!1s0x3a526390982427af:0x8eb12c2c78d47abd!8m2!3d13.0910641!4d80.1612348!16s%2Fg%2F11y07234vx?hl=en-GB&entry=ttu"
+                      href="https://maps.app.goo.gl/sMTmsBTJBKszoP1Q7"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="store-map-link"

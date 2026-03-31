@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../providers/AuthProvider'
 import { useRouter } from 'next/navigation'
 import { authenticatedFetch } from '../../lib/authenticatedFetch'
-import { supabase } from '../../lib/supabaseClient'
 
 export default function AccountPage() {
   const { user, profile, isAuthenticated, loading: authLoading } = useAuth()
@@ -40,7 +39,7 @@ export default function AccountPage() {
     if (!authLoading) return
     const timer = setTimeout(() => {
       setAuthTimeout(true)
-      if (supabase) supabase.auth.signOut().catch(() => {})
+      // Do NOT call signOut() here — it destroys valid sessions on slow connections
     }, 8000)
     return () => clearTimeout(timer)
   }, [authLoading])

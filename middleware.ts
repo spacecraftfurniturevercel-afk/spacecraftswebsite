@@ -24,13 +24,10 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/', request.url), 301)
   }
 
-  // If user is logged in (has auth token) and tries to access login page, redirect to account
-  if (
-    hasAuthToken &&
-    pathname === '/login'
-  ) {
-    return NextResponse.redirect(new URL('/account', request.url))
-  }
+  // NOTE: We do NOT redirect authenticated users away from /login via middleware.
+  // Reason: the cookie-based check (hasAuthToken) cannot verify if the token is still valid.
+  // A stale/expired cookie would cause an infinite loop: /login → /account → "Please Log In" → /login → ...
+  // The login page's client-side code already redirects genuinely-authenticated users to /account.
 
   // If user is not logged in and tries to access protected pages, redirect to login
   if (
