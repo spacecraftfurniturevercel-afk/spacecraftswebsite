@@ -97,6 +97,13 @@ export default function CartClient() {
   useEffect(() => { fetchCart() }, [])
   useEffect(() => { if (sessionToken) fetchAddresses() }, [sessionToken])
 
+  // Re-fetch delivery charge after items are loaded (items may be empty during fetchAddresses)
+  useEffect(() => {
+    if (items.length > 0 && selectedAddress?.postal_code) {
+      validatePincode(selectedAddress.postal_code)
+    }
+  }, [items.length, selectedAddress?.id])
+
   // Load Razorpay script on-demand (not eagerly) to prevent webpack module conflicts
   function loadRazorpayScript() {
     return new Promise((resolve) => {
@@ -120,10 +127,10 @@ export default function CartClient() {
         const defaultAddr = data.addresses?.find(a => a.is_default)
         if (defaultAddr) {
           setSelectedAddress(defaultAddr)
-          validatePincode(defaultAddr.postal_code)
+          // Delivery charge is fetched in the useEffect below once items are loaded
         } else if (data.addresses?.length > 0) {
           setSelectedAddress(data.addresses[0])
-          validatePincode(data.addresses[0].postal_code)
+          // Delivery charge is fetched in the useEffect below once items are loaded
         }
       }
     } catch (err) { console.error('Error fetching addresses:', err) }
@@ -185,7 +192,7 @@ export default function CartClient() {
         setSummary(prev => ({
           ...prev,
           shipping: charge,
-          total: prev.subtotal - prev.discount + prev.tax + charge
+          total: prev.subtotal - (appliedCoupon ? prev.discount : 0) + charge
         }))
       } else {
         setDeliveryCharge(0)
@@ -193,7 +200,7 @@ export default function CartClient() {
         setSummary(prev => ({
           ...prev,
           shipping: 0,
-          total: prev.subtotal - prev.discount + prev.tax
+          total: prev.subtotal - (appliedCoupon ? prev.discount : 0)
         }))
       }
     } catch (err) {
@@ -266,7 +273,7 @@ export default function CartClient() {
       else {
         setAppliedCoupon(data); setCouponError(null)
         const couponDiscount = (totals.subtotal * data.discount_percentage) / 100
-        setSummary(prev => ({ ...prev, discount: couponDiscount, total: prev.subtotal - couponDiscount + prev.tax + (deliveryCharge || prev.shipping) }))
+        setSummary(prev => ({ ...prev, discount: couponDiscount, total: prev.subtotal - couponDiscount + (deliveryCharge || 0) }))
       }
     } catch { setCouponError('Failed to apply coupon') }
     finally { setApplyingCoupon(false) }
@@ -274,7 +281,7 @@ export default function CartClient() {
 
   const handleRemoveCoupon = () => {
     setAppliedCoupon(null); setCouponCode(''); setCouponError(null)
-    setSummary(prev => ({ ...prev, discount: 0, total: prev.subtotal + prev.tax + (deliveryCharge || prev.shipping) }))
+    setSummary(prev => ({ ...prev, discount: 0, total: prev.subtotal + (deliveryCharge || 0) }))
   }
 
   // Proceed to checkout Step 2
@@ -585,7 +592,7 @@ export default function CartClient() {
             <div className="summary-card">
               <h3>Order Summary</h3>
               <div className="sum-row"><span>Subtotal ({items.length} items)</span><span>₹{totals.subtotal.toLocaleString('en-IN')}</span></div>
-              {totals.discount > 0 && <div className="sum-row green"><span>Discount{appliedCoupon ? ` (${appliedCoupon.discount_percentage}%)` : ''}</span><span>−₹{totals.discount.toLocaleString('en-IN')}</span></div>}
+              {appliedCoupon && totals.discount > 0 && <div className="sum-row green"><span>Discount ({appliedCoupon.discount_percentage}%)</span><span>−₹{totals.discount.toLocaleString('en-IN')}</span></div>}
               <div className="sum-row">
                 <span>Delivery Charges</span>
                 <span>

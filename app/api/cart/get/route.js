@@ -79,15 +79,12 @@ export async function GET(request) {
 
     // Calculate totals
     let subtotal = 0
-    let totalDiscount = 0
     const items = cartItems.map(item => {
       const price = item.products.discount_price || item.products.price
       const originalPrice = item.products.price
       const itemTotal = price * item.quantity
-      const itemDiscount = (originalPrice - price) * item.quantity
 
       subtotal += itemTotal
-      totalDiscount += itemDiscount
 
       return {
         id: item.id,
@@ -105,24 +102,21 @@ export async function GET(request) {
         shipping_width: item.products.shipping_width || null,
         shipping_height: item.products.shipping_height || null,
         shipping_box_count: item.products.shipping_box_count || 1,
-        itemTotal: itemTotal,
-        itemDiscount: itemDiscount
+        itemTotal: itemTotal
       }
     })
 
-    const tax = Math.round(subtotal * 0.18 * 100) / 100 // 18% GST
-    // Shipping is 0 here — actual delivery charges fetched from BigShip on frontend
-    const shipping = 0
-    const total = subtotal + tax + shipping
+    // Shipping and delivery added client-side via BigShip API
+    const total = subtotal
 
     return NextResponse.json({
       success: true,
       items,
       summary: {
         subtotal: Math.round(subtotal * 100) / 100,
-        discount: Math.round(totalDiscount * 100) / 100,
-        tax: tax,
-        shipping: shipping,
+        discount: 0,
+        tax: 0,
+        shipping: 0,
         total: Math.round(total * 100) / 100
       },
       count: cartItems.length

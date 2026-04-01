@@ -3713,6 +3713,7 @@ function RelatedProductCard({ product }) {
   const discPct = product.discount_price
     ? Math.round(((product.price - product.discount_price) / product.price) * 100)
     : 0
+  const canBuyOnline = !!(product.shipping_length && product.shipping_width && product.shipping_height)
 
   return (
     <motion.article
@@ -3738,7 +3739,7 @@ function RelatedProductCard({ product }) {
             }}
             onError={() => setImgErr(true)}
           />
-          {discPct > 0 && <span className="rpc-badge">-{discPct}%</span>}
+          {canBuyOnline && discPct > 0 && <span className="rpc-badge">-{discPct}%</span>}
           <div className={`rpc-actions ${isHovered ? 'rpc-actions-visible' : ''}`}>
             <button className="rpc-action-btn" onClick={e => { e.preventDefault(); window.location.href = `/products/${product.slug}` }} aria-label="View product">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -3758,11 +3759,17 @@ function RelatedProductCard({ product }) {
             </div>
           )}
           <div className="rpc-price-row">
-            <span className="rpc-price">₹{displayPrice.toLocaleString('en-IN')}</span>
-            {product.discount_price && (
-              <span className="rpc-orig">₹{product.price.toLocaleString('en-IN')}</span>
+            {canBuyOnline ? (
+              <>
+                <span className="rpc-price">₹{displayPrice.toLocaleString('en-IN')}</span>
+                {product.discount_price && (
+                  <span className="rpc-orig">₹{product.price.toLocaleString('en-IN')}</span>
+                )}
+                {discPct > 0 && <span className="rpc-save">Save {discPct}%</span>}
+              </>
+            ) : (
+              <span style={{ fontSize: 13, color: '#888', fontStyle: 'italic' }}>Contact for price</span>
             )}
-            {discPct > 0 && <span className="rpc-save">Save {discPct}%</span>}
           </div>
         </div>
       </Link>
