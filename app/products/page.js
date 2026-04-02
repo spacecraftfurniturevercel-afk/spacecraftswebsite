@@ -119,9 +119,14 @@ export default async function ProductsPage({ searchParams }) {
     // Filter by sub-categories (product type tags)
     if (searchParams?.subcategories) {
       const subCatArray = searchParams.subcategories.split(',')
-      // Filter products that have ANY of the selected tags
-      // Use overlaps (ov) — matches if tags array shares any element with the given array
       query = query.overlaps('tags', subCatArray)
+    }
+
+    // Filter by nav tags (living-room, bedroom, etc.)
+    const tagFilter = searchParams?.tags || searchParams?.tag
+    if (tagFilter) {
+      const tagArray = tagFilter.split(',')
+      query = query.overlaps('tags', tagArray)
     }
 
     // Filter by price range

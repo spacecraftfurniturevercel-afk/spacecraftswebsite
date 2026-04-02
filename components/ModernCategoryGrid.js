@@ -142,6 +142,7 @@ export default function ModernCategoryGrid({ serverCategories = [] }) {
     'home-decor': '/category/sofas.webp',
     'tv-units-entertainment': '/category/tables.webp',
     'wardrobes-cabinets': '/category/beds.webp',
+    'wardrobe-racks': '/header/wardrobe.webp',
   }
 
   var displayCategories =

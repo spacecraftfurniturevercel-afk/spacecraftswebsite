@@ -6,6 +6,17 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 
+const NAV_TAGS = [
+  { slug: 'living-room', name: 'Living Room' },
+  { slug: 'bedroom', name: 'Bed Room' },
+  { slug: 'dining-room', name: 'Dining Room' },
+  { slug: 'study-room', name: 'Study Room' },
+  { slug: 'best-offers', name: 'Best Offers' },
+  { slug: 'solid-wood', name: 'Solid Wood' },
+  { slug: 'engineered-wood', name: 'Engineered Wood' },
+  { slug: 'luxury-furniture', name: 'Luxury Furniture' },
+]
+
 export default function ProductsClient({ 
   initialProducts, 
   categories, 
@@ -23,6 +34,7 @@ export default function ProductsClient({
     categories: searchParams?.categories ? searchParams.categories.split(',') : [],
     brands: searchParams?.brands ? searchParams.brands.split(',') : [],
     subcategories: searchParams?.subcategories ? searchParams.subcategories.split(',') : [],
+    tags: searchParams?.tags ? searchParams.tags.split(',') : (searchParams?.tag ? [searchParams.tag] : []),
     minPrice: searchParams?.minPrice || '',
     maxPrice: searchParams?.maxPrice || '',
     sort: searchParams?.sort || 'rating-desc',
@@ -46,6 +58,7 @@ export default function ProductsClient({
       categories: searchParams?.categories ? searchParams.categories.split(',') : [],
       brands: searchParams?.brands ? searchParams.brands.split(',') : [],
       subcategories: searchParams?.subcategories ? searchParams.subcategories.split(',') : [],
+      tags: searchParams?.tags ? searchParams.tags.split(',') : (searchParams?.tag ? [searchParams.tag] : []),
       minPrice: searchParams?.minPrice || '',
       maxPrice: searchParams?.maxPrice || '',
       sort: searchParams?.sort || 'rating-desc',
@@ -60,25 +73,14 @@ export default function ProductsClient({
     if (newFilters.sort && newFilters.sort !== 'rating-desc') params.set('sort', newFilters.sort)
     if (newFilters.brands?.length > 0) params.set('brands', newFilters.brands.join(','))
     if (newFilters.subcategories?.length > 0) params.set('subcategories', newFilters.subcategories.join(','))
+    if (newFilters.tags?.length > 0) params.set('tags', newFilters.tags.join(','))
     if (newFilters.minPrice) params.set('minPrice', newFilters.minPrice)
     if (newFilters.maxPrice) params.set('maxPrice', newFilters.maxPrice)
     if (newFilters.q) params.set('q', newFilters.q)
     if (page && page > 1) params.set('page', page.toString())
-
-    const catCount = newFilters.categories?.length || 0
-
-    if (catCount === 0) {
-      const qs = params.toString()
-      return `/products${qs ? '?' + qs : ''}`
-    }
-
-    if (catCount === 1) {
-      const qs = params.toString()
-      return `/products/category/${newFilters.categories[0]}${qs ? '?' + qs : ''}`
-    }
-
-    params.set('categories', newFilters.categories.join(','))
-    return `/products?${params.toString()}`
+    if (newFilters.categories?.length > 0) params.set('categories', newFilters.categories.join(','))
+    const qs = params.toString()
+    return `/products${qs ? '?' + qs : ''}`
   }, [])
 
   const updateFilters = useCallback((newFilters) => {
@@ -116,6 +118,7 @@ export default function ProductsClient({
       categories: [],
       brands: [],
       subcategories: [],
+      tags: [],
       minPrice: '',
       maxPrice: '',
       sort: 'rating-desc',
@@ -135,7 +138,7 @@ export default function ProductsClient({
   }
 
   const activeFilterCount = (() => {
-    let count = filters.brands.length + (filters.subcategories?.length || 0) + (filters.minPrice ? 1 : 0) + (filters.maxPrice ? 1 : 0)
+    let count = filters.brands.length + (filters.subcategories?.length || 0) + (filters.tags?.length || 0) + (filters.minPrice ? 1 : 0) + (filters.maxPrice ? 1 : 0)
     // On any category/subcategory page, count it as an active filter
     if (categoryPage) {
       count += 1
@@ -395,6 +398,27 @@ export default function ProductsClient({
                   </div>
                 </div>
               )}
+
+              {/* Room / Style Tags */}
+              <div className="filter-group">
+                <div className="filter-group-title">Room &amp; Style</div>
+                <div className="filter-chips">
+                  {NAV_TAGS.map(tag => (
+                    <button
+                      key={tag.slug}
+                      className={`chip ${filters.tags?.includes(tag.slug) ? 'active' : ''}`}
+                      onClick={() => handleMultiSelect('tags', tag.slug)}
+                    >
+                      {filters.tags?.includes(tag.slug) && (
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                          <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                      )}
+                      {tag.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
               {/* Brands */}
               {brands.length > 0 && (
@@ -1259,6 +1283,8 @@ function ProductCard({ product, view }) {
   const [isHovering, setIsHovering] = useState(false)
   const [imageError, setImageError] = useState(false)
   
+  const canBuyOnline = !!(product.shipping_length && product.shipping_width && product.shipping_height)
+
   const discountPercentage = product.discount_price 
     ? Math.round(((product.price - product.discount_price) / product.price) * 100)
     : 0
@@ -1286,7 +1312,7 @@ function ProductCard({ product, view }) {
         </div>
 
         <div className="badge-stack">
-          {discountPercentage > 0 && (
+          {canBuyOnline && discountPercentage > 0 && (
             <span className="badge badge-discount">-{discountPercentage}%</span>
           )}
           {product.tags?.includes('bestseller') && (
@@ -1325,12 +1351,18 @@ function ProductCard({ product, view }) {
         )}
 
         <div className="product-price-section">
-          <span className="current-price">₹{displayPrice?.toLocaleString('en-IN')}</span>
-          {product.discount_price && (
+          {canBuyOnline ? (
             <>
-              <span className="original-price">₹{product.price?.toLocaleString('en-IN')}</span>
-              <span className="save-tag">Save ₹{(product.price - displayPrice)?.toLocaleString('en-IN')}</span>
+              <span className="current-price">₹{displayPrice?.toLocaleString('en-IN')}</span>
+              {product.discount_price && (
+                <>
+                  <span className="original-price">₹{product.price?.toLocaleString('en-IN')}</span>
+                  <span className="save-tag">Save ₹{(product.price - displayPrice)?.toLocaleString('en-IN')}</span>
+                </>
+              )}
             </>
+          ) : (
+            <span className="contact-price">Contact for price</span>
           )}
         </div>
 
@@ -1581,6 +1613,13 @@ function ProductCard({ product, view }) {
           font-size: 11px;
           color: #e74c3c;
           font-weight: 600;
+        }
+
+        .contact-price {
+          font-size: 13px;
+          color: #888;
+          font-style: italic;
+          font-weight: 500;
         }
 
         .product-description {

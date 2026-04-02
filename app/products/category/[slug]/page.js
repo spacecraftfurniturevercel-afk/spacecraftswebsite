@@ -418,6 +418,13 @@ export default async function CategoryPage({ params, searchParams }) {
       const subCatArray = searchParams.subcategories.split(',')
       query = query.overlaps('tags', subCatArray)
     }
+
+    // Filter by nav tags (living-room, bedroom, etc.)
+    const tagFilter = searchParams?.tags || searchParams?.tag
+    if (tagFilter) {
+      const tagArray = tagFilter.split(',')
+      query = query.overlaps('tags', tagArray)
+    }
     
     // Price filters
     if (searchParams?.minPrice) {
