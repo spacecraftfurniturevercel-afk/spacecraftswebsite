@@ -32,6 +32,7 @@ export async function POST(req, { params }) {
       shipping_width: form.shipping_width ? parseInt(form.shipping_width) : null,
       shipping_height: form.shipping_height ? parseInt(form.shipping_height) : null,
       shipping_box_count: form.shipping_box_count ? parseInt(form.shipping_box_count) : 1,
+      tags: Array.isArray(form.tags) ? form.tags : (form.tags ? form.tags : []),
     }
 
     const { data, error } = await supa.from('products').update(update).eq('id', id).select().single()

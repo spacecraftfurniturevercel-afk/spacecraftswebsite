@@ -65,9 +65,9 @@ export const metadata = {
     },
   },
   icons: {
-    icon: '/favicon.ico',
-    shortcut: '/favicon-16x16.png',
-    apple: '/apple-touch-icon.png',
+    icon: '/favlogo/logo-01.png',
+    shortcut: '/favlogo/logo-01.png',
+    apple: '/favlogo/logo-01.png',
   },
   manifest: '/site.webmanifest',
   verification: {
