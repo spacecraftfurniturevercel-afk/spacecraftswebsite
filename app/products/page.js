@@ -1,6 +1,8 @@
 import { createSupabaseServerClient } from '../../lib/supabaseClient'
 import ProductsClient from '../../components/ProductsClient'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata = {
   title: 'All Products - Spacecrafts Furniture | Shop Premium Furniture Online',
   description: 'Browse our complete collection of premium furniture. Shop sofas, beds, dining sets, office furniture, sofa cum beds, space-saving furniture and more. Free delivery across India.',

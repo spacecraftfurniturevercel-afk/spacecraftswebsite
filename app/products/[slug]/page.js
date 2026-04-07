@@ -2,6 +2,9 @@ import { createSupabaseServerClient } from '../../../lib/supabaseClient'
 import ProductDetailClient from '../../../components/ProductDetailClient'
 import { notFound } from 'next/navigation'
 
+// Always fetch fresh data — never serve a stale cached product page
+export const dynamic = 'force-dynamic'
+
 export async function generateMetadata({ params }) {
   const { slug } = params
   try {

@@ -2,6 +2,8 @@ import { createSupabaseServerClient } from '../../../../lib/supabaseClient'
 import ProductsClient from '../../../../components/ProductsClient'
 import { notFound } from 'next/navigation'
 
+export const dynamic = 'force-dynamic'
+
 // Sub-categories stored as tags on products — grouped by main category
 const SUB_CATEGORIES = [
   { slug: '2-seater', name: '2 Seater', parent: 'Sofa Sets' },
