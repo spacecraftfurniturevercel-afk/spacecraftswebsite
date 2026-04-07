@@ -3,7 +3,7 @@ import nodemailer from 'nodemailer'
 
 const EMAIL_FROM = process.env.EMAIL_FROM || 'spacecraftsdigital@gmail.com'
 const EMAIL_APP_PASSWORD = process.env.EMAIL_APP_PASSWORD
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'anandanathurelangovan94@gmail.com'
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'spacecraftfurniturevercel@gmail.com'
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || 'Spacecrafts Furniture'
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.spacecraftsfurniture.in'
 
