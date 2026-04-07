@@ -13,8 +13,8 @@ const badges = [
         <line x1="8" y1="18.5" x2="16" y2="18.5" />
       </svg>
     ),
-    title: 'Free Delivery',
-    description: 'Free shipping on orders above ₹10,000',
+    title: 'Affordable Delivery',
+    description: 'Affordable shipping on All Orders',
     accent: '#e67e22',
   },
   {

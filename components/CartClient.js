@@ -555,8 +555,8 @@ export default function CartClient() {
                   </div>
                   {selectedAddress ? (
                     <div className="confirm-address">
-                      <strong>{selectedAddress.full_name}</strong>
-                      <p>{selectedAddress.address_line1}{selectedAddress.address_line2 ? `, ${selectedAddress.address_line2}` : ''}</p>
+                      <strong>{selectedAddress.full_name || selectedAddress.label}</strong>
+                      <p>{selectedAddress.address_line1 || selectedAddress.line1}{(selectedAddress.address_line2 || selectedAddress.line2) ? `, ${selectedAddress.address_line2 || selectedAddress.line2}` : ''}</p>
                       <p>{selectedAddress.city}, {selectedAddress.state} – {selectedAddress.postal_code}</p>
                       <p>Phone: {selectedAddress.phone}</p>
                       {pincodeValidation?.available && (
@@ -571,6 +571,54 @@ export default function CartClient() {
                       )}
                     </div>
                   ) : <p style={{color:'#888', fontSize: 13}}>No address selected</p>}
+                </div>
+
+                {/* Price Details card — mirrors Buy Now panel; visible on all screen sizes */}
+                <div className="section-card">
+                  <div className="section-header">
+                    <h2>Price Details</h2>
+                  </div>
+                  <div style={{padding: '14px 16px'}}>
+                    <div className="pd-row">
+                      <span>Subtotal</span>
+                      <span>₹{totals.subtotal.toLocaleString('en-IN')}</span>
+                    </div>
+                    {appliedCoupon && totals.discount > 0 && (
+                      <div className="pd-row" style={{color: '#16a34a', fontWeight: 600}}>
+                        <span>Discount ({appliedCoupon.discount_percentage}%)</span>
+                        <span>−₹{totals.discount.toLocaleString('en-IN')}</span>
+                      </div>
+                    )}
+                    <div className="pd-row">
+                      <span>Delivery Charges</span>
+                      <span>
+                        {deliveryChargeLoading ? (
+                          <span style={{color: '#999', fontSize: 12}}>Calculating...</span>
+                        ) : totals.shipping === 0 ? (
+                          selectedAddress
+                            ? <span style={{color: '#16a34a', fontWeight: 600}}>FREE</span>
+                            : <span style={{color: '#999', fontSize: 12}}>Select address</span>
+                        ) : (
+                          `₹${totals.shipping.toLocaleString('en-IN')}`
+                        )}
+                      </span>
+                    </div>
+                    {deliveryChargeInfo?.courierName && !deliveryChargeLoading && (
+                      <div className="pd-row" style={{fontSize: 11, color: '#888', marginBottom: 6}}>
+                        <span>via {deliveryChargeInfo.courierName}</span>
+                        <span>~{deliveryChargeInfo.estimatedDays} days</span>
+                      </div>
+                    )}
+                    <div className="pd-row">
+                      <span>GST (18%)</span>
+                      <span>₹{Math.round(totals.subtotal * 0.18).toLocaleString('en-IN')}</span>
+                    </div>
+                    <div className="pd-divider"></div>
+                    <div className="pd-total">
+                      <span>Total</span>
+                      <span>₹{totals.total.toLocaleString('en-IN')}</span>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Payment section */}
@@ -655,7 +703,7 @@ export default function CartClient() {
                     <>
                       {!showAddressPicker && (
                         <div className="addr-selected">
-                          <strong>{selectedAddress.full_name}</strong>
+                          <strong>{selectedAddress.full_name || selectedAddress.label}</strong>
                           <span>{selectedAddress.city} – {selectedAddress.postal_code}</span>
                           {validatingPincode && <span className="addr-checking">Checking delivery...</span>}
                           {pincodeValidation && !validatingPincode && (
@@ -671,8 +719,8 @@ export default function CartClient() {
                             <div key={a.id} className={`addr-option ${selectedAddress?.id === a.id ? 'active' : ''}`} onClick={() => handleAddressSelect(a)}>
                               <div className="addr-radio"><div className={selectedAddress?.id === a.id ? 'dot active' : 'dot'}></div></div>
                               <div>
-                                <strong>{a.full_name}</strong>
-                                <span>{a.address_line1}, {a.city} – {a.postal_code}</span>
+                                <strong>{a.full_name || a.label}</strong>
+                                <span>{a.address_line1 || a.line1}, {a.city} – {a.postal_code}</span>
                               </div>
                             </div>
                           ))}
@@ -696,7 +744,7 @@ export default function CartClient() {
               <div className="trust-icons">
                 <div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Secure</div>
                 <div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Genuine</div>
-                <div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5a2 2 0 01-2 2h-1M6 19a2 2 0 100-4 2 2 0 000 4zm12 0a2 2 0 100-4 2 2 0 000 4z"/></svg> Free Ship</div>
+                <div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5a2 2 0 01-2 2h-1M6 19a2 2 0 100-4 2 2 0 000 4zm12 0a2 2 0 100-4 2 2 0 000 4z"/></svg> Affordable Ship</div>
               </div>
             </div>
           </div>
@@ -790,6 +838,11 @@ export default function CartClient() {
         .btn-spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; }
 
         .trust-row { display: flex; align-items: center; gap: 6px; padding: 0 16px 14px; font-size: 11px; color: #888; }
+
+        /* Price Details card (step 2 inline) */
+        .pd-row { display: flex; justify-content: space-between; font-size: 13px; color: #555; margin-bottom: 10px; }
+        .pd-divider { height: 1px; background: #eee; margin: 10px 0; }
+        .pd-total { display: flex; justify-content: space-between; font-size: 16px; font-weight: 800; color: #222; }
 
         /* Summary card */
         .summary-card { background: #fff; border: 1px solid #eee; border-radius: 8px; padding: 16px; position: sticky; top: 90px; }
