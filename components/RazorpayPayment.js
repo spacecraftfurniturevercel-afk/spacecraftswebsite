@@ -65,7 +65,7 @@ export default function RazorpayPayment({
       let paymentHandled = false
 
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_SNZPmHU5RD7fq8',
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         order_id: orderData.razorpay_order_id,
         amount: orderData.amount_paise,
         currency: 'INR',
