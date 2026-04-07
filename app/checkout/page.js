@@ -39,14 +39,11 @@ export default function CheckoutPage() {
           const cartData = await cartResponse.json()
           setCartItems(cartData.items || [])
           
-          // Use summary from API (includes 18% GST)
-          if (cartData.summary) {
-            setOrderSummary(cartData.summary)
-          } else {
-            const sub = cartData.items?.reduce((sum, item) => sum + (item.price * item.quantity), 0) || 0
-            const gst = Math.round(sub * 0.18)
-            setOrderSummary({ subtotal: sub, tax: gst, shipping: 0, total: sub + gst })
-          }
+          // Compute summary with 18% GST (matching backend create-order logic)
+          const sub = cartData.summary?.subtotal ||
+            cartData.items?.reduce((sum, item) => sum + (item.price * item.quantity), 0) || 0
+          const gst = Math.round(sub * 0.18)
+          setOrderSummary({ subtotal: sub, tax: gst, shipping: 0, total: sub + gst })
         }
 
         // Fetch addresses
@@ -263,7 +260,10 @@ export default function CheckoutPage() {
               </div>
             )}
 
-
+            <div className="summary-row">
+              <span>GST (18%):</span>
+              <span>₹{orderSummary?.tax?.toFixed(2) || '0.00'}</span>
+            </div>
 
             <div className="summary-divider"></div>
 

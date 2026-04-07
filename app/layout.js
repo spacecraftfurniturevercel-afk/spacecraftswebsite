@@ -1,6 +1,5 @@
 import './globals.css'
 import NextTopLoader from 'nextjs-toploader'
-import MaintenanceBanner from '../components/MaintenanceBanner'
 import AnnouncementBar from '../components/AnnouncementBar'
 import TopNavigationBar from '../components/TopNavigationBar'
 import Header from '../components/Header'
@@ -119,7 +118,6 @@ export default function RootLayout({ children }) {
         />
         <AuthProvider>
           <GTMNoScript />
-          <MaintenanceBanner />
           <AnnouncementBar />
           <TopNavigationBar />
           <Header />

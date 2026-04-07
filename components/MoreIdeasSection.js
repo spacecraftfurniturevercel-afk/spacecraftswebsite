@@ -204,27 +204,22 @@ export default function MoreIdeasSection() {
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        setIsVisible(entry.isIntersecting)
-
-        // Hide/show header based on section visibility
-        if (entry.isIntersecting && entry.intersectionRatio > 0.1) {
-          document.documentElement.setAttribute('data-hide-header', '')
-        } else {
-          document.documentElement.removeAttribute('data-hide-header')
+        if (entry.isIntersecting) {
+          setIsVisible(true)
+          observer.disconnect()
         }
       },
-      { threshold: [0, 0.1, 0.5], rootMargin: '-60px 0px 0px 0px' }
+      { threshold: 0.05 }
     )
 
     observer.observe(section)
 
-    // Fallback timer for initial render
+    // Fallback timer for slow loads
     const fallback = setTimeout(() => setIsVisible(true), 800)
 
     return () => {
       observer.disconnect()
       clearTimeout(fallback)
-      document.documentElement.removeAttribute('data-hide-header')
     }
   }, [])
 

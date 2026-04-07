@@ -49,7 +49,8 @@ export default function CartClient() {
         const guestItems = ls ? JSON.parse(ls) : []
         setItems(guestItems)
         const guestSubtotal = guestItems.reduce((s, it) => s + (it.price || 0) * (it.quantity || 1), 0)
-        setSummary({ subtotal: guestSubtotal, discount: 0, tax: 0, shipping: 0, total: guestSubtotal })
+        const guestGst1 = Math.round(guestSubtotal * 0.18)
+        setSummary({ subtotal: guestSubtotal, discount: 0, tax: guestGst1, shipping: 0, total: guestSubtotal + guestGst1 })
         setLoading(false)
         return
       }
@@ -72,7 +73,8 @@ export default function CartClient() {
         const guestItems = ls ? JSON.parse(ls) : []
         setItems(guestItems)
         const guestSubtotal = guestItems.reduce((s, it) => s + (it.price || 0) * (it.quantity || 1), 0)
-        setSummary({ subtotal: guestSubtotal, discount: 0, tax: 0, shipping: 0, total: guestSubtotal })
+        const guestGst2 = Math.round(guestSubtotal * 0.18)
+        setSummary({ subtotal: guestSubtotal, discount: 0, tax: guestGst2, shipping: 0, total: guestSubtotal + guestGst2 })
       } else {
         const controller = new AbortController()
         const timeout = setTimeout(() => controller.abort(), 10000)
@@ -81,7 +83,9 @@ export default function CartClient() {
         const data = await res.json()
         if (!res.ok) throw new Error(data.error || 'Failed to load cart')
         setItems(data.items || [])
-        setSummary(data.summary || { subtotal: 0, discount: 0, tax: 0, shipping: 0, total: 0 })
+        const apiSub = data.summary?.subtotal || 0
+        const apiGst = Math.round(apiSub * 0.18)
+        setSummary({ subtotal: apiSub, discount: 0, tax: apiGst, shipping: 0, total: apiSub + apiGst })
       }
     } catch (err) {
       if (err.name === 'AbortError') {
@@ -189,19 +193,27 @@ export default function CartClient() {
           estimatedDays: data.estimatedDays,
           freeDelivery: data.freeDelivery,
         })
-        setSummary(prev => ({
-          ...prev,
-          shipping: charge,
-          total: prev.subtotal - (appliedCoupon ? prev.discount : 0) + charge
-        }))
+        setSummary(prev => {
+          const gst = Math.round(prev.subtotal * 0.18)
+          return {
+            ...prev,
+            tax: gst,
+            shipping: charge,
+            total: prev.subtotal - (appliedCoupon ? prev.discount : 0) + charge + gst
+          }
+        })
       } else {
         setDeliveryCharge(0)
         setDeliveryChargeInfo(null)
-        setSummary(prev => ({
-          ...prev,
-          shipping: 0,
-          total: prev.subtotal - (appliedCoupon ? prev.discount : 0)
-        }))
+        setSummary(prev => {
+          const gst = Math.round(prev.subtotal * 0.18)
+          return {
+            ...prev,
+            tax: gst,
+            shipping: 0,
+            total: prev.subtotal - (appliedCoupon ? prev.discount : 0) + gst
+          }
+        })
       }
     } catch (err) {
       console.error('Delivery charges fetch error:', err)
@@ -273,7 +285,8 @@ export default function CartClient() {
       else {
         setAppliedCoupon(data); setCouponError(null)
         const couponDiscount = (totals.subtotal * data.discount_percentage) / 100
-        setSummary(prev => ({ ...prev, discount: couponDiscount, total: prev.subtotal - couponDiscount + (deliveryCharge || 0) }))
+        const gstCoupon = Math.round(totals.subtotal * 0.18)
+        setSummary(prev => ({ ...prev, discount: couponDiscount, tax: gstCoupon, total: prev.subtotal - couponDiscount + (deliveryCharge || 0) + gstCoupon }))
       }
     } catch { setCouponError('Failed to apply coupon') }
     finally { setApplyingCoupon(false) }
@@ -281,7 +294,7 @@ export default function CartClient() {
 
   const handleRemoveCoupon = () => {
     setAppliedCoupon(null); setCouponCode(''); setCouponError(null)
-    setSummary(prev => ({ ...prev, discount: 0, total: prev.subtotal + (deliveryCharge || 0) }))
+    setSummary(prev => { const gst = Math.round(prev.subtotal * 0.18); return { ...prev, discount: 0, tax: gst, total: prev.subtotal + (deliveryCharge || 0) + gst } })
   }
 
   // Proceed to checkout Step 2
@@ -611,6 +624,7 @@ export default function CartClient() {
                   <span>~{deliveryChargeInfo.estimatedDays} days</span>
                 </div>
               )}
+              <div className="sum-row"><span>GST (18%)</span><span>₹{Math.round(totals.subtotal * 0.18).toLocaleString('en-IN')}</span></div>
               <div className="sum-divider"></div>
               <div className="sum-total"><span>Total</span><span>₹{totals.total.toLocaleString('en-IN')}</span></div>
 

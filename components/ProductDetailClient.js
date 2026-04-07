@@ -3486,14 +3486,15 @@ export default function ProductDetailClient({
                       <span>~{buyNowDeliveryCharge.estimatedDays} days</span>
                     </div>
                   )}
+                  <div className="bnc-price-row"><span>GST (18%)</span><span>₹{Math.round(displayPrice * quantity * 0.18).toLocaleString('en-IN')}</span></div>
                   <div className="bnc-price-total">
                     <span>Total</span>
-                    <span>₹{Number(displayPrice * quantity + (buyNowDeliveryCharge?.charge || 0)).toLocaleString('en-IN')}</span>
+                    <span>₹{Number(displayPrice * quantity + Math.round(displayPrice * quantity * 0.18) + (buyNowDeliveryCharge?.charge || 0)).toLocaleString('en-IN')}</span>
                   </div>
                 </div>
 
                 <button className="bnc-pay-btn" onClick={handleProceedToPayment} disabled={!selectedAddressId || buyNowDeliveryLoading}>
-                  {buyNowDeliveryLoading ? 'Calculating delivery...' : `Proceed to Payment — ₹${Number(displayPrice * quantity + (buyNowDeliveryCharge?.charge || 0)).toLocaleString('en-IN')}`}
+                  {buyNowDeliveryLoading ? 'Calculating delivery...' : `Proceed to Payment — ₹${Number(displayPrice * quantity + Math.round(displayPrice * quantity * 0.18) + (buyNowDeliveryCharge?.charge || 0)).toLocaleString('en-IN')}`}
                 </button>
               </>
             )}
