@@ -229,7 +229,7 @@ export default function Header() {
     ? ['All', ...dbCategories.map(c => c.name)]
     : Object.keys(categoryData)
 
-  const displayName = (profile?.full_name || user?.email?.split('@')[0] || 'Account').split(' ')[0]
+  const displayName = profile?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || ''
 
   // Fetch cart count
   useEffect(() => {
@@ -566,9 +566,9 @@ export default function Header() {
                   onClick={() => setShowUserMenu(!showUserMenu)}
                 >
                   <div className={styles['user-avatar']}>
-                    {displayName.charAt(0).toUpperCase()}
+                    {(profile?.full_name || user?.email || 'U').charAt(0).toUpperCase()}
                   </div>
-                  <span className={styles['user-name']}>{displayName}</span>
+                  {profile && <span className={styles['user-name']}>{displayName}</span>}
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <polyline points="6 9 12 15 18 9"/>
                   </svg>
