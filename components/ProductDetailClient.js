@@ -3750,7 +3750,7 @@ function RelatedProductCard({ product }) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <Link href={`/products/${product.slug}`} className="rpc-link">
+      <Link href={`/products/${product.slug}`} target="_blank" rel="noopener noreferrer" className="rpc-link">
         <div className="rpc-img-wrap">
           <Image
             src={imgErr ? '/placeholder-product.jpg' : imgUrl}

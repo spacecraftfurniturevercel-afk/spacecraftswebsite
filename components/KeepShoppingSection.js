@@ -72,7 +72,7 @@ function RelatedCard({ product, index }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay: 0.1 + index * 0.05 }}
     >
-      <Link href={`/products/${product.slug}`} className={styles.relatedCard}>
+      <Link href={`/products/${product.slug}`} target="_blank" rel="noopener noreferrer" className={styles.relatedCard}>
         <div className={styles.relatedImageWrap}>
           <Image
             src={imageUrl}
@@ -109,7 +109,7 @@ function MainProductCard({ product }) {
     : 0
 
   return (
-    <Link href={`/products/${product.slug}`} className={styles.mainCard}>
+    <Link href={`/products/${product.slug}`} target="_blank" rel="noopener noreferrer" className={styles.mainCard}>
       <div className={styles.mainImageWrap}>
         <Image
           src={imageUrl}

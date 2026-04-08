@@ -1295,6 +1295,8 @@ function ProductCard({ product, view }) {
   return (
     <Link 
       href={`/products/${product.slug}`} 
+      target="_blank"
+      rel="noopener noreferrer"
       className={`product-card ${view === 'list' ? 'list-card' : ''}`}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}

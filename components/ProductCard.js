@@ -46,7 +46,7 @@ export default function ProductCard({ product }) {
         borderColor: isHovered ? 'rgba(0,0,0,0.10)' : 'rgba(0,0,0,0.06)',
       }}
     >
-      <Link href={`/products/${product.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+      <Link href={`/products/${product.slug}`} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit' }}>
         
         {/* Image Container */}
         <div style={{

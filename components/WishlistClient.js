@@ -153,7 +153,7 @@ export default function WishlistClient() {
           return (
             <div key={item.id} className="wishlist-card">
               <div className="card-image-wrapper">
-                <Link href={`/products/${item.slug}`} className="card-image">
+                <Link href={`/products/${item.slug}`} target="_blank" rel="noopener noreferrer" className="card-image">
                   <Image 
                     src={item.image_url} 
                     alt={item.name}
@@ -174,7 +174,7 @@ export default function WishlistClient() {
               </div>
               
               <div className="card-content">
-                <Link href={`/products/${item.slug}`} className="card-title">
+                <Link href={`/products/${item.slug}`} target="_blank" rel="noopener noreferrer" className="card-title">
                   {item.name}
                 </Link>
                 

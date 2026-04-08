@@ -229,7 +229,7 @@ export default function Header() {
     ? ['All', ...dbCategories.map(c => c.name)]
     : Object.keys(categoryData)
 
-  const displayName = profile?.full_name || user?.email?.split('@')[0] || 'Account'
+  const displayName = (profile?.full_name || user?.email?.split('@')[0] || 'Account').split(' ')[0]
 
   // Fetch cart count
   useEffect(() => {

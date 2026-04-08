@@ -1,14 +1,18 @@
 "use client"
 import Link from 'next/link'
 import { useState } from 'react'
+import { useAuth } from '../app/providers/AuthProvider'
 import styles from './TopNavigationBar.module.css'
 
 export default function TopNavigationBar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const { isAuthenticated } = useAuth()
 
   const navLinks = [
     { label: 'About Us', href: '/about' },
     { label: 'Buy In Bulk', href: '/bulk-orders' },
+    { label: 'Become a Franchise', href: '/franchise' },
+    { label: 'Track Your Order', href: isAuthenticated ? '/account?tab=orders' : '/login?redirect=/account?tab=orders' },
     { label: 'Contact Us', href: '/contact' }
   ]
 

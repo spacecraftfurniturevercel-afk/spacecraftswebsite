@@ -1,0 +1,283 @@
+'use client'
+
+import { useState } from 'react'
+
+export default function FranchiseClient() {
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    company_name: '',
+    gst_number: '',
+    city: '',
+    state: '',
+    investment_range: '',
+    space_available: '',
+    message: '',
+  })
+  const [sending, setSending] = useState(false)
+  const [result, setResult] = useState(null)
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (!form.email && !form.phone) {
+      setResult({ error: 'Please provide at least your email or phone number.' })
+      return
+    }
+    setSending(true)
+    setResult(null)
+    try {
+      const res = await fetch('/api/franchise-enquiry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        setResult({ success: true })
+        setForm({ name: '', email: '', phone: '', company_name: '', gst_number: '', city: '', state: '', investment_range: '', space_available: '', message: '' })
+      } else {
+        setResult({ error: data.error || 'Something went wrong. Please try again.' })
+      }
+    } catch {
+      setResult({ error: 'Network error. Please try again.' })
+    } finally {
+      setSending(false)
+    }
+  }
+
+  const highlights = [
+    { icon: '🏪', title: 'Proven Brand', desc: 'Over a decade of trust in premium furniture retail' },
+    { icon: '📦', title: 'Ready Inventory', desc: 'Backed by our central warehouse and supply chain' },
+    { icon: '📣', title: 'Marketing Support', desc: 'National campaigns + local marketing kit provided' },
+    { icon: '🎓', title: 'Full Training', desc: 'Staff training, systems setup, and ongoing support' },
+    { icon: '💻', title: 'Tech Platform', desc: 'Access to our e-commerce and order management system' },
+    { icon: '📈', title: 'High Margins', desc: 'Competitive margins with a growing category' },
+  ]
+
+  const investmentOptions = [
+    '₹10L – ₹25L',
+    '₹25L – ₹50L',
+    '₹50L – ₹1Cr',
+    'Above ₹1Cr',
+  ]
+
+  return (
+    <div style={{ width: '100%', background: '#fff', minHeight: '100vh', fontFamily: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
+
+      {/* Hero */}
+      <section style={{ width: '100%', background: 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)', color: '#fff', textAlign: 'center', padding: '80px 20px 70px', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)' }} />
+        <div style={{ position: 'relative', zIndex: 1, maxWidth: 720, margin: '0 auto' }}>
+          <div style={{ display: 'inline-block', background: 'rgba(230,126,34,0.15)', border: '1px solid rgba(230,126,34,0.4)', borderRadius: 20, padding: '6px 16px', fontSize: 12, fontWeight: 700, color: '#f39c12', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 20 }}>
+            Franchise Opportunity
+          </div>
+          <h1 style={{ fontSize: 44, fontWeight: 800, margin: '0 0 16px', letterSpacing: '-0.5px', lineHeight: 1.2 }}>Become a Franchise Partner</h1>
+          <p style={{ fontSize: 17, color: 'rgba(255,255,255,0.85)', lineHeight: 1.7, margin: 0 }}>
+            Own a Spacecrafts Furniture store in your city. Join a premium furniture brand with a proven retail model and a loyal customer base across South India.
+          </p>
+        </div>
+      </section>
+
+      {/* Why Partner */}
+      <section style={{ maxWidth: 1200, margin: '0 auto', padding: '64px 20px 0' }}>
+        <div style={{ textAlign: 'center', marginBottom: 36 }}>
+          <h2 style={{ fontSize: 28, fontWeight: 800, color: '#1a1a1a', margin: '0 0 10px' }}>Why Partner With Us?</h2>
+          <p style={{ fontSize: 15, color: '#666', margin: 0 }}>Everything you need to run a successful furniture retail business</p>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 20 }}>
+          {highlights.map((h, i) => (
+            <div key={i} style={{ background: '#fafafa', border: '1.5px solid #eee', borderRadius: 12, padding: '24px 18px', textAlign: 'center' }}>
+              <div style={{ fontSize: 28, marginBottom: 10 }}>{h.icon}</div>
+              <h3 style={{ margin: '0 0 6px', fontSize: 14, fontWeight: 700, color: '#1a1a1a' }}>{h.title}</h3>
+              <p style={{ margin: 0, fontSize: 13, color: '#666', lineHeight: 1.5 }}>{h.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Steps */}
+      <section style={{ maxWidth: 900, margin: '0 auto', padding: '60px 20px 0' }}>
+        <h2 style={{ fontSize: 24, fontWeight: 800, color: '#1a1a1a', textAlign: 'center', margin: '0 0 32px' }}>How It Works</h2>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+          {[
+            { step: '01', title: 'Submit Enquiry', desc: 'Fill in the form below. Our franchise team will call you within 24 hours.' },
+            { step: '02', title: 'Discovery Call', desc: 'We discuss your city, investment capacity, space, and goals.' },
+            { step: '03', title: 'Site Visit & Approval', desc: 'Our team visits the proposed location and approves suitability.' },
+            { step: '04', title: 'Agreement & Setup', desc: 'Sign the franchise agreement. We help you set up the store end-to-end.' },
+            { step: '05', title: 'Launch!', desc: 'Grand opening with marketing support. Start selling day one.' },
+          ].map((s, i, arr) => (
+            <div key={i} style={{ display: 'flex', gap: 20, position: 'relative' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#1a1a1a', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800, flexShrink: 0 }}>{s.step}</div>
+                {i < arr.length - 1 && <div style={{ width: 2, flex: 1, background: '#e5e5e5', margin: '4px 0' }} />}
+              </div>
+              <div style={{ paddingBottom: i < arr.length - 1 ? 28 : 0, paddingTop: 10 }}>
+                <h4 style={{ margin: '0 0 4px', fontSize: 15, fontWeight: 700, color: '#1a1a1a' }}>{s.title}</h4>
+                <p style={{ margin: 0, fontSize: 14, color: '#555', lineHeight: 1.6 }}>{s.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Form */}
+      <section style={{ maxWidth: 1200, margin: '0 auto', padding: '60px 20px 80px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: 48, alignItems: 'start' }}>
+
+          {/* Left */}
+          <div>
+            <h2 style={{ fontSize: 26, fontWeight: 800, color: '#1a1a1a', margin: '0 0 12px' }}>Start Your Franchise Journey</h2>
+            <p style={{ fontSize: 15, color: '#555', lineHeight: 1.7, margin: '0 0 28px' }}>
+              Fill in the form and our franchise development team will reach out to discuss the opportunity in detail.
+            </p>
+            <div style={{ padding: '20px', background: '#fef3e2', border: '1px solid #fde68a', borderRadius: 12 }}>
+              <p style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 700, color: '#92400e' }}>Requirements at a glance</p>
+              <ul style={{ margin: 0, padding: '0 0 0 16px', fontSize: 13, color: '#92400e', lineHeight: 2 }}>
+                <li>Minimum 2,000 sq. ft. showroom space</li>
+                <li>Investment starting from ₹25 Lakhs</li>
+                <li>Commercially zoned property</li>
+                <li>Commitment to brand standards</li>
+              </ul>
+            </div>
+            <div style={{ marginTop: 20, padding: '16px 20px', background: '#f9f9f9', border: '1px solid #eee', borderRadius: 12 }}>
+              <p style={{ margin: 0, fontSize: 13, color: '#555', lineHeight: 1.5 }}>
+                <strong style={{ color: '#1a1a1a' }}>Questions? Call us:</strong><br />
+                <a href="tel:09003003733" style={{ color: '#e67e22', textDecoration: 'none', fontWeight: 600 }}>090030 03733</a>
+              </p>
+            </div>
+          </div>
+
+          {/* Right form */}
+          <div style={{ background: '#fff', border: '1.5px solid #e8e8e8', borderRadius: 16, padding: '36px 32px', boxShadow: '0 4px 24px rgba(0,0,0,0.05)' }}>
+            {result?.success ? (
+              <div style={{ textAlign: 'center', padding: '40px 0' }}>
+                <div style={{ width: 60, height: 60, background: '#f0fdf4', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', fontSize: 28 }}>✅</div>
+                <h3 style={{ margin: '0 0 8px', fontSize: 20, fontWeight: 800, color: '#1a1a1a' }}>Application Received!</h3>
+                <p style={{ margin: 0, fontSize: 14, color: '#555', lineHeight: 1.6 }}>Our franchise team will contact you within 24 hours. We're excited to speak with you!</p>
+                <button onClick={() => setResult(null)} style={{ marginTop: 20, padding: '10px 28px', background: '#1a1a1a', color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+                  Submit Another
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <h3 style={{ margin: '0 0 4px', fontSize: 18, fontWeight: 800, color: '#1a1a1a' }}>Franchise Application</h3>
+                <p style={{ margin: '0 0 4px', fontSize: 13, color: '#888' }}>All fields marked * are required</p>
+
+                {/* Row: Name + Phone */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                  <Field label="Full Name *">
+                    <input required placeholder="Your name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
+                  </Field>
+                  <Field label="Phone *">
+                    <input required type="tel" placeholder="+91 XXXXX XXXXX" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} />
+                  </Field>
+                </div>
+
+                {/* Email */}
+                <Field label="Email">
+                  <input type="email" placeholder="your@email.com" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
+                </Field>
+
+                {/* Row: Company + GST */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                  <Field label="Company Name" optional>
+                    <input placeholder="Your company" value={form.company_name} onChange={e => setForm(f => ({ ...f, company_name: e.target.value }))} />
+                  </Field>
+                  <Field label="GST Number" optional>
+                    <input placeholder="22AAAAA0000A1Z5" value={form.gst_number} onChange={e => setForm(f => ({ ...f, gst_number: e.target.value.toUpperCase() }))} maxLength={15} />
+                  </Field>
+                </div>
+
+                {/* Row: City + State */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                  <Field label="City *">
+                    <input required placeholder="e.g. Chennai" value={form.city} onChange={e => setForm(f => ({ ...f, city: e.target.value }))} />
+                  </Field>
+                  <Field label="State *">
+                    <input required placeholder="e.g. Tamil Nadu" value={form.state} onChange={e => setForm(f => ({ ...f, state: e.target.value }))} />
+                  </Field>
+                </div>
+
+                {/* Row: Investment + Space */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                  <Field label="Investment Range *">
+                    <select required value={form.investment_range} onChange={e => setForm(f => ({ ...f, investment_range: e.target.value }))}>
+                      <option value="">Select range</option>
+                      {investmentOptions.map(o => <option key={o} value={o}>{o}</option>)}
+                    </select>
+                  </Field>
+                  <Field label="Space Available (sq. ft.)">
+                    <input type="number" min="0" placeholder="e.g. 3000" value={form.space_available} onChange={e => setForm(f => ({ ...f, space_available: e.target.value }))} />
+                  </Field>
+                </div>
+
+                {/* Message */}
+                <Field label="Tell Us More *">
+                  <textarea required rows={4} placeholder="Tell us about your background, target location, and why you want to partner with us..." value={form.message} onChange={e => setForm(f => ({ ...f, message: e.target.value }))} style={{ resize: 'vertical' }} />
+                </Field>
+
+                {result?.error && (
+                  <div style={{ background: '#fef2f2', color: '#dc2626', padding: '10px 14px', borderRadius: 8, fontSize: 13, fontWeight: 500 }}>
+                    {result.error}
+                  </div>
+                )}
+
+                <button type="submit" disabled={sending} style={{ width: '100%', padding: '14px', background: sending ? '#999' : '#1a1a1a', color: '#fff', border: 'none', borderRadius: 10, fontSize: 15, fontWeight: 700, cursor: sending ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'background 0.15s', marginTop: 4 }}>
+                  {sending ? (
+                    <><Spin /> Submitting Application...</>
+                  ) : (
+                    <><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Submit Franchise Application</>
+                  )}
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      </section>
+
+      <style>{`
+        @media (max-width: 768px) {
+          section > div[style*="grid-template-columns: 1fr 1.5fr"] { grid-template-columns: 1fr !important; }
+          div[style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; }
+        }
+        input, textarea, select {
+          width: 100%;
+          padding: 11px 14px;
+          border: 1.5px solid #e0e0e0;
+          border-radius: 10px;
+          font-size: 14px;
+          font-family: inherit;
+          color: #1a1a1a;
+          background: #fff;
+          box-sizing: border-box;
+          outline: none;
+          transition: border-color 0.2s;
+          appearance: auto;
+        }
+        input:focus, textarea:focus, select:focus { border-color: #1a1a1a; box-shadow: 0 0 0 3px rgba(26,26,26,0.06); }
+        input::placeholder, textarea::placeholder { color: #bbb; }
+      `}</style>
+    </div>
+  )
+}
+
+function Field({ label, optional, children }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <label style={{ fontSize: 12, fontWeight: 600, color: '#555', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
+        {label}
+        {optional && <span style={{ fontSize: 11, color: '#aaa', fontWeight: 400, textTransform: 'none', marginLeft: 4 }}>(optional)</span>}
+      </label>
+      {children}
+    </div>
+  )
+}
+
+function Spin() {
+  return (
+    <span style={{ display: 'inline-block', width: 16, height: 16, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', animation: 'fspin 0.7s linear infinite' }}>
+      <style>{`@keyframes fspin { to { transform: rotate(360deg); } }`}</style>
+    </span>
+  )
+}

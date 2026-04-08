@@ -47,7 +47,8 @@
 
 /* Left side wrapper */
 .header-left {
-  flex: 1;
+  flex: 1 1 0;
+  min-width: 0;
   display: flex;
   align-items: center;
   order: 1;
@@ -367,7 +368,8 @@
 
 /* Right side wrapper */
 .header-right {
-  flex: 1;
+  flex: 1 1 0;
+  min-width: 0;
   display: flex;
   align-items: center;
   justify-content: flex-end;
