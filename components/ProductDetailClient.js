@@ -611,6 +611,7 @@ export default function ProductDetailClient({
                     objectFit: 'cover', 
                     width: '100%', 
                     height: 'auto',
+                    maxHeight: '80vh',
                   }}
                   priority
                   onError={() => {
@@ -1622,7 +1623,7 @@ export default function ProductDetailClient({
         /* ========== IMAGE GALLERY ========== */
         .product-gallery {
           position: sticky;
-          top: 80px;
+          top: 140px;
           height: fit-content;
         }
 
@@ -1646,6 +1647,7 @@ export default function ProductDetailClient({
           background: #f9f9f9;
           cursor: crosshair;
           border: 1px solid #eee;
+          max-height: 70vh;
         }
 
         .main-image:hover .zoom-hint {
@@ -1748,7 +1750,7 @@ export default function ProductDetailClient({
           gap: 8px;
           overflow-y: auto;
           overflow-x: hidden;
-          max-height: 520px;
+          max-height: 70vh;
           width: 74px;
           flex-shrink: 0;
           order: -1;
