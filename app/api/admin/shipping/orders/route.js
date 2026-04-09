@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createSupabaseRouteHandlerClient } from '../../../../../lib/supabaseClient'
+import { createSupabaseRouteHandlerClient, createSupabaseServerClient } from '../../../../../lib/supabaseClient'
 
 /**
  * GET /api/admin/shipping/orders
@@ -7,8 +7,9 @@ import { createSupabaseRouteHandlerClient } from '../../../../../lib/supabaseCli
  */
 export async function GET(request) {
   try {
-    const supabase = createSupabaseRouteHandlerClient(request)
-    const { data: { user } } = await supabase.auth.getUser()
+    // Use session client only to verify the admin's identity
+    const sessionClient = createSupabaseRouteHandlerClient(request)
+    const { data: { user } } = await sessionClient.auth.getUser()
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -23,6 +24,9 @@ export async function GET(request) {
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '50')
     const status = searchParams.get('status')
+
+    // Use service role client so RLS doesn't hide other users' orders
+    const supabase = createSupabaseServerClient()
 
     let query = supabase
       .from('orders')

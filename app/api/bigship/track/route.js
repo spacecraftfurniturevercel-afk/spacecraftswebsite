@@ -249,7 +249,24 @@ export async function GET(request) {
       }
     }
 
-    // Fallback to mock if no AWB yet
+    // BigShip is configured but no real AWB yet — order is pending shipment creation/manifest
+    // Don't show fake mock data; return a clear pending state instead
+    if (BIGSHIP_CONFIGURED) {
+      return NextResponse.json({
+        tracking: {
+          status: 'PENDING',
+          awb: order?.tracking_number || null,
+          courier: order?.courier_name || null,
+          estimated_delivery: order?.estimated_delivery || null,
+          current_location: null,
+          activities: [],
+          pending: true,
+          message: 'Shipment is being prepared. Tracking details will appear once the order is dispatched.',
+        },
+      })
+    }
+
+    // BigShip not configured — show mock (dev/demo environment only)
     const tracking = generateMockTracking(
       order || { id: orderId, created_at: new Date().toISOString() }
     )

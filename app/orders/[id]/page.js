@@ -144,7 +144,7 @@ export default function OrderDetailPage() {
   const isPaid = displayPayStatus === 'completed'
   const orderDate = new Date(order.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })
   const orderTime = new Date(order.created_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })
-  const estDelivery = tracking?.estimated_delivery || new Date(new Date(order.created_at).getTime() + 5 * 86400000).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })
+  const estDelivery = tracking?.pending ? null : (tracking?.estimated_delivery || new Date(new Date(order.created_at).getTime() + 5 * 86400000).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }))
   const subtotal = (order.items || []).reduce((s, it) => s + it.unit_price * it.quantity, 0)
   const total = Number(order.total) || subtotal
   const statusLabel = getStatusLabel(order.shipping_status || order.status)
@@ -210,7 +210,7 @@ export default function OrderDetailPage() {
         <motion.div className="odp-card" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
           <div className="odp-card-head">
             <h2>Order Tracking</h2>
-            <span className="odp-eta">Est. Delivery: <strong>{estDelivery}</strong></span>
+            {estDelivery && <span className="odp-eta">Est. Delivery: <strong>{estDelivery}</strong></span>}
           </div>
           {/* Horizontal stepper */}
           <div className="odp-hstepper">
@@ -233,6 +233,13 @@ export default function OrderDetailPage() {
               )
             })}
           </div>
+
+          {/* Pending shipment notice */}
+          {tracking?.pending && (
+            <div style={{ margin: '16px 0 4px', padding: '12px 16px', background: '#fefce8', border: '1px solid #fde68a', borderRadius: 8, fontSize: 13, color: '#92400e' }}>
+              Your order is confirmed and being prepared for dispatch. Tracking details will appear once the shipment is picked up by the courier.
+            </div>
+          )}
 
           {/* Live Activity Timeline */}
           {activities.length > 0 && (
