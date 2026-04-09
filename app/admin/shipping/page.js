@@ -70,6 +70,28 @@ export default function AdminShippingPage() {
     setActionLoading(null)
   }
 
+  const readyToShip = async (orderId) => {
+    if (!confirm('Mark this order as ready to ship? This will manifest the order with BigShip and assign a tracking number.')) return
+    setActionLoading(orderId + '-manifest')
+    setMessage(null)
+    try {
+      const res = await authenticatedFetch('/api/bigship/manifest', {
+        method: 'POST',
+        body: JSON.stringify({ order_id: orderId }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        setMessage({ type: 'success', text: `Order manifested! AWB: ${data.awb_code || 'Pending'} — Courier: ${data.courier || ''}` })
+        loadData()
+      } else {
+        setMessage({ type: 'error', text: data.error || data.message || 'Manifest failed' })
+      }
+    } catch {
+      setMessage({ type: 'error', text: 'Failed to manifest order' })
+    }
+    setActionLoading(null)
+  }
+
   const cancelShipment = async (orderId) => {
     if (!confirm('Cancel this shipment?')) return
     setActionLoading(orderId)
@@ -273,6 +295,14 @@ export default function AdminShippingPage() {
                               color="#3b82f6"
                               loading={actionLoading === order.id}
                               onClick={() => createShipment(order.id)}
+                            />
+                          )}
+                          {(order.bigship_order_id && !order.tracking_number && order.status !== 'cancelled') && (
+                            <ActionBtn
+                              label="✅ Ready to Ship"
+                              color="#16a34a"
+                              loading={actionLoading === order.id + '-manifest'}
+                              onClick={() => readyToShip(order.id)}
                             />
                           )}
                           {order.tracking_number && order.status !== 'cancelled' && order.status !== 'delivered' && (
