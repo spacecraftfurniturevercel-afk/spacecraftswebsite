@@ -291,7 +291,7 @@ export default function AdminShippingPage() {
                     <tr><td colSpan={8} style={{ padding: 32, textAlign: 'center', color: '#999' }}>No orders found</td></tr>
                   ) : orders.map((order) => (
                     <tr key={order.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
-                      <td style={tdStyle}>#{order.id?.slice(0, 8)}</td>
+                      <td style={tdStyle}>#{String(order.id)}</td>
                       <td style={tdStyle}>{new Date(order.created_at).toLocaleDateString('en-IN')}</td>
                       <td style={tdStyle}>₹{order.total?.toLocaleString('en-IN')}</td>
                       <td style={tdStyle}>{getStatusBadge(order.status)}</td>
