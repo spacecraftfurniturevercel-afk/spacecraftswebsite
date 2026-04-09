@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, Fragment } from 'react'
+import { useState, useEffect, useRef, Fragment } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
@@ -30,9 +30,11 @@ export default function ProductDetailClient({
   const router = useRouter()
   const { isAuthenticated } = useAuth()
 
-  // Track product view for "Keep Shopping" feature
+  // Track product view for "Keep Shopping" feature — fire only once per mount
+  const trackedRef = useRef(false)
   useEffect(() => {
-    if (product?.id) {
+    if (product?.id && !trackedRef.current) {
+      trackedRef.current = true
       trackProductView(product.id, isAuthenticated)
     }
   }, [product?.id, isAuthenticated])
@@ -99,15 +101,7 @@ export default function ProductDetailClient({
     }
   }, [])
 
-  console.log('ProductDetailClient Debug:', { product: product.name, productId: product.id, imagesCount: images?.length, images })
-  // Shipping dimensions debug — uses console.warn so it persists in production builds
-  console.warn('[ProductDetail] Shipping fields for', product.name, ':', {
-    shipping_weight: product.shipping_weight,
-    shipping_length: product.shipping_length,
-    shipping_width: product.shipping_width,
-    shipping_height: product.shipping_height,
-    shipping_box_count: product.shipping_box_count,
-  })
+
 
   const displayPrice = product.discount_price || product.price
   const discountPercentage = product.discount_price 
@@ -118,13 +112,7 @@ export default function ProductDetailClient({
     ? '/placeholder-product.svg'
     : (images[selectedImage]?.url || '/placeholder-product.svg')
 
-  console.log('Main Image Debug:', { 
-    imageError, 
-    selectedImage, 
-    mainImage,
-    imageObject: images[selectedImage],
-    imagesArray: images 
-  })
+
 
   const handleAddToCart = async () => {
     setCartError(null)

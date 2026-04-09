@@ -90,7 +90,6 @@ export default async function ProductPage({ params }) {
       .order('position')
     
     images = imagesData || []
-    console.log('Server-side Images Debug:', { productId: product.id, productSlug: product.slug, imagesCount: images.length, images })
     
     // Fetch variants
     const { data: variantsData } = await supabase
