@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
-import { createSupabaseServerClient } from '../../../../lib/supabaseClient'
-import { sendEmail } from '../../../../lib/email'
+import { createSupabaseServerClient } from '../../../lib/supabaseClient'
+import { sendEmail } from '../../../lib/email'
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'spacecraftfurniturevercel@gmail.com'
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || 'Spacecrafts Furniture'
