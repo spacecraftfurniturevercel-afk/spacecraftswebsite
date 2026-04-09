@@ -19,6 +19,13 @@ export default function FranchiseClient() {
   const [result, setResult] = useState(null)
 
   const handleWhatsApp = () => {
+    // Fire-and-forget: save to DB with whatsapp source
+    fetch('/api/franchise-enquiry', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...form, _source: 'whatsapp' }),
+    }).catch(() => {})
+
     const lines = [
       `*Franchise Enquiry – Spacecrafts Furniture*`,
       ``,

@@ -17,6 +17,13 @@ export default function BulkOrdersClient() {
   const [result, setResult] = useState(null)
 
   const handleWhatsApp = () => {
+    // Fire-and-forget: save to DB with whatsapp source
+    fetch('/api/bulk-order-enquiry', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...form, _source: 'whatsapp' }),
+    }).catch(() => {})
+
     const lines = [
       `*Bulk Order Enquiry – Spacecrafts Furniture*`,
       ``,

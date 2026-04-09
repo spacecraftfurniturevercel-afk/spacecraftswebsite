@@ -26,13 +26,19 @@ export default function ContactClient() {
     setLoading(true)
     
     try {
-      // Simulate form submission
-      await new Promise(resolve => setTimeout(resolve, 500))
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Failed to send message')
       setSubmitted(true)
       setFormData({ name: '', email: '', phone: '', subject: '', message: '' })
-      setTimeout(() => setSubmitted(false), 3000)
+      setTimeout(() => setSubmitted(false), 5000)
     } catch (error) {
       console.error('Form submission error:', error)
+      alert(error.message || 'Failed to send message. Please try again.')
     } finally {
       setLoading(false)
     }

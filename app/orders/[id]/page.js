@@ -145,7 +145,10 @@ export default function OrderDetailPage() {
   const orderDate = new Date(order.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })
   const orderTime = new Date(order.created_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })
   const estDelivery = tracking?.pending ? null : (tracking?.estimated_delivery || new Date(new Date(order.created_at).getTime() + 5 * 86400000).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }))
-  const subtotal = (order.items || []).reduce((s, it) => s + it.unit_price * it.quantity, 0)
+  const itemsSubtotal = (order.items || []).reduce((s, it) => s + it.unit_price * it.quantity, 0)
+  const subtotal = Number(order.subtotal) || itemsSubtotal
+  const gstAmount = Number(order.tax) || 0
+  const shippingCharge = Number(order.delivery_charge) || Number(order.shipping_cost) || 0
   const total = Number(order.total) || subtotal
   const statusLabel = getStatusLabel(order.shipping_status || order.status)
   const statusColor = getStatusColor(order.shipping_status || order.status)
@@ -297,10 +300,12 @@ export default function OrderDetailPage() {
             {/* Price Summary */}
             <div className="odp-price-summary">
               <div className="odp-price-row"><span>Subtotal</span><span>₹{subtotal.toLocaleString('en-IN')}</span></div>
-              {order.shipping_cost > 0 && <div className="odp-price-row"><span>Shipping</span><span>₹{Number(order.shipping_cost).toLocaleString('en-IN')}</span></div>}
-              {!order.shipping_cost && <div className="odp-price-row odp-price-free"><span>Shipping</span><span>Free</span></div>}
-
-              {order.discount > 0 && <div className="odp-price-row odp-price-discount"><span>Discount</span><span>-₹{Number(order.discount).toLocaleString('en-IN')}</span></div>}
+              {gstAmount > 0 && <div className="odp-price-row"><span>GST (18%)</span><span>₹{gstAmount.toLocaleString('en-IN')}</span></div>}
+              {shippingCharge > 0
+                ? <div className="odp-price-row"><span>Shipping</span><span>₹{shippingCharge.toLocaleString('en-IN')}</span></div>
+                : <div className="odp-price-row odp-price-free"><span>Shipping</span><span>Free</span></div>
+              }
+              {Number(order.discount) > 0 && <div className="odp-price-row odp-price-discount"><span>Discount</span><span>-₹{Number(order.discount).toLocaleString('en-IN')}</span></div>}
               <div className="odp-price-total"><span>Total Amount</span><span>₹{total.toLocaleString('en-IN')}</span></div>
             </div>
           </motion.div>

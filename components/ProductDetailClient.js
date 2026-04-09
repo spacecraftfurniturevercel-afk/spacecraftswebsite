@@ -3686,6 +3686,19 @@ export default function ProductDetailClient({
                       type="button"
                       className="enq-wa-btn"
                       onClick={() => {
+                        // Fire-and-forget: save to DB with whatsapp source
+                        fetch('/api/enquiry', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            ...enquiryForm,
+                            productId: product.id,
+                            productName: product.name,
+                            productSlug: product.slug,
+                            productPrice: displayPrice,
+                            _source: 'whatsapp',
+                          }),
+                        }).catch(() => {})
                         const productUrl = `https://www.spacecraftsfurniture.in/products/${product.slug}`
                         const msg = [
                           `*Product Enquiry*`,
