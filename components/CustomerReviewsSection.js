@@ -267,7 +267,9 @@ export default function CustomerReviewsSection() {
           <span className={styles.summaryWatermark}>G</span>
 
           {/* Logo */}
-          <div className={styles.logoWrap}>SF</div>
+          <div className={styles.logoWrap}>
+            <img src="/favlogo/logo-01.png" alt="Spacecrafts Furniture" style={{ width: '42px', height: '42px', objectFit: 'contain', borderRadius: 8 }} />
+          </div>
 
           {/* Business name */}
           <h3 className={styles.businessName}>Spacecrafts Furniture</h3>

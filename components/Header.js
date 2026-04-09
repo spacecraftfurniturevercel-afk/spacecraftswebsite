@@ -114,17 +114,11 @@ export default function Header() {
           title: 'Space Savers',
           items: [
             { name: 'Bunk Beds', slug: 'bunk-beds' },
-            { name: 'Diwan Cum Beds', slug: 'diwan-cum-beds' },
             { name: 'Folding Beds', slug: 'folding-beds' },
-            { name: 'Recliner Folding Beds', slug: 'recliner-folding-beds' },
             { name: 'Sofa cum Beds', slug: 'sofa-cum-beds' },
             { name: 'Foldable Tables', slug: 'foldable-tables' },
-            { name: 'Study & Office Tables', slug: 'study-office-tables' },
             { name: 'Foldable Chairs', slug: 'foldable-chairs' },
-            { name: 'Lazy Chairs', slug: 'lazy-chairs' },
-            { name: 'Relax Chair', slug: 'relax-chair' },
-            { name: 'Study Chair', slug: 'study-chair' },
-            { name: 'Folding Dinings', slug: 'folding-dinings' }
+            { name: 'Folding Dinings', slug: 'folding-dinings' },
           ]
         }
       ],
@@ -137,12 +131,10 @@ export default function Header() {
           items: [
             { name: 'Bunk Beds', slug: 'bunk-beds' },
             { name: 'Futon Beds', slug: 'futon-beds' },
-            { name: 'Diwan Cum Beds', slug: 'diwan-cum-beds' },
             { name: 'Folding Beds', slug: 'folding-beds' },
             { name: 'Metal Cots', slug: 'metal-cots' },
-            { name: 'Recliner Folding Beds', slug: 'recliner-folding-beds' },
             { name: 'Sofa cum Beds', slug: 'sofa-cum-beds' },
-            { name: 'Wooden Beds', slug: 'wooden-beds' }
+            { name: 'Wooden Beds', slug: 'wooden-beds' },
           ]
         }
       ],
@@ -185,10 +177,9 @@ export default function Header() {
             { name: '2 Seater', slug: '2-seater' },
             { name: '3+1+1 Sofas', slug: '3-1-1-sofas' },
             { name: 'Corner Sofas', slug: 'corner-sofas' },
-            { name: 'Cushion Sofas', slug: 'cushion-sofas' },
-            { name: 'Diwans', slug: 'diwans' },
             { name: 'Recliner Sofas', slug: 'recliner-sofas' },
-            { name: 'Sofa cum Beds', slug: 'sofa-cum-beds' }
+            { name: 'Sofa cum Beds', slug: 'sofa-cum-beds' },
+            { name: 'Diwans', slug: 'diwans' },
           ]
         }
       ],
@@ -705,7 +696,7 @@ export default function Header() {
                               src={categoryData[category].images[0]}
                               alt={`${category} featured`}
                               width={380}
-                              height={500}
+                              height={420}
                               style={{ objectFit: 'cover', objectPosition: 'center center', width: '100%', height: '100%' }}
                             />
                             <div className={`${styles['image-overlay-text']} ${styles['image-overlay-all']}`}>
@@ -763,8 +754,8 @@ export default function Header() {
                               <Image
                                 src={categoryData[category].images[0]}
                                 alt={`${category} featured`}
-                                width={400}
-                                height={500}
+                                width={380}
+                                height={420}
                                 style={{ objectFit: 'cover', width: '100%', height: '100%' }}
                               />
                               <div className={styles['image-overlay-text']}>
