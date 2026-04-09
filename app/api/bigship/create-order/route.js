@@ -28,13 +28,17 @@ export async function POST(request) {
       return NextResponse.json({ error: 'order_id is required' }, { status: 400 })
     }
 
-    // Validate this order belongs to the user and payment is complete
-    const { data: order, error: orderError } = await supabase
+    const isAdmin = user.email === process.env.ADMIN_EMAIL || user.email?.includes('@admin')
+
+    // Validate this order belongs to the user (skip for admin — admin can manage any order)
+    let orderQuery = supabase
       .from('orders')
       .select('id, payment_status, status, profile_id, bigship_order_id')
       .eq('id', order_id)
-      .eq('profile_id', user.id)
-      .single()
+    if (!isAdmin) {
+      orderQuery = orderQuery.eq('profile_id', user.id)
+    }
+    const { data: order, error: orderError } = await orderQuery.single()
 
     if (orderError || !order) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
