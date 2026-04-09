@@ -17,8 +17,8 @@ const STEPS = [
 function getStep(status) {
   const s = (status || '').toLowerCase().replace(/[_-]/g, ' ')
   if (s === 'delivered') return 3
-  if (['shipped', 'in transit', 'out for delivery', 'manifested'].includes(s)) return 2
-  if (['packed', 'processing', 'picked up', 'pickup scheduled', 'order placed'].includes(s)) return 1
+  if (['shipped', 'in transit', 'out for delivery', 'picked up'].includes(s)) return 2
+  if (['packed', 'processing', 'manifested', 'pickup scheduled', 'order placed'].includes(s)) return 1
   return 0
 }
 
@@ -27,8 +27,8 @@ function getStatusLabel(status) {
   if (s === 'delivered') return 'Delivered'
   if (s === 'out for delivery') return 'Out for Delivery'
   if (s.includes('in transit')) return 'In Transit'
-  if (s === 'manifested' || s === 'shipped') return 'Shipped'
-  if (s === 'processing' || s === 'packed' || s === 'pickup scheduled' || s === 'order placed') return 'Processing'
+  if (s === 'shipped' || s === 'picked up') return 'Shipped'
+  if (s === 'manifested' || s === 'processing' || s === 'packed' || s === 'pickup scheduled' || s === 'order placed') return 'Packed & Ready to Ship'
   if (s === 'cancelled') return 'Cancelled'
   return 'Confirmed'
 }
@@ -36,9 +36,9 @@ function getStatusLabel(status) {
 function getStatusColor(status) {
   const s = (status || '').toLowerCase()
   if (s.includes('deliver')) return '#16a34a'
-  if (s.includes('transit') || s.includes('out for')) return '#2563eb'
+  if (s.includes('transit') || s.includes('out for') || s === 'shipped' || s === 'picked up') return '#2563eb'
   if (s.includes('cancel') || s.includes('fail') || s.includes('rto')) return '#dc2626'
-  if (s.includes('ship') || s.includes('manifest')) return '#7c3aed'
+  if (s.includes('manifest') || s.includes('processing') || s.includes('packed')) return '#f59e0b'
   return '#f59e0b'
 }
 

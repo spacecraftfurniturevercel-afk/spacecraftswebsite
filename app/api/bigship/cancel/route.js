@@ -48,22 +48,32 @@ export async function POST(request) {
     }
 
     if (!order.tracking_number) {
-      // No AWB yet — just update status
+      // No AWB yet — just clear any partial shipping state
       await supabase
         .from('orders')
-        .update({ status: 'cancelled', shipping_status: 'CANCELLED', updated_at: new Date().toISOString() })
+        .update({ shipping_status: null, updated_at: new Date().toISOString() })
         .eq('id', order_id)
 
-      return NextResponse.json({ success: true, message: 'Order cancelled (no shipment was created)' })
+      return NextResponse.json({ success: true, message: 'No shipment existed. Order is ready to ship.' })
     }
 
     // Cancel AWB via BigShip
     const result = await cancelAWB([order.tracking_number])
 
     if (result.success) {
+      // Reset shipment fields only — order stays alive and can be re-shipped
       await supabase
         .from('orders')
-        .update({ status: 'cancelled', shipping_status: 'CANCELLED', updated_at: new Date().toISOString() })
+        .update({
+          status: 'confirmed',
+          shipping_status: null,
+          tracking_number: null,
+          courier_name: null,
+          courier_id: null,
+          bigship_order_id: null,
+          estimated_delivery: null,
+          updated_at: new Date().toISOString(),
+        })
         .eq('id', order_id)
 
       try {
