@@ -36,7 +36,7 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Order ID is required' }, { status: 400 })
     }
 
-    const isAdmin = user.email?.includes('@admin') || user.email === process.env.ADMIN_EMAIL
+    const isAdmin = user.email?.includes('@admin') || user.email === process.env.ADMIN_EMAIL || user.email === process.env.ADMIN_EMAIL_2
     // Use service role for DB access so RLS doesn't block admin from other users' orders
     const supabase = isAdmin ? createSupabaseServerClient() : sessionClient
     const query = supabase.from('orders').select('*').eq('id', order_id)

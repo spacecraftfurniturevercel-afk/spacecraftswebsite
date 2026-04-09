@@ -7,7 +7,7 @@ import { createSupabaseRouteHandlerClient, createSupabaseServerClient } from '..
  */
 
 function isAdmin(user) {
-  return user?.email === process.env.ADMIN_EMAIL || user?.email?.includes('@admin')
+  return user?.email === process.env.ADMIN_EMAIL || user?.email === process.env.ADMIN_EMAIL_2 || user?.email?.includes('@admin')
 }
 
 export async function GET(request) {

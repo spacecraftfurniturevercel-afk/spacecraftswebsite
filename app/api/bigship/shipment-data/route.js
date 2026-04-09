@@ -23,7 +23,7 @@ export async function GET(request) {
       return NextResponse.json({ error: 'order_id is required' }, { status: 400 })
     }
 
-    const isAdmin = user.email?.includes('@admin') || user.email === process.env.ADMIN_EMAIL
+    const isAdmin = user.email?.includes('@admin') || user.email === process.env.ADMIN_EMAIL || user.email === process.env.ADMIN_EMAIL_2
     // Use service role so admin can access any order regardless of RLS
     const dbClient = isAdmin ? createSupabaseServerClient() : supabase
 

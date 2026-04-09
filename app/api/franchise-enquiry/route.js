@@ -3,6 +3,8 @@ import { createSupabaseServerClient } from '../../../lib/supabaseClient'
 import { sendEmail } from '../../../lib/email'
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'spacecraftfurniturevercel@gmail.com'
+const ADMIN_EMAIL_2 = process.env.ADMIN_EMAIL_2 || ''
+const ADMIN_EMAILS = [...new Set([ADMIN_EMAIL, ADMIN_EMAIL_2].filter(Boolean))].join(',')
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || 'Spacecrafts Furniture'
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.spacecraftsfurniture.in'
 
@@ -112,7 +114,7 @@ export async function POST(request) {
 </td></tr></table></body></html>`
 
     await Promise.all([
-      sendEmail({ to: ADMIN_EMAIL, subject: `&#127981; Franchise Application from ${name}${company_name ? ` (${company_name})` : ''} — ${city}, ${state}`, html: adminHtml }),
+      sendEmail({ to: ADMIN_EMAILS, subject: `&#127981; Franchise Application from ${name}${company_name ? ` (${company_name})` : ''} — ${city}, ${state}`, html: adminHtml }),
       email ? sendEmail({ to: email, subject: `Franchise Application Received — ${SITE_NAME}`, html: userHtml }) : Promise.resolve(),
     ])
 

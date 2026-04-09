@@ -28,7 +28,7 @@ export async function POST(request) {
       return NextResponse.json({ error: 'order_id is required' }, { status: 400 })
     }
 
-    const isAdmin = user.email === process.env.ADMIN_EMAIL || user.email?.includes('@admin')
+    const isAdmin = user.email === process.env.ADMIN_EMAIL || user.email === process.env.ADMIN_EMAIL_2 || user.email?.includes('@admin')
 
     // Validate this order belongs to the user (skip for admin — admin can manage any order)
     let orderQuery = supabase
