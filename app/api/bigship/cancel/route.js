@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createSupabaseRouteHandlerClient } from '../../../../lib/supabaseClient'
+import { createSupabaseRouteHandlerClient, createSupabaseServerClient } from '../../../../lib/supabaseClient'
 import { cancelAWB } from '../../../../lib/bigship'
 
 const BIGSHIP_CONFIGURED = !!(
@@ -23,8 +23,8 @@ export async function POST(request) {
       })
     }
 
-    const supabase = createSupabaseRouteHandlerClient(request)
-    const { data: { user } } = await supabase.auth.getUser()
+    const sessionClient = createSupabaseRouteHandlerClient(request)
+    const { data: { user } } = await sessionClient.auth.getUser()
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -36,8 +36,9 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Order ID is required' }, { status: 400 })
     }
 
-    // Fetch order — admin can cancel any, user can cancel own
     const isAdmin = user.email?.includes('@admin') || user.email === process.env.ADMIN_EMAIL
+    // Use service role for DB access so RLS doesn't block admin from other users' orders
+    const supabase = isAdmin ? createSupabaseServerClient() : sessionClient
     const query = supabase.from('orders').select('*').eq('id', order_id)
     if (!isAdmin) query.eq('profile_id', user.id)
     const { data: order } = await query.single()

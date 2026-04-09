@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { downloadLabel, downloadManifest, getAWB } from '../../../../lib/bigship'
-import { createSupabaseRouteHandlerClient } from '../../../../lib/supabaseClient'
+import { createSupabaseRouteHandlerClient, createSupabaseServerClient } from '../../../../lib/supabaseClient'
 
 /**
  * GET /api/bigship/shipment-data?type=awb&order_id=123
@@ -23,8 +23,12 @@ export async function GET(request) {
       return NextResponse.json({ error: 'order_id is required' }, { status: 400 })
     }
 
+    const isAdmin = user.email?.includes('@admin') || user.email === process.env.ADMIN_EMAIL
+    // Use service role so admin can access any order regardless of RLS
+    const dbClient = isAdmin ? createSupabaseServerClient() : supabase
+
     // Get order to find bigship_order_id
-    const { data: order } = await supabase
+    const { data: order } = await dbClient
       .from('orders')
       .select('bigship_order_id, profile_id')
       .eq('id', orderId)
@@ -34,7 +38,6 @@ export async function GET(request) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
-    const isAdmin = user.email?.includes('@admin') || user.email === process.env.ADMIN_EMAIL
     if (!isAdmin && order.profile_id !== user.id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
