@@ -233,10 +233,10 @@ export default function AdminEnquiriesPage() {
       <header style={{ background: '#1a1a1a', padding: '16px 28px', display: 'flex', gap: 24, alignItems: 'center' }}>
         <h1 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: '#fff' }}>Admin</h1>
         {[
-          { href: '/admin/orders', label: 'Orders' },
-          { href: '/admin/enquiries', label: 'Enquiries' },
-          { href: '/admin/shipping', label: 'Shipping' },
-          { href: '/admin/products', label: 'Products' },
+        //   { href: '/admin/orders', label: 'Orders' },
+        //   { href: '/admin/enquiries', label: 'Enquiries' },
+        //   { href: '/admin/shipping', label: 'Shipping' },
+        //   { href: '/admin/products', label: 'Products' },
         ].map(l => (
           <a key={l.href} href={l.href} style={{
             color: l.href === '/admin/enquiries' ? '#fff' : 'rgba(255,255,255,0.6)',
