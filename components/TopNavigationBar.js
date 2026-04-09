@@ -24,7 +24,7 @@ export default function TopNavigationBar() {
           <div className={styles.contact_info}>
             <span className={styles.info_icon}>📞</span>
             <a href="tel:+91984222779" className={styles.phone_link} aria-label="Call Ambattur store">
-              AMBATTUR: 98402 22779
+              98402 22779
             </a>
           </div>
 
