@@ -1,9 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { authenticatedFetch } from '../../../lib/authenticatedFetch'
 
 export default function AdminShippingPage() {
+  const router = useRouter()
   const [orders, setOrders] = useState([])
   const [wallet, setWallet] = useState(null)
   const [couriers, setCouriers] = useState([])
@@ -27,6 +29,15 @@ export default function AdminShippingPage() {
         authenticatedFetch('/api/bigship/admin?action=warehouses').catch(() => null),
       ])
 
+      if (ordersRes.status === 401) {
+        router.push('/login?redirect=/admin/shipping')
+        return
+      }
+      if (ordersRes.status === 403) {
+        setMessage({ type: 'error', text: 'Access denied. Admin account required.' })
+        setLoading(false)
+        return
+      }
       if (ordersRes.ok) {
         const data = await ordersRes.json()
         setOrders(data.orders || [])
@@ -289,9 +300,9 @@ export default function AdminShippingPage() {
                       <td style={tdStyle}>{order.shipping_status || '—'}</td>
                       <td style={tdStyle}>
                         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                          {(!order.bigship_order_id && !order.shiprocket_order_id && order.payment_status === 'completed' && order.status !== 'cancelled') && (
+                          {(!order.bigship_order_id && !order.shiprocket_order_id && (order.payment_status === 'completed' || order.status === 'confirmed') && order.status !== 'cancelled') && (
                             <ActionBtn
-                              label="Ship"
+                              label="Create Shipment"
                               color="#3b82f6"
                               loading={actionLoading === order.id}
                               onClick={() => createShipment(order.id)}
