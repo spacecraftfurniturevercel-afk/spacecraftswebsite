@@ -4,6 +4,20 @@ import { notFound } from 'next/navigation'
 
 export const dynamic = 'force-dynamic'
 
+// Cross-category collections — matched via tag overlaps regardless of DB category_id
+const COLLECTION_TAGS = {
+  'space-saving-furniture': [
+    'bunk-beds',
+    'folding-beds',
+    'sofa-cum-beds',
+    'foldable-tables',
+    'foldable-chairs',
+    'folding-dinings',
+    'space-saving-furniture',
+    'space-saving',
+  ],
+}
+
 // Sub-categories stored as tags on products — grouped by main category
 const SUB_CATEGORIES = [
   { slug: '2-seater', name: '2 Seater', parent: 'Sofa Sets' },
@@ -393,7 +407,10 @@ export default async function CategoryPage({ params, searchParams }) {
       `, { count: 'exact' })
       .eq('is_active', true)
 
-    if (isSubCategory) {
+    if (slug in COLLECTION_TAGS) {
+      // Collection page — products matching any of the listed tags
+      query = query.overlaps('tags', COLLECTION_TAGS[slug])
+    } else if (isSubCategory) {
       // Filter by sub-category tag (e.g. "bunk-beds", "corner-sofas")
       // Use tagSlug from categoryMeta if available (handles slug mismatches like study-chair vs study-chairs)
       const meta = categoryMeta[slug]
