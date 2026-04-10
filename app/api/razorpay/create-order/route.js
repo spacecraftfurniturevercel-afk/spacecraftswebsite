@@ -37,6 +37,13 @@ export async function POST(request) {
     const resolvedPaymentType = paymentType || payment_type || 'cart'
     const resolvedProductId = productId || product_id
 
+    if (!address_id) {
+      return NextResponse.json(
+        { error: 'Please select a delivery address before placing the order' },
+        { status: 400 }
+      )
+    }
+
     // Get user profile
     const { data: profile } = await supabase
       .from('profiles')
@@ -170,7 +177,7 @@ export async function POST(request) {
     for (const item of orderItems) {
       const { data: product } = await supabase
         .from('products')
-        .select('id, name, price, discount_price')
+        .select('id, name, price, discount_price, shipping_weight, shipping_length, shipping_width, shipping_height, shipping_box_count')
         .eq('id', item.product_id)
         .single()
 
@@ -183,7 +190,12 @@ export async function POST(request) {
           product_id: item.product_id,
           name: product.name,
           unit_price: product.discount_price || product.price,
-          quantity: item.quantity || 1
+          quantity: item.quantity || 1,
+          shipping_weight: product.shipping_weight || null,
+          shipping_length: product.shipping_length || null,
+          shipping_width: product.shipping_width || null,
+          shipping_height: product.shipping_height || null,
+          shipping_box_count: product.shipping_box_count || 1,
         })
     }
 
