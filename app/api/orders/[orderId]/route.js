@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createSupabaseRouteHandlerClient } from '../../../../lib/supabaseClient'
+import { createSupabaseRouteHandlerClient, createSupabaseServerClient } from '../../../../lib/supabaseClient'
 
 /**
  * GET /api/orders/:orderId
@@ -40,11 +40,12 @@ export async function GET(request, { params }) {
       .select('*')
       .eq('order_id', orderId)
 
-    // Fetch product images from product_images table (images are not columns on products row)
+    // Fetch product images from product_images table via service role (bypasses RLS — product images are public data)
     if (orderItems?.length) {
       const productIds = orderItems.map(i => i.product_id).filter(Boolean)
       if (productIds.length) {
-        const { data: piRows } = await supabase
+        const adminSupabase = createSupabaseServerClient()
+        const { data: piRows } = await adminSupabase
           .from('product_images')
           .select('product_id, url')
           .in('product_id', productIds)

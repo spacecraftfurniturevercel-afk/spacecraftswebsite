@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createSupabaseRouteHandlerClient } from '../../../../lib/supabaseClient'
+import { createSupabaseRouteHandlerClient, createSupabaseServerClient } from '../../../../lib/supabaseClient'
 
 export async function GET(request) {
   try {
@@ -28,27 +28,14 @@ export async function GET(request) {
     }
 
     // Get all cart items with product details
+    // Use products(*) so missing shipping columns (before SQL migration) don't cause a PostgREST error
     const { data: cartItems, error } = await supabase
       .from('cart_items')
       .select(`
         id,
         product_id,
         quantity,
-        products (
-          id,
-          name,
-          price,
-          discount_price,
-          description,
-          slug,
-          stock,
-          category_id,
-          shipping_weight,
-          shipping_length,
-          shipping_width,
-          shipping_height,
-          shipping_box_count
-        )
+        products (*)
       `)
       .eq('profile_id', profile.id)
       .order('created_at', { ascending: false })
@@ -61,11 +48,12 @@ export async function GET(request) {
       )
     }
 
-    // Fetch images from product_images table (all images stored there, not on products row)
+    // Fetch images from product_images table via service role (bypasses RLS — product images are public data)
+    const adminSupabase = createSupabaseServerClient()
     const allProductIds = cartItems?.map(i => i.product_id).filter(Boolean) || []
     const imageMap = {}
     if (allProductIds.length > 0) {
-      const { data: piRows } = await supabase
+      const { data: piRows } = await adminSupabase
         .from('product_images')
         .select('product_id, url')
         .in('product_id', allProductIds)
