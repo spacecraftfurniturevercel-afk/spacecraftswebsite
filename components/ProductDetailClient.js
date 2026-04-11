@@ -107,6 +107,8 @@ export default function ProductDetailClient({
   const discountPercentage = product.discount_price 
     ? Math.round(((product.price - product.discount_price) / product.price) * 100)
     : 0
+  // Price & buy buttons shown only when shipping dimensions are fully set
+  const hasDimensions = !!(product.shipping_weight && product.shipping_length && product.shipping_width && product.shipping_height)
 
   const mainImage = imageError 
     ? '/placeholder-product.svg'
@@ -716,15 +718,22 @@ export default function ProductDetailClient({
 
             {/* Price */}
             {canBuyOnline && (
-            <div className="product-price">
-              <span className="current-price">₹{displayPrice.toLocaleString('en-IN')}</span>
-              {product.discount_price && (
-                <>
-                  <span className="original-price">₹{product.price.toLocaleString('en-IN')}</span>
-                  <span className="save-text">You save ₹{(product.price - product.discount_price).toLocaleString('en-IN')}</span>
-                </>
-              )}
-            </div>
+              hasDimensions ? (
+                <div className="product-price">
+                  <span className="current-price">₹{displayPrice.toLocaleString('en-IN')}</span>
+                  {product.discount_price && (
+                    <>
+                      <span className="original-price">₹{product.price.toLocaleString('en-IN')}</span>
+                      <span className="save-text">You save ₹{(product.price - product.discount_price).toLocaleString('en-IN')}</span>
+                    </>
+                  )}
+                </div>
+              ) : (
+                <div className="product-price contact-price-block">
+                  <span className="contact-price-label">Contact for Price</span>
+                  <p className="contact-price-sub">Call or WhatsApp us for pricing &amp; availability</p>
+                </div>
+              )
             )}
 
             {/* Stock Status */}
@@ -958,7 +967,7 @@ export default function ProductDetailClient({
                     </div>
 
                     {/* Price breakdown: Product + Shipping = Total */}
-                    <div className="shipping-breakdown">
+                    {hasDimensions && <div className="shipping-breakdown">
                       <div className="sb-row">
                         <span className="sb-label">Product ({quantity} × ₹{Number(displayPrice).toLocaleString('en-IN')})</span>
                         <span className="sb-value">₹{Number(displayPrice * quantity).toLocaleString('en-IN')}</span>
@@ -975,7 +984,7 @@ export default function ProductDetailClient({
                         <span className="sb-label">Total Payable</span>
                         <span className="sb-value">₹{Number(displayPrice * quantity + (deliveryInfo.deliveryCharge || 0)).toLocaleString('en-IN')}</span>
                       </div>
-                    </div>
+                    </div>}
 
                     <div className="detail-row">
                       <span className="detail-label">Estimated Delivery:</span>
@@ -1165,7 +1174,33 @@ export default function ProductDetailClient({
             {/* Action Buttons */}
             <div className="action-buttons">
               {canBuyOnline ? (
-                product.stock > 0 ? (
+                !hasDimensions ? (
+                  <>
+                    <a
+                      href="https://wa.me/919003003733"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-primary btn-large"
+                      style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', justifyContent: 'center' }}
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                        <path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.555 4.126 1.527 5.862L0 24l6.316-1.506A11.95 11.95 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.898 0-3.677-.511-5.21-1.402l-.374-.222-3.748.894.927-3.654-.243-.388A9.953 9.953 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
+                      </svg>
+                      WhatsApp for Price
+                    </a>
+                    <a
+                      href="tel:09003003733"
+                      className="btn-secondary btn-large"
+                      style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', justifyContent: 'center' }}
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8a19.79 19.79 0 01-3.07-8.68A2 2 0 012 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z"/>
+                      </svg>
+                      Call for Price
+                    </a>
+                  </>
+                ) : product.stock > 0 ? (
                   <>
                     <button 
                       className="btn-primary btn-large" 
@@ -1837,6 +1872,24 @@ export default function ProductDetailClient({
           font-size: 12px;
           color: #1a1a1a;
           font-weight: 600;
+        }
+
+        .contact-price-block {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 4px;
+        }
+
+        .contact-price-label {
+          font-size: 22px;
+          font-weight: 700;
+          color: #1a1a1a;
+        }
+
+        .contact-price-sub {
+          font-size: 13px;
+          color: #666;
+          margin: 0;
         }
 
         /* ===== STOCK ===== */

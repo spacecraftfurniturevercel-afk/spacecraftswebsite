@@ -178,15 +178,26 @@ export default function AdminShippingPage() {
   }
 
   const getStatusBadge = (status) => {
+    const labels = {
+      confirmed:   'Ready to Ship',
+      processing:  'Processing',
+      shipped:     'Shipped',
+      delivered:   'Delivered',
+      cancelled:   'Cancelled',
+      returned:    'Returned',
+      pending:     'Pending',
+    }
     const colors = {
-      processing: '#f59e0b',
-      shipped: '#3b82f6',
-      delivered: '#22c55e',
-      cancelled: '#ef4444',
-      returned: '#8b5cf6',
-      pending: '#6b7280',
+      confirmed:   '#16a34a',
+      processing:  '#f59e0b',
+      shipped:     '#3b82f6',
+      delivered:   '#22c55e',
+      cancelled:   '#ef4444',
+      returned:    '#8b5cf6',
+      pending:     '#6b7280',
     }
     const color = colors[status] || '#6b7280'
+    const label = labels[status] || status
     return (
       <span style={{
         display: 'inline-block',
@@ -198,7 +209,7 @@ export default function AdminShippingPage() {
         color,
         textTransform: 'capitalize',
       }}>
-        {status}
+        {label}
       </span>
     )
   }
