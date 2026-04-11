@@ -310,7 +310,23 @@ export default function AdminShippingPage() {
                       <td style={{ ...tdStyle, fontFamily: 'monospace', fontSize: 12 }}>{order.tracking_number || '—'}</td>
                       <td style={tdStyle}>{order.shipping_status || '—'}</td>
                       <td style={tdStyle}>
-                        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+                          {order.shipment_error && (
+                            <span title={order.shipment_error} style={{
+                              display: 'inline-block',
+                              maxWidth: 160,
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                              fontSize: 11,
+                              color: '#dc2626',
+                              background: '#fef2f2',
+                              border: '1px solid #fecaca',
+                              borderRadius: 4,
+                              padding: '1px 6px',
+                              cursor: 'help',
+                            }}>⚠ {order.shipment_error}</span>
+                          )}
                           {(!order.bigship_order_id && !order.shiprocket_order_id && (order.payment_status === 'completed' || order.status === 'confirmed') && order.status !== 'cancelled') && (
                             <ActionBtn
                               label="Create Shipment"

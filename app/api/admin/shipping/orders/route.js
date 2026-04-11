@@ -30,7 +30,7 @@ export async function GET(request) {
 
     let query = supabase
       .from('orders')
-      .select('id, created_at, total, status, payment_status, payment_method, courier_name, tracking_number, shipping_status, bigship_order_id, shiprocket_order_id, estimated_delivery')
+      .select('id, created_at, total, status, payment_status, payment_method, courier_name, tracking_number, shipping_status, bigship_order_id, shiprocket_order_id, estimated_delivery, shipment_error')
       .order('created_at', { ascending: false })
       .range((page - 1) * limit, page * limit - 1)
 

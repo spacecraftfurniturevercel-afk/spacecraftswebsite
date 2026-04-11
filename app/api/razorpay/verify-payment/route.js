@@ -239,8 +239,15 @@ export async function POST(request) {
         const result = await createShipmentForOrder(order_id, adminSupabase)
         console.log('[verify-payment] BigShip shipment result for order', order_id, ':', result)
       } catch (shipErr) {
-        // Non-fatal — order is confirmed, shipment can be retried via /api/bigship/create-order
+        // Non-fatal — order is confirmed, shipment can be retried via admin "Create Shipment" button
         console.error('[verify-payment] BigShip shipment creation failed (non-fatal):', shipErr.message)
+        // Record the error on the order row so admin can see it in the shipping dashboard
+        try {
+          await adminSupabase
+            .from('orders')
+            .update({ shipment_error: shipErr.message })
+            .eq('id', order_id)
+        } catch (_) {}
       }
     })()
 
