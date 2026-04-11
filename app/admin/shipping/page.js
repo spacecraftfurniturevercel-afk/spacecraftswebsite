@@ -102,6 +102,23 @@ export default function AdminShippingPage() {
     setActionLoading(orderId + '-manifest')
     setMessage(null)
     try {
+      // If Phase 1 not done yet, run it first
+      const order = orders.find(o => o.id === orderId)
+      if (!order?.bigship_order_id) {
+        setMessage({ type: 'success', text: `Registering order #${orderId} with BigShip first...` })
+        const phase1Res = await authenticatedFetch('/api/shipping/create-order', {
+          method: 'POST',
+          body: JSON.stringify({ order_id: orderId }),
+        })
+        const phase1Data = await phase1Res.json()
+        if (!phase1Data.success) {
+          setMessage({ type: 'error', text: phase1Data.error || phase1Data.message || 'Phase 1 failed — could not register with BigShip' })
+          setActionLoading(null)
+          return
+        }
+        await loadData() // refresh so order now has bigship_order_id
+      }
+
       const res = await authenticatedFetch('/api/bigship/manifest', {
         method: 'POST',
         body: JSON.stringify({ order_id: orderId }),
@@ -343,6 +360,7 @@ export default function AdminShippingPage() {
                               cursor: 'help',
                             }}>⚠ {order.shipment_error}</span>
                           )}
+                          {/* Show Create Shipment when no bigship_order_id yet */}
                           {(!order.bigship_order_id && !order.shiprocket_order_id && (order.payment_status === 'completed' || order.status === 'confirmed') && order.status !== 'cancelled') && (
                             <ActionBtn
                               label="Create Shipment"
@@ -351,7 +369,8 @@ export default function AdminShippingPage() {
                               onClick={() => createShipment(order.id)}
                             />
                           )}
-                          {(order.bigship_order_id && !order.tracking_number && order.status !== 'cancelled') && (
+                          {/* Ready to Ship: show when bigship_order_id set, OR when payment complete but no AWB yet (handles case where system_order_id was saved but Phase 2 never ran) */}
+                          {((order.bigship_order_id || (!order.bigship_order_id && order.payment_status === 'completed')) && !order.tracking_number && order.status !== 'cancelled' && order.status !== 'pending') && (
                             <ActionBtn
                               label="✅ Ready to Ship"
                               color="#16a34a"
