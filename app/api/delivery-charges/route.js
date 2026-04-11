@@ -80,9 +80,9 @@ export async function GET(request) {
       })
     }
 
-    // Find the cheapest option
+    // Find the cheapest option (Amazon already filtered out inside calculateRates)
     const cheapest = result.data.reduce((a, b) =>
-      a.total_shipping_charges < b.total_shipping_charges ? a : b
+      parseFloat(a.total_shipping_charges) < parseFloat(b.total_shipping_charges) ? a : b
     )
 
     return NextResponse.json({
