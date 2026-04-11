@@ -48,7 +48,9 @@ async function fetchBigShipCharges(pincode, amount = 5000, { weight, length, wid
     })
 
     if (result.success && result.data?.length) {
-      const sorted = [...result.data].sort((a, b) => a.total_shipping_charges - b.total_shipping_charges)
+      // Filter out couriers not available on this BigShip account (e.g. Amazon Shipping)
+      const available = result.data.filter(r => !/amazon/i.test(r.courier_name || ''))
+      const sorted = (available.length ? available : result.data).sort((a, b) => a.total_shipping_charges - b.total_shipping_charges)
       const cheapest = sorted[0]
       return {
         available: true,

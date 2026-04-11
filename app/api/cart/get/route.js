@@ -47,7 +47,9 @@ export async function GET(request) {
           shipping_length,
           shipping_width,
           shipping_height,
-          shipping_box_count
+          shipping_box_count,
+          thumbnail_url,
+          images
         )
       `)
       .eq('profile_id', profile.id)
@@ -61,21 +63,32 @@ export async function GET(request) {
       )
     }
 
-    // Fetch images for all products in cart
-    const productIds = cartItems.map(item => item.product_id)
-    const { data: images } = await supabase
-      .from('product_images')
-      .select('product_id, url')
-      .in('product_id', productIds)
-      .order('position')
-
-    // Create a map of product_id to first image
-    const imageMap = {}
-    images?.forEach(img => {
-      if (!imageMap[img.product_id]) {
-        imageMap[img.product_id] = img.url
-      }
+    // Resolve image URL from product data (thumbnail_url → images[0] → product_images table → placeholder)
+    const productImageMap = {}
+    cartItems?.forEach(item => {
+      const p = item.products
+      if (!p) return
+      const url = p.thumbnail_url ||
+        (Array.isArray(p.images) && p.images.length > 0
+          ? (typeof p.images[0] === 'string' ? p.images[0] : p.images[0]?.url)
+          : null)
+      if (url) productImageMap[item.product_id] = url
     })
+
+    // Also try product_images table as fallback for any still-missing images
+    const missingImageIds = cartItems?.map(i => i.product_id).filter(id => !productImageMap[id]) || []
+    if (missingImageIds.length > 0) {
+      const { data: piRows } = await supabase
+        .from('product_images')
+        .select('product_id, url')
+        .in('product_id', missingImageIds)
+        .order('position')
+      piRows?.forEach(img => {
+        if (!productImageMap[img.product_id]) productImageMap[img.product_id] = img.url
+      })
+    }
+
+    const imageMap = productImageMap
 
     // Calculate totals
     let subtotal = 0
