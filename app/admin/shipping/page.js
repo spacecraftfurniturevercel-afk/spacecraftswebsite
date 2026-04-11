@@ -70,7 +70,23 @@ export default function AdminShippingPage() {
       })
       const data = await res.json()
       if (data.success) {
-        setMessage({ type: 'success', text: `Shipment created for order #${orderId}` })
+        if (data.skipped) {
+          // Phase 1 already done (auto-trigger ran after payment) — go straight to Phase 2
+          setMessage({ type: 'success', text: `Order #${orderId} already registered in BigShip. Proceeding to manifest...` })
+          // Auto-trigger manifest (Phase 2) without confirmation prompt
+          const manifestRes = await authenticatedFetch('/api/bigship/manifest', {
+            method: 'POST',
+            body: JSON.stringify({ order_id: orderId }),
+          })
+          const manifestData = await manifestRes.json()
+          if (manifestData.success) {
+            setMessage({ type: 'success', text: `Order #${orderId} manifested! AWB: ${manifestData.awb_code || 'Pending'} — Courier: ${manifestData.courier || ''}` })
+          } else {
+            setMessage({ type: 'error', text: manifestData.error || manifestData.message || 'Manifest failed' })
+          }
+        } else {
+          setMessage({ type: 'success', text: `Shipment created for order #${orderId}` })
+        }
         loadData()
       } else {
         setMessage({ type: 'error', text: data.error || data.message || 'Failed to create shipment' })
