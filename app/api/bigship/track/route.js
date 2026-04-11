@@ -157,8 +157,8 @@ export async function GET(request) {
           ? mapBigShipStatus(scans[0].scan_status)
           : mapBigShipStatus(orderDetail.current_tracking_status)
 
-        // Update order status in DB if we have the order
-        if (order) {
+        // Only update DB when we have a real confirmed status (not PENDING — which would overwrite 'manifested')
+        if (order && latestStatus && latestStatus !== 'PENDING') {
           const statusMap = {
             'DELIVERED': 'delivered',
             'OUT FOR DELIVERY': 'shipped',

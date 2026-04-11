@@ -18,7 +18,7 @@ function getStep(status) {
   const s = (status || '').toLowerCase().replace(/[_-]/g, ' ')
   if (s === 'delivered') return 3
   if (['shipped', 'in transit', 'out for delivery', 'picked up'].includes(s)) return 2
-  if (['packed', 'processing', 'manifested', 'pickup scheduled', 'order placed'].includes(s)) return 1
+  if (['packed', 'processing', 'manifested', 'pickup scheduled', 'order placed', 'pending'].includes(s)) return 1
   return 0
 }
 
@@ -28,7 +28,7 @@ function getStatusLabel(status) {
   if (s === 'out for delivery') return 'Out for Delivery'
   if (s.includes('in transit')) return 'In Transit'
   if (s === 'shipped' || s === 'picked up') return 'Shipped'
-  if (s === 'manifested' || s === 'processing' || s === 'packed' || s === 'pickup scheduled' || s === 'order placed') return 'Packed & Ready to Ship'
+  if (s === 'manifested' || s === 'processing' || s === 'packed' || s === 'pickup scheduled' || s === 'order placed' || s === 'pending') return 'Packed & Ready to Ship'
   if (s === 'cancelled') return 'Cancelled'
   return 'Confirmed'
 }
