@@ -103,7 +103,7 @@ function mapBigShipStatus(scanStatus) {
   if (s.includes('out for delivery')) return 'OUT FOR DELIVERY'
   if (s.includes('in-transit') || s.includes('in transit')) return 'IN TRANSIT'
   if (s.includes('not picked')) return 'NOT PICKED'
-  if (s.includes('pickup scheduled')) return 'PICKUP SCHEDULED'
+  if (s.includes('pickup scheduled') || s === 'confirmed' || s === 'new') return 'PICKUP SCHEDULED'
   if (s.includes('cancelled')) return 'CANCELLED'
   if (s.includes('rto in transit')) return 'RTO INITIATED'
   if (s.includes('rto delivered')) return 'RTO DELIVERED'

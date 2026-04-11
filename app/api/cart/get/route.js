@@ -48,7 +48,7 @@ export async function GET(request) {
           shipping_width,
           shipping_height,
           shipping_box_count,
-          thumbnail_url,
+          image_url,
           images
         )
       `)
@@ -63,12 +63,12 @@ export async function GET(request) {
       )
     }
 
-    // Resolve image URL from product data (thumbnail_url → images[0] → product_images table → placeholder)
+    // Resolve image URL from product data (image_url → images[0].url → product_images table → placeholder)
     const productImageMap = {}
     cartItems?.forEach(item => {
       const p = item.products
       if (!p) return
-      const url = p.thumbnail_url ||
+      const url = p.image_url ||
         (Array.isArray(p.images) && p.images.length > 0
           ? (typeof p.images[0] === 'string' ? p.images[0] : p.images[0]?.url)
           : null)

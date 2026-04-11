@@ -46,11 +46,11 @@ export async function GET(request, { params }) {
       if (productIds.length) {
         const { data: products } = await supabase
           .from('products')
-          .select('id, images, thumbnail_url')
+          .select('id, images, image_url')
           .in('id', productIds)
         const imgMap = {}
         for (const p of (products || [])) {
-          imgMap[p.id] = p.thumbnail_url || (Array.isArray(p.images) ? p.images[0] : null) || null
+          imgMap[p.id] = p.image_url || (Array.isArray(p.images) ? (p.images[0]?.url || p.images[0]) : null) || null
         }
         for (const item of orderItems) {
           item.image = imgMap[item.product_id] || null
