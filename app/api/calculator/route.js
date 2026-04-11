@@ -156,7 +156,11 @@ export async function POST(request) {
     }
 
     // Sort rates by price ascending
+    // Filter out couriers not available on this BigShip account (e.g. Amazon Shipping)
+    // These appear in the public calculator but cannot be booked via our account.
+    const EXCLUDED_COURIERS = /amazon/i
     const rates = result.data
+      .filter(r => !EXCLUDED_COURIERS.test(r.courier_name || ''))
       .map((r) => ({
         courier_id: r.courier_id,
         courier_name: r.courier_name,

@@ -70,13 +70,24 @@ export async function GET(request) {
       })
     }
 
-    const cheapest = result.data.reduce((a, b) =>
+    // Filter out couriers not available on this BigShip account (e.g. Amazon Shipping)
+    const EXCLUDED_COURIERS = /amazon/i
+    const filteredRates = result.data.filter(r => !EXCLUDED_COURIERS.test(r.courier_name || ''))
+
+    if (!filteredRates.length) {
+      return NextResponse.json({
+        available: false,
+        message: 'No couriers available for this pincode',
+      })
+    }
+
+    const cheapest = filteredRates.reduce((a, b) =>
       a.total_shipping_charges < b.total_shipping_charges ? a : b
     )
 
     return NextResponse.json({
       available: true,
-      rates: result.data.map((r) => ({
+      rates: filteredRates.map((r) => ({
         courier_id: r.courier_id,
         courier_name: r.courier_name,
         courier_type: r.courier_type,
