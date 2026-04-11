@@ -286,7 +286,11 @@ export default function OrderDetailPage() {
               {(order.items || []).map((item, i) => (
                 <div key={item.id || i} className="odp-item">
                   <div className="odp-item-thumb">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    {item.image
+                      ? <img src={item.image} alt={item.name} style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 6 }} onError={e => { e.target.style.display='none'; e.target.nextSibling.style.display='flex' }} />
+                      : null
+                    }
+                    <svg style={{ display: item.image ? 'none' : 'block' }} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                   </div>
                   <div className="odp-item-info">
                     <span className="odp-item-name">{item.name || item.product_name || 'Product'}</span>

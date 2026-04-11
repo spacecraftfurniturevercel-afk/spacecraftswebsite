@@ -34,11 +34,29 @@ export async function GET(request, { params }) {
       )
     }
 
-    // Fetch order items
+    // Fetch order items with product image
     const { data: orderItems } = await supabase
       .from('order_items')
       .select('*')
       .eq('order_id', orderId)
+
+    // Fetch product images for each item
+    if (orderItems?.length) {
+      const productIds = orderItems.map(i => i.product_id).filter(Boolean)
+      if (productIds.length) {
+        const { data: products } = await supabase
+          .from('products')
+          .select('id, images, thumbnail_url')
+          .in('id', productIds)
+        const imgMap = {}
+        for (const p of (products || [])) {
+          imgMap[p.id] = p.thumbnail_url || (Array.isArray(p.images) ? p.images[0] : null) || null
+        }
+        for (const item of orderItems) {
+          item.image = imgMap[item.product_id] || null
+        }
+      }
+    }
 
     // Fetch delivery address if available
     let address = null

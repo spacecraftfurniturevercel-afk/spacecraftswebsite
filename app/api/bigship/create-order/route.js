@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createSupabaseRouteHandlerClient } from '../../../../lib/supabaseClient'
+import { createSupabaseRouteHandlerClient, createSupabaseServerClient } from '../../../../lib/supabaseClient'
 import { createShipmentForOrder } from '../../../../lib/createShipment'
 
 /**
@@ -16,8 +16,9 @@ import { createShipmentForOrder } from '../../../../lib/createShipment'
  */
 export async function POST(request) {
   try {
-    const supabase = createSupabaseRouteHandlerClient(request)
-    const { data: { user } } = await supabase.auth.getUser()
+    // Use session client ONLY for identity check
+    const sessionClient = createSupabaseRouteHandlerClient(request)
+    const { data: { user } } = await sessionClient.auth.getUser()
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -30,15 +31,13 @@ export async function POST(request) {
 
     const isAdmin = user.email === process.env.ADMIN_EMAIL || user.email === process.env.ADMIN_EMAIL_2 || user.email?.includes('@admin')
 
-    // Validate this order belongs to the user (skip for admin — admin can manage any order)
-    let orderQuery = supabase
-      .from('orders')
-      .select('id, payment_status, status, profile_id, bigship_order_id')
-      .eq('id', order_id)
-    if (!isAdmin) {
-      orderQuery = orderQuery.eq('profile_id', user.id)
-    }
-    const { data: order, error: orderError } = await orderQuery.single()
+    // Use service role client so RLS never blocks order reads or updates
+    const supabase = createSupabaseServerClient()
+
+    // Validate this order belongs to the user (skip for admin)
+    const { data: order, error: orderError } = isAdmin
+      ? await supabase.from('orders').select('id, payment_status, status, profile_id, bigship_order_id').eq('id', order_id).single()
+      : await supabase.from('orders').select('id, payment_status, status, profile_id, bigship_order_id').eq('id', order_id).eq('profile_id', user.id).single()
 
     if (orderError || !order) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
@@ -50,7 +49,7 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Payment not completed for this order' }, { status: 400 })
     }
 
-    // Use shared function (handles idempotency — won't re-create if already exists)
+    // Use service role client so RLS never blocks the DB updates in createShipmentForOrder
     const result = await createShipmentForOrder(order_id, supabase)
 
     return NextResponse.json(result)
