@@ -48,7 +48,7 @@ export default function OrderDetailPage() {
   const [order, setOrder] = useState(null)
   const [address, setAddress] = useState(null)
   const [tracking, setTracking] = useState(null)
-  const [trackingLoading, setTrackingLoading] = useState(false)
+  const [trackingLoading, setTrackingLoading] = useState(true)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
@@ -213,9 +213,22 @@ export default function OrderDetailPage() {
         <motion.div className="odp-card" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
           <div className="odp-card-head">
             <h2>Order Tracking</h2>
-            {estDelivery && <span className="odp-eta">Est. Delivery: <strong>{estDelivery}</strong></span>}
+            {!trackingLoading && estDelivery && <span className="odp-eta">Est. Delivery: <strong>{estDelivery}</strong></span>}
           </div>
-          {/* Horizontal stepper */}
+          {trackingLoading ? (
+            <div className="odp-track-skeleton">
+              <div className="odp-sk-bar" />
+              <div className="odp-sk-steps">
+                {[0,1,2,3].map(i => (
+                  <div key={i} className="odp-sk-step">
+                    {i > 0 && <div className="odp-sk-step-line" />}
+                    <div className="odp-sk-dot" />
+                    <div className="odp-sk-label" style={{ width: i === 0 ? 80 : i === 1 ? 56 : i === 2 ? 64 : 72 }} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
           <div className="odp-hstepper">
             {STEPS.map((s, i) => {
               const done = i <= curStep
@@ -236,7 +249,7 @@ export default function OrderDetailPage() {
               )
             })}
           </div>
-
+          )}
           {/* Pending shipment notice */}
           {tracking?.pending && (
             <div style={{ margin: '16px 0 4px', padding: '12px 16px', background: '#fefce8', border: '1px solid #fde68a', borderRadius: 8, fontSize: 13, color: '#92400e' }}>
@@ -488,6 +501,14 @@ const styles = `
   .odp-timeline-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
   .odp-timeline-head h3 { font-size: 13px; font-weight: 700; color: #1a1a1a; margin: 0; }
   .odp-tl-loading { font-size: 11px; color: #999; }
+  @keyframes odpShimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }
+  .odp-track-skeleton { padding: 8px 0 4px; }
+  .odp-sk-bar { height: 6px; width: 100%; background: #f0f0f0; border-radius: 4px; margin-bottom: 28px; background: linear-gradient(90deg,#f0f0f0 25%,#e4e4e4 50%,#f0f0f0 75%); background-size: 800px 6px; animation: odpShimmer 1.4s infinite linear; }
+  .odp-sk-steps { display: flex; align-items: flex-start; gap: 0; justify-content: space-between; }
+  .odp-sk-step { display: flex; flex-direction: column; align-items: center; flex: 1; position: relative; gap: 8px; }
+  .odp-sk-step-line { position: absolute; top: 9px; right: 50%; width: 100%; height: 3px; background: linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%); background-size: 800px 3px; animation: odpShimmer 1.4s infinite linear; }
+  .odp-sk-dot { width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(90deg,#e8e8e8 25%,#d8d8d8 50%,#e8e8e8 75%); background-size: 800px 22px; animation: odpShimmer 1.4s infinite linear; flex-shrink: 0; }
+  .odp-sk-label { height: 10px; border-radius: 4px; background: linear-gradient(90deg,#f0f0f0 25%,#e4e4e4 50%,#f0f0f0 75%); background-size: 800px 10px; animation: odpShimmer 1.4s infinite linear; }
   .odp-tl-item { display: flex; gap: 14px; min-height: 56px; }
   .odp-tl-item.latest .odp-tl-status { font-weight: 700; color: #1a1a1a; }
   .odp-tl-dot-wrap { display: flex; flex-direction: column; align-items: center; width: 14px; flex-shrink: 0; padding-top: 3px; }
