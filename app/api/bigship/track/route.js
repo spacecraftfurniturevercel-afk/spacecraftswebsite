@@ -153,9 +153,14 @@ export async function GET(request) {
         const orderDetail = result.data.order_detail || {}
         const scans = result.data.scan_histories || []
 
-        const latestStatus = scans.length > 0
-          ? mapBigShipStatus(scans[0].scan_status)
-          : mapBigShipStatus(orderDetail.current_tracking_status)
+        // Use orderDetail.current_tracking_status as the authoritative status — this
+        // matches what BigShip portal shows. Individual scan events (e.g. "Undelivered"
+        // meaning "Received at Origin Center") don't accurately reflect order state.
+        const portalStatus = orderDetail.current_tracking_status
+          ? mapBigShipStatus(orderDetail.current_tracking_status)
+          : null
+        const scanStatus = scans.length > 0 ? mapBigShipStatus(scans[0].scan_status) : null
+        const latestStatus = portalStatus || scanStatus || 'PENDING'
 
         // Only update DB when we have a real confirmed status (not PENDING — which would overwrite 'manifested')
         if (order && latestStatus && latestStatus !== 'PENDING') {
