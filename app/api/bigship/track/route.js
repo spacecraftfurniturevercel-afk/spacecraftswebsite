@@ -160,7 +160,15 @@ export async function GET(request) {
           ? mapBigShipStatus(orderDetail.current_tracking_status)
           : null
         const scanStatus = scans.length > 0 ? mapBigShipStatus(scans[0].scan_status) : null
-        const latestStatus = portalStatus || scanStatus || 'PENDING'
+        let latestStatus = portalStatus || scanStatus || 'PENDING'
+
+        // BigShip/Delhivery quirk: "Undelivered" is used for "Received at Origin Center"
+        // (weight capture, hub scan) — NOT a failed delivery attempt. If IN TRANSIT
+        // appears anywhere in the scan history, the parcel is actually in transit.
+        if (latestStatus === 'UNDELIVERED') {
+          const hasInTransit = scans.some(s => mapBigShipStatus(s.scan_status) === 'IN TRANSIT')
+          if (hasInTransit) latestStatus = 'IN TRANSIT'
+        }
 
         // Only update DB when we have a real confirmed status (not PENDING — which would overwrite 'manifested')
         if (order && latestStatus && latestStatus !== 'PENDING') {

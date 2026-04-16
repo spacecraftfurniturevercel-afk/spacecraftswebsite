@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createSupabaseRouteHandlerClient } from '../../../../../lib/supabaseClient'
+import { createSupabaseRouteHandlerClient, createSupabaseServerClient } from '../../../../../lib/supabaseClient'
 
 /**
  * GET /api/orders/:orderId/invoice
@@ -34,10 +34,11 @@ export async function GET(request, { params }) {
       .select('*')
       .eq('order_id', orderId)
 
-    // Fetch delivery address
+    // Fetch delivery address via service role (session client blocked by RLS)
     let address = null
     if (order.address_id) {
-      const { data: addressData } = await supabase
+      const adminSupabase = createSupabaseServerClient()
+      const { data: addressData } = await adminSupabase
         .from('addresses')
         .select('*')
         .eq('id', order.address_id)
@@ -142,12 +143,12 @@ export async function GET(request, { params }) {
       <div class="address-block">
         <h3>Bill To</h3>
         ${address ? `<p>
-          <strong>${address.full_name || ''}</strong><br>
-          ${address.address_line1 || ''}<br>
-          ${address.address_line2 ? address.address_line2 + '<br>' : ''}
-          ${address.city || ''}, ${address.state || ''} - ${address.pincode || ''}<br>
-          ${address.phone ? 'Phone: ' + address.phone : ''}
-        </p>` : `<p><strong>${user.email || 'Customer'}</strong></p>`}
+          <strong>${address.full_name || order.customer_name || ''}</strong><br>
+          ${address.address_line1 || address.line1 || ''}<br>
+          ${(address.address_line2 || address.line2) ? (address.address_line2 || address.line2) + '<br>' : ''}
+          ${address.city || ''}, ${address.state || ''} - ${address.pincode || address.postal_code || ''}<br>
+          ${(address.phone || order.customer_phone) ? 'Phone: ' + (address.phone || order.customer_phone) : ''}
+        </p>` : `<p><strong>${order.customer_name || user.email || 'Customer'}</strong>${order.customer_email ? '<br>' + order.customer_email : ''}</p>`}
       </div>
     </div>
 
