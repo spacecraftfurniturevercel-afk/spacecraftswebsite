@@ -12,7 +12,7 @@ export default function TopNavigationBar() {
     { label: 'About Us', href: '/about' },
     { label: 'Buy In Bulk', href: '/bulk-orders' },
     { label: 'Become a Franchise', href: '/franchise' },
-    { label: 'Track Your Order', href: isAuthenticated ? '/account?tab=orders' : '/login?redirect=/account?tab=orders' },
+    { label: 'Track Your Order', href: isAuthenticated ? '/orders' : '/login?redirect=/orders' },
     { label: 'Contact Us', href: '/contact' }
   ]
 
