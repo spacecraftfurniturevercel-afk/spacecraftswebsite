@@ -72,9 +72,9 @@ export async function GET(request, { params }) {
     const addrState = address?.state || ''
     const addrPin   = address?.pincode || address?.postal_code || ''
 
-    const awb         = order.tracking_number || 'â€”'
-    const courier     = order.courier_name    || 'â€”'
-    const paymentId   = order.razorpay_payment_id || order.payment_id || 'â€”'
+    const awb         = order.tracking_number || '&rdquo;”'
+    const courier     = order.courier_name    || '&rdquo;”'
+    const paymentId   = order.razorpay_payment_id || order.payment_id || '&rdquo;”'
     const payStatus   = (order.payment_status || 'Completed').toUpperCase()
 
     const html = `<!DOCTYPE html>
@@ -82,7 +82,7 @@ export async function GET(request, { params }) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tax Invoice ${invoiceNumber} â€” Spacecrafts Furniture</title>
+  <title>Tax Invoice ${invoiceNumber} &rdquo;” Spacecrafts Furniture</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
@@ -308,13 +308,14 @@ export async function GET(request, { params }) {
     <!-- â”€â”€ HEADER â”€â”€ -->
     <div class="inv-header">
       <div class="inv-brand">
-        <div class="inv-brand-name">Spacecrafts Furniture</div>
+        <img src="/favlogo/logo-01.png" alt="Spacecrafts Furniture" style="height:56px;width:auto;margin-bottom:8px;display:block;filter:brightness(0)invert(1);">
+        <div class="inv-brand-name" style="display:none;">Spacecrafts Furniture</div>
         <div class="inv-brand-tag">Premium Furniture &amp; Home Decor</div>
         <div class="inv-brand-contact">
           94A/1, 3rd Main Road, Ambattur<br>
-          Chennai â€“ 600053, Tamil Nadu, India<br>
+          Chennai &ndash; 600053, Tamil Nadu, India<br>
           <a href="tel:09003003733">09003003733</a> &nbsp;|&nbsp;
-          <a href="mailto:support@spacecraftsfurniture.in">support@spacecraftsfurniture.in</a><br>
+          <a href="mailto:spacecraftsdigital@gmail.com">spacecraftsdigital@gmail.com</a><br>
           <a href="https://www.spacecraftsfurniture.in">www.spacecraftsfurniture.in</a>
         </div>
       </div>
@@ -339,7 +340,7 @@ export async function GET(request, { params }) {
           <div class="addr-name">Spacecrafts Furniture</div>
           <div class="addr-line">
             94A/1, 3rd Main Road, Ambattur<br>
-            Chennai â€“ 600053, Tamil Nadu<br>
+            Chennai &rdquo;“ 600053, Tamil Nadu<br>
             GSTIN: 33ABCDE1234F1Z5<br>
             Ph: 09003003733
           </div>
@@ -349,7 +350,7 @@ export async function GET(request, { params }) {
           <div class="addr-name">${customerName}</div>
           <div class="addr-line">
             ${addrLine1}${addrLine2 ? '<br>' + addrLine2 : ''}<br>
-            ${addrCity}${addrState ? ', ' + addrState : ''}${addrPin ? ' â€“ ' + addrPin : ''}<br>
+            ${addrCity}${addrState ? ', ' + addrState : ''}${addrPin ? ' &rdquo;“ ' + addrPin : ''}<br>
             ${customerPhone ? 'Ph: ' + customerPhone : ''}
           </div>
         </div>
@@ -395,10 +396,9 @@ export async function GET(request, { params }) {
       <div class="inv-bottom">
         <div class="inv-notes">
           <strong>Terms &amp; Notes</strong>
-          â€¢ This is a computer-generated invoice and does not require a signature.<br>
-          â€¢ All prices are inclusive of GST (18%).<br>
-          â€¢ For returns/exchanges contact us within 7 days of delivery.<br>
-          â€¢ support@spacecraftsfurniture.in &nbsp;|&nbsp; 09003003733
+          &#8226; This is a computer-generated invoice and does not require a signature.<br>
+          &#8226; All prices are inclusive of GST (18%).<br>
+          &#8226; spacecraftsdigital@gmail.com &nbsp;|&nbsp; 09003003733
         </div>
         <div class="totals-box">
           <div class="total-row">
@@ -433,7 +433,7 @@ export async function GET(request, { params }) {
           <div class="info-label">Payment Details</div>
           <div class="info-row"><span class="k">Method</span><span class="v">${(order.payment_method || 'Razorpay').toUpperCase()}</span></div>
           <div class="info-row"><span class="k">Status</span><span class="v">${payStatus}</span></div>
-          ${paymentId !== 'â€”' ? `<div class="info-row"><span class="k">Payment ID</span><span class="v" style="font-size:10px">${paymentId}</span></div>` : ''}
+          ${paymentId !== '&rdquo;”' ? `<div class="info-row"><span class="k">Payment ID</span><span class="v" style="font-size:10px">${paymentId}</span></div>` : ''}
           <div class="info-row"><span class="k">Order Date</span><span class="v">${orderDate}</span></div>
         </div>
       </div>
@@ -444,11 +444,11 @@ export async function GET(request, { params }) {
     <div class="inv-footer">
       <div class="inv-footer-left">
         Spacecrafts Furniture &nbsp;|&nbsp; GSTIN: 33ABCDE1234F1Z5<br>
-        94A/1, 3rd Main Road, Ambattur, Chennai â€“ 600053, Tamil Nadu
+        94A/1, 3rd Main Road, Ambattur, Chennai &rdquo;“ 600053, Tamil Nadu
       </div>
       <div class="inv-footer-right">
         www.spacecraftsfurniture.in<br>
-        support@spacecraftsfurniture.in &nbsp;|&nbsp; 09003003733
+        spacecraftsdigital@gmail.com &nbsp;|&nbsp; 09003003733
       </div>
     </div>
 
