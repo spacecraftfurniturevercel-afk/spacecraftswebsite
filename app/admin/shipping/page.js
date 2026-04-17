@@ -385,6 +385,14 @@ export default function AdminShippingPage() {
                               <ActionBtn label="Cancel" color="#ef4444" onClick={() => cancelShipment(order.id)} loading={actionLoading === order.id} />
                             </>
                           )}
+                          {/* Invoice — always available for paid orders */}
+                          {(order.payment_status === 'completed' || order.status === 'confirmed' || order.status === 'shipped' || order.status === 'delivered') && (
+                            <ActionBtn
+                              label="&#x1F4C4; Invoice"
+                              color="#7c3aed"
+                              onClick={() => window.open(`/api/admin/orders/${order.id}/invoice`, '_blank')}
+                            />
+                          )}
                         </div>
                       </td>
                     </tr>
