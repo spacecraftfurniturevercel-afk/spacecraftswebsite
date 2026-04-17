@@ -249,7 +249,33 @@ export async function GET(request) {
             status: latestStatus,
             awb: trackingAwb,
             courier: orderDetail.courier_name || order?.courier_name || 'BigShip',
-            estimated_delivery: order?.estimated_delivery || null,
+            estimated_delivery: (() => {
+              // Prefer an explicit expected_delivery from BigShip
+              if (orderDetail.expected_delivery_date) return orderDetail.expected_delivery_date
+              // Calculate from first In-Transit / picked-up scan + TAT
+              const pickupScan = scans.slice().reverse().find(s => {
+                const st = (s.scan_status || '').toLowerCase()
+                return st.includes('in-transit') || st.includes('in transit') || st.includes('picked up')
+              })
+              if (pickupScan?.scan_datetime) {
+                // scan_datetime format: "DD-MM-YYYY HH:MM:SS"
+                const [datePart] = pickupScan.scan_datetime.split(' ')
+                const [dd, mm, yyyy] = datePart.split('-')
+                const pickupDate = new Date(`${yyyy}-${mm}-${dd}`)
+                if (!isNaN(pickupDate)) {
+                  const tat = parseInt(orderDetail.tat) || 5
+                  pickupDate.setDate(pickupDate.getDate() + tat)
+                  const est = pickupDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })
+                  // Persist to DB so it survives page reloads
+                  if (order && est !== order.estimated_delivery) {
+                    supabase.from('orders').update({ estimated_delivery: est }).eq('id', order.id).then(() => {})
+                  }
+                  return est
+                }
+              }
+              // No pickup scan yet — don't show a date
+              return null
+            })(),
             current_location: scans[0]?.scan_location || null,
             activities: scans.map((s) => ({
               activity: s.scan_remarks,

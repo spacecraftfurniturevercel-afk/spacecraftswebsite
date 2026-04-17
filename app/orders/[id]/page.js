@@ -144,7 +144,7 @@ export default function OrderDetailPage() {
   const isPaid = displayPayStatus === 'completed'
   const orderDate = new Date(order.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })
   const orderTime = new Date(order.created_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })
-  const estDelivery = tracking?.pending ? null : (tracking?.estimated_delivery || new Date(new Date(order.created_at).getTime() + 5 * 86400000).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }))
+  const estDelivery = tracking && !tracking.pending ? tracking.estimated_delivery || null : null
   const itemsSubtotal = (order.items || []).reduce((s, it) => s + it.unit_price * it.quantity, 0)
   const subtotal = Number(order.subtotal) || itemsSubtotal
   const gstAmount = Number(order.tax) || 0
@@ -186,7 +186,13 @@ export default function OrderDetailPage() {
 
         {/* Live Status Banner */}
         <motion.div className="odp-status-banner" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.03 }}
-          style={{ borderLeftColor: statusColor }}>
+          style={{ borderLeftColor: trackingLoading ? '#e5e5e5' : statusColor }}>
+          {trackingLoading ? (
+            <div className="odp-sb-skeleton">
+              <div className="odp-sk-inline" style={{ width: 140, height: 14, borderRadius: 6 }} />
+              <div className="odp-sk-inline" style={{ width: 90, height: 11, borderRadius: 4, marginTop: 6 }} />
+            </div>
+          ) : (
           <div className="odp-status-left">
             <span className="odp-status-label" style={{ color: statusColor }}>{statusLabel}</span>
             {tracking?.current_location && (
@@ -196,6 +202,7 @@ export default function OrderDetailPage() {
               </span>
             )}
           </div>
+          )}
           <div className="odp-status-right">
             {(order.tracking_number || tracking?.awb) && (
               <div className="odp-awb">
@@ -504,6 +511,8 @@ const styles = `
   @keyframes odpShimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }
   .odp-track-skeleton { padding: 8px 0 4px; }
   .odp-sk-bar { height: 6px; width: 100%; background: #f0f0f0; border-radius: 4px; margin-bottom: 28px; background: linear-gradient(90deg,#f0f0f0 25%,#e4e4e4 50%,#f0f0f0 75%); background-size: 800px 6px; animation: odpShimmer 1.4s infinite linear; }
+  .odp-sb-skeleton { display: flex; flex-direction: column; justify-content: center; padding: 2px 0; }
+  .odp-sk-inline { background: linear-gradient(90deg,#efefef 25%,#e2e2e2 50%,#efefef 75%); background-size: 800px 100%; animation: odpShimmer 1.4s infinite linear; display: block; }
   .odp-sk-steps { display: flex; align-items: flex-start; gap: 0; justify-content: space-between; }
   .odp-sk-step { display: flex; flex-direction: column; align-items: center; flex: 1; position: relative; gap: 8px; }
   .odp-sk-step-line { position: absolute; top: 9px; right: 50%; width: 100%; height: 3px; background: linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%); background-size: 800px 3px; animation: odpShimmer 1.4s infinite linear; }
