@@ -142,7 +142,8 @@ export default async function ProductsPage({ searchParams }) {
     // Search query
     const searchQuery = searchParams?.q || searchParams?.search
     if (searchQuery) {
-      query = query.or(`name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%,tags.cs.{${searchQuery}}`)
+      // Use name + description ilike only — tags.cs is unreliable for multi-word terms
+      query = query.or(`name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`)
     }
     
     // Sort

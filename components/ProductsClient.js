@@ -38,7 +38,7 @@ export default function ProductsClient({
     minPrice: searchParams?.minPrice || '',
     maxPrice: searchParams?.maxPrice || '',
     sort: searchParams?.sort || 'rating-desc',
-    q: searchParams?.q || ''
+    q: searchParams?.q || searchParams?.search || ''
   })
   const [showFilters, setShowFilters] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(true)
@@ -62,7 +62,7 @@ export default function ProductsClient({
       minPrice: searchParams?.minPrice || '',
       maxPrice: searchParams?.maxPrice || '',
       sort: searchParams?.sort || 'rating-desc',
-      q: searchParams?.q || ''
+      q: searchParams?.q || searchParams?.search || ''
     })
     setProducts(initialProducts)
     setIsLoading(false)
@@ -138,7 +138,7 @@ export default function ProductsClient({
   }
 
   const activeFilterCount = (() => {
-    let count = filters.brands.length + (filters.subcategories?.length || 0) + (filters.tags?.length || 0) + (filters.minPrice ? 1 : 0) + (filters.maxPrice ? 1 : 0)
+    let count = filters.brands.length + (filters.subcategories?.length || 0) + (filters.tags?.length || 0) + (filters.minPrice ? 1 : 0) + (filters.maxPrice ? 1 : 0) + (filters.q ? 1 : 0)
     // On any category/subcategory page, count it as an active filter
     if (categoryPage) {
       count += 1
