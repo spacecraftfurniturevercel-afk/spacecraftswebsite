@@ -651,14 +651,12 @@ export default function Header() {
               <button
                 className={styles['category-nav-link']}
                 onClick={() => {
-                  // On mobile, navigate directly to category page
-                  if (window.innerWidth <= 768) {
-                    if (category === 'All') {
-                      router.push('/products')
-                    } else {
-                      router.push(`/products/category/${catSlug}`)
-                    }
+                  if (category === 'All') {
+                    router.push('/products')
+                  } else {
+                    router.push(`/products/category/${catSlug}`)
                   }
+                  setHoveredCategory(null)
                 }}
               >
                 {category}
