@@ -32,7 +32,7 @@ export default function CareersPage() {
           { role: 'Sales Executive', type: 'Full-time', location: 'Chennai, Tamil Nadu' },
           { role: 'Delivery & Logistics Associate', type: 'Full-time', location: 'Chennai, Tamil Nadu' },
           { role: 'Customer Support Representative', type: 'Full-time / Remote', location: 'Chennai / Remote' },
-          { role: 'E-commerce & Marketing Assistant', type: 'Full-time', location: 'Chennai, Tamil Nadu' },
+        //   { role: 'E-commerce & Marketing Assistant', type: 'Full-time', location: 'Chennai, Tamil Nadu' },
         ].map((job) => (
           <div key={job.role} style={{
             border: '1px solid #e5e7eb',
