@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createSupabaseRouteHandlerClient } from '../../../../lib/supabaseClient'
+import { createSupabaseRouteHandlerClient, createSupabaseServerClient } from '../../../../lib/supabaseClient'
 import { getTrackingDetails } from '../../../../lib/bigship'
 import { sendShippingStatusEmail, sendDeliveryConfirmedEmails } from '../../../../lib/email'
 
@@ -127,11 +127,12 @@ export async function GET(request) {
     }
 
     const supabase = createSupabaseRouteHandlerClient(request)
+    const adminSupabase = createSupabaseServerClient()
 
     // Get order from DB
     let order = null
     if (orderId) {
-      const { data } = await supabase
+      const { data } = await adminSupabase
         .from('orders')
         .select('*')
         .eq('id', orderId)
@@ -187,7 +188,7 @@ export async function GET(request) {
           const previousStatus = order.shipping_status
           const statusChanged = previousStatus !== latestStatus
 
-          await supabase
+          await adminSupabase
             .from('orders')
             .update({
               shipping_status: latestStatus,
@@ -201,7 +202,7 @@ export async function GET(request) {
             const latestScan = scans[0] || {}
 
             // Log shipping event to DB
-            await supabase.from('shipping_events').insert({
+            await adminSupabase.from('shipping_events').insert({
               order_id: order.id,
               status: latestStatus,
               description: latestScan.scan_remarks || `Status changed to ${latestStatus}`,
@@ -210,10 +211,10 @@ export async function GET(request) {
             }).then(({ error }) => { if (error) console.error('shipping_events insert error:', error) })
 
             // Get customer info for email
-            const { data: profile } = await supabase
+            const { data: profile } = await adminSupabase
               .from('profiles')
               .select('full_name, email, phone')
-              .eq('id', order.user_id)
+              .eq('id', order.profile_id || order.user_id)
               .single()
 
             const customerEmail = profile?.email || order.email
@@ -268,7 +269,7 @@ export async function GET(request) {
                   const est = pickupDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })
                   // Persist to DB so it survives page reloads
                   if (order && est !== order.estimated_delivery) {
-                    supabase.from('orders').update({ estimated_delivery: est }).eq('id', order.id).then(() => {})
+                    adminSupabase.from('orders').update({ estimated_delivery: est }).eq('id', order.id).then(() => {})
                   }
                   return est
                 }

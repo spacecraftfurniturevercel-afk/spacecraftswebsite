@@ -20,10 +20,35 @@ export default function OrdersPage() {
           router.push('/login')
           return
         }
+
+        // 1. Load orders from DB immediately (fast)
         const res = await authenticatedFetch('/api/orders')
-        if (res.ok) {
-          const data = await res.json()
-          setOrders(data.orders || [])
+        if (!res.ok) return
+        const data = await res.json()
+        const initialOrders = data.orders || []
+        setOrders(initialOrders)
+        setLoading(false)
+
+        // 2. For orders that are active (not delivered/cancelled) with a tracking number,
+        //    call the tracking API in the background so the DB gets updated to the real status.
+        const activeOrders = initialOrders.filter(o =>
+          o.tracking_number &&
+          !['delivered', 'cancelled', 'returned'].includes(o.status)
+        )
+
+        if (activeOrders.length > 0) {
+          await Promise.all(
+            activeOrders.map(o =>
+              authenticatedFetch(`/api/bigship/track?order_id=${o.id}`).catch(() => null)
+            )
+          )
+
+          // 3. Re-fetch orders — DB is now updated with real statuses
+          const refreshRes = await authenticatedFetch('/api/orders')
+          if (refreshRes.ok) {
+            const refreshData = await refreshRes.json()
+            setOrders(refreshData.orders || [])
+          }
         }
       } catch (err) {
         console.error('Error fetching orders:', err)
@@ -36,14 +61,30 @@ export default function OrdersPage() {
 
   const getStatusColor = (status) => {
     const colors = {
-      confirmed: '#16a34a',
-      pending: '#f59e0b',
-      processing: '#3b82f6',
-      shipped: '#8b5cf6',
-      delivered: '#059669',
-      cancelled: '#ef4444'
+      confirmed:   '#16a34a',
+      pending:     '#f59e0b',
+      processing:  '#3b82f6',
+      shipped:     '#8b5cf6',
+      delivered:   '#059669',
+      cancelled:   '#ef4444',
+      returned:    '#dc2626',
+      failed_delivery: '#dc2626',
     }
     return colors[status] || '#6b7280'
+  }
+
+  const getStatusLabel = (status) => {
+    const labels = {
+      confirmed:       'Confirmed',
+      pending:         'Pending',
+      processing:      'Processing',
+      shipped:         'Shipped',
+      delivered:       'Delivered',
+      cancelled:       'Cancelled',
+      returned:        'Returned',
+      failed_delivery: 'Delivery Failed',
+    }
+    return labels[status] || (status ? status.charAt(0).toUpperCase() + status.slice(1) : 'Pending')
   }
 
   if (loading) {
@@ -97,7 +138,7 @@ export default function OrdersPage() {
                   className="status-badge"
                   style={{ background: getStatusColor(order.status) + '18', color: getStatusColor(order.status) }}
                 >
-                  {order.status || 'pending'}
+                  {getStatusLabel(order.status)}
                 </span>
               </div>
 

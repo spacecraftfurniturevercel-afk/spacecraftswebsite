@@ -45,7 +45,8 @@ export default function AccountPage() {
   }, [authLoading])
 
   useEffect(() => {
-    if (isAuthenticated && activeTab === 'addresses') {
+    if (isAuthenticated) {
+      // Always fetch addresses so the count is correct on the profile tab
       fetchAddresses()
     }
     if (isAuthenticated && activeTab === 'orders') {
