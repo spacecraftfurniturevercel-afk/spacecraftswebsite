@@ -270,6 +270,12 @@ export default function ProductDetailClient({
       return
     }
 
+    // Reset payment state fresh on every modal open
+    setBuyNowPaymentMethod('prepaid')
+    setCodAvailable(false)
+    setCodCharge(0)
+    setCodSuccess(null)
+    setCartError(null)
     setBuyNowLoading(true)
     setShowBuyNowConfirm(true)
     setBuyNowDeliveryCharge(null)
@@ -342,7 +348,14 @@ export default function ProductDetailClient({
       setCartError('Please select a delivery address')
       return
     }
+    // Hard guard: if COD was selected (even if something reset codAvailable), treat as COD
     if (buyNowPaymentMethod === 'cod') {
+      if (!codAvailable) {
+        // COD became unavailable after selection — inform user and stay on prepaid
+        setBuyNowPaymentMethod('prepaid')
+        setCartError('Cash on Delivery is not available for this address. Please use online payment.')
+        return
+      }
       handleCodOrder()
       return
     }

@@ -140,6 +140,7 @@ export default function OrderDetailPage() {
   )
 
   const curStep = getStep(order.shipping_status || order.status)
+  const isCod = (order.payment_method || '').toLowerCase() === 'cod'
   const displayPayStatus = order.payment_status || (order.status === 'confirmed' || order.razorpay_payment_id ? 'completed' : 'pending')
   const isPaid = displayPayStatus === 'completed'
   const orderDate = new Date(order.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -169,9 +170,9 @@ export default function OrderDetailPage() {
           <div className="odp-header-left">
             <div className="odp-header-row1">
               <h1>Order #{order.id}</h1>
-              <span className={`odp-badge ${isPaid ? 'odp-badge-paid' : 'odp-badge-pending'}`}>
+              <span className={`odp-badge ${isPaid ? 'odp-badge-paid' : isCod ? 'odp-badge-cod' : 'odp-badge-pending'}`}>
                 <span className="odp-badge-dot" />
-                {isPaid ? 'Paid' : 'Pending'}
+                {isPaid ? 'Paid' : isCod ? 'Cash on Delivery' : 'Pending'}
               </span>
             </div>
             <p className="odp-header-meta">
@@ -376,13 +377,13 @@ export default function OrderDetailPage() {
               <div className="odp-detail-rows">
                 <div className="odp-detail-row">
                   <span>Payment Status</span>
-                  <span className={`odp-mini-badge ${isPaid ? 'odp-mini-paid' : 'odp-mini-pending'}`}>
-                    {isPaid ? 'Paid' : 'Pending'}
+                  <span className={`odp-mini-badge ${isPaid ? 'odp-mini-paid' : isCod ? 'odp-mini-cod' : 'odp-mini-pending'}`}>
+                    {isPaid ? 'Paid' : isCod ? 'Pay on Delivery' : 'Pending'}
                   </span>
                 </div>
                 <div className="odp-detail-row">
                   <span>Method</span>
-                  <span className="odp-detail-val">{(order.payment_method || 'Razorpay').replace(/_/g, ' ')}</span>
+                  <span className="odp-detail-val">{isCod ? 'Cash on Delivery' : (order.payment_method || 'Razorpay').replace(/_/g, ' ')}</span>
                 </div>
                 <div className="odp-detail-row">
                   <span>Amount</span>
@@ -464,6 +465,8 @@ const styles = `
   .odp-badge-paid .odp-badge-dot { background: #16a34a; }
   .odp-badge-pending { background: #fffbeb; color: #f59e0b; }
   .odp-badge-pending .odp-badge-dot { background: #f59e0b; }
+  .odp-badge-cod { background: #fff7ed; color: #ea580c; }
+  .odp-badge-cod .odp-badge-dot { background: #ea580c; }
   .odp-header-meta { font-size: 13px; color: #999; margin: 0; }
   .odp-invoice-btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 20px; background: #1a1a1a; color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.15s; font-family: inherit; white-space: nowrap; }
   .odp-invoice-btn:hover { background: #333; }
@@ -560,6 +563,7 @@ const styles = `
   .odp-mini-badge { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; }
   .odp-mini-paid { background: #f0fdf4; color: #16a34a; }
   .odp-mini-pending { background: #fffbeb; color: #f59e0b; }
+  .odp-mini-cod { background: #fff7ed; color: #ea580c; }
 
   .odp-addr { font-size: 13px; color: #555; line-height: 1.7; }
   .odp-addr p { margin: 0; }

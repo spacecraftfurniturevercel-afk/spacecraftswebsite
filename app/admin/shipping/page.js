@@ -323,6 +323,7 @@ export default function AdminShippingPage() {
                     <th style={thStyle}>Order ID</th>
                     <th style={thStyle}>Date</th>
                     <th style={thStyle}>Total</th>
+                    <th style={thStyle}>Payment</th>
                     <th style={thStyle}>Status</th>
                     <th style={thStyle}>Courier</th>
                     <th style={thStyle}>AWB</th>
@@ -332,12 +333,18 @@ export default function AdminShippingPage() {
                 </thead>
                 <tbody>
                   {orders.length === 0 ? (
-                    <tr><td colSpan={8} style={{ padding: 32, textAlign: 'center', color: '#999' }}>No orders found</td></tr>
+                    <tr><td colSpan={9} style={{ padding: 32, textAlign: 'center', color: '#999' }}>No orders found</td></tr>
                   ) : orders.map((order) => (
                     <tr key={order.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
                       <td style={tdStyle}>#{String(order.id)}</td>
                       <td style={tdStyle}>{new Date(order.created_at).toLocaleDateString('en-IN')}</td>
                       <td style={tdStyle}>₹{order.total?.toLocaleString('en-IN')}</td>
+                      <td style={tdStyle}>
+                        {(order.payment_method || '').toLowerCase() === 'cod'
+                          ? <span style={{ display:'inline-block', padding:'2px 8px', borderRadius:10, fontSize:11, fontWeight:700, background:'#fff7ed', color:'#ea580c' }}>COD</span>
+                          : <span style={{ display:'inline-block', padding:'2px 8px', borderRadius:10, fontSize:11, fontWeight:700, background:'#eff6ff', color:'#2563eb' }}>Online</span>
+                        }
+                      </td>
                       <td style={tdStyle}>{getStatusBadge(order.status)}</td>
                       <td style={tdStyle}>{order.courier_name || '—'}</td>
                       <td style={{ ...tdStyle, fontFamily: 'monospace', fontSize: 12 }}>{order.tracking_number || '—'}</td>
@@ -369,8 +376,8 @@ export default function AdminShippingPage() {
                               onClick={() => createShipment(order.id)}
                             />
                           )}
-                          {/* Ready to Ship: show when bigship_order_id set, OR when payment complete but no AWB yet (handles case where system_order_id was saved but Phase 2 never ran) */}
-                          {((order.bigship_order_id || (!order.bigship_order_id && order.payment_status === 'completed')) && !order.tracking_number && order.status !== 'cancelled' && order.status !== 'pending') && (
+                          {/* Ready to Ship: show when bigship_order_id set, OR when paid/COD confirmed but no AWB yet */}
+                          {((order.bigship_order_id || order.payment_status === 'completed' || order.status === 'confirmed') && !order.tracking_number && order.status !== 'cancelled' && order.status !== 'pending') && (
                             <ActionBtn
                               label="✅ Ready to Ship"
                               color="#16a34a"

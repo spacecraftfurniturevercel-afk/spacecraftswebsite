@@ -75,7 +75,9 @@ export async function GET(request, { params }) {
     const awb         = order.tracking_number || null
     const courier     = order.courier_name    || null
     const paymentId   = order.razorpay_payment_id || order.payment_id || null
-    const payStatus   = (order.payment_status || 'Completed').toUpperCase()
+    const isCod       = (order.payment_method || '').toLowerCase() === 'cod'
+    const payMethodLabel = isCod ? 'Cash on Delivery' : (order.payment_method || 'Razorpay').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+    const payStatus   = isCod ? 'PAY ON DELIVERY' : (order.payment_status || 'Completed').toUpperCase()
 
     const html = `<!DOCTYPE html>
 <html lang="en">
@@ -360,8 +362,9 @@ export async function GET(request, { params }) {
         <span><strong>GSTIN:</strong> 33ABCDE1234F1Z5</span>
         <span><strong>State Code:</strong> 33 (Tamil Nadu)</span>
         <span><strong>Supply Type:</strong> B2C</span>
-        <span><strong>Payment Method:</strong> ${(order.payment_method || 'Razorpay').toUpperCase()}</span>
+        <span><strong>Payment Method:</strong> ${payMethodLabel}</span>
         ${order.razorpay_payment_id ? `<span><strong>Payment Ref:</strong> ${order.razorpay_payment_id}</span>` : ''}
+        ${isCod ? `<span style="color:#ea580c;font-weight:600;">&#9679; Amount collectible at delivery</span>` : ''}
       </div>
 
       <!-- Items -->
@@ -397,6 +400,7 @@ export async function GET(request, { params }) {
           <strong>Terms &amp; Notes</strong>
           &#8226; This is a computer-generated invoice and does not require a signature.<br>
           &#8226; All prices are inclusive of GST (18%).<br>
+          ${isCod ? '&#8226; <strong style="color:#ea580c">Cash on Delivery:</strong> &#8377;' + grandTotal.toLocaleString('en-IN') + ' to be paid in cash to the courier at delivery.<br>' : ''}
           &#8226; spacecraftsdigital@gmail.com &nbsp;|&nbsp; 09003003733
         </div>
         <div class="totals-box">
@@ -430,10 +434,11 @@ export async function GET(request, { params }) {
         </div>
         <div class="info-block">
           <div class="info-label">Payment Details</div>
-          <div class="info-row"><span class="k">Method</span><span class="v">${(order.payment_method || 'Razorpay').toUpperCase()}</span></div>
-          <div class="info-row"><span class="k">Status</span><span class="v">${payStatus}</span></div>
+          <div class="info-row"><span class="k">Method</span><span class="v">${payMethodLabel}</span></div>
+          <div class="info-row"><span class="k">Status</span><span class="v" style="${isCod ? 'color:#ea580c' : ''}">${payStatus}</span></div>
           ${paymentId ? `<div class="info-row"><span class="k">Payment ID</span><span class="v" style="font-size:10px">${paymentId}</span></div>` : ''}
           <div class="info-row"><span class="k">Order Date</span><span class="v">${orderDate}</span></div>
+          ${isCod ? `<div class="info-row" style="margin-top:6px"><span class="k" style="color:#ea580c">COD Amount</span><span class="v" style="color:#ea580c">&#8377;${grandTotal.toLocaleString('en-IN')}</span></div>` : ''}
         </div>
       </div>
 

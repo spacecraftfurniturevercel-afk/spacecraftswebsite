@@ -133,23 +133,22 @@ export async function POST(request) {
       } catch {}
     }
 
-    // Send order confirmation email (non-blocking)
-    try {
-      const { sendOrderConfirmationEmail } = await import('../../../../lib/email')
-      await sendOrderConfirmationEmail({
-        orderId: order.id,
-        customerEmail: profile.email,
-        customerName: profile.full_name,
-        items: [{ name: product.name, quantity, unit_price: unitPrice }],
-        subtotal,
-        deliveryCharge: safeDeliveryCharge,
-        gst,
-        total: totalAmount,
-        paymentMethod: 'Cash on Delivery',
-      })
-    } catch (emailErr) {
-      console.warn('[cod] Failed to send confirmation email (non-fatal):', emailErr.message)
-    }
+    // Send order confirmation email to customer + admin (non-blocking)
+    ;(async () => {
+      try {
+        const { sendOrderConfirmationEmails } = await import('../../../../lib/email')
+        await sendOrderConfirmationEmails({
+          order: { ...order, payment_method: 'cod', payment_status: 'pending' },
+          items: [{ name: product.name, quantity, unit_price: unitPrice }],
+          address,
+          customerName: profile.full_name || 'Customer',
+          customerEmail: profile.email || '',
+          customerPhone: address.phone || '',
+        })
+      } catch (emailErr) {
+        console.warn('[cod] Failed to send confirmation email (non-fatal):', emailErr.message)
+      }
+    })()
 
     return NextResponse.json({
       success: true,
