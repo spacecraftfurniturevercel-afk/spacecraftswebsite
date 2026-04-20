@@ -87,6 +87,11 @@ export default function ProductDetailClient({
   const [enquiryForm, setEnquiryForm] = useState({ name: '', email: '', phone: '', message: '' })
   const [enquirySending, setEnquirySending] = useState(false)
   const [enquiryResult, setEnquiryResult] = useState(null)
+  const [buyNowPaymentMethod, setBuyNowPaymentMethod] = useState('prepaid') // 'prepaid' | 'cod'
+  const [codAvailable, setCodAvailable] = useState(false)
+  const [codCharge, setCodCharge] = useState(0)
+  const [codLoading, setCodLoading] = useState(false)
+  const [codSuccess, setCodSuccess] = useState(null)
 
   // Product is buyable online only when shipping dimensions are set
   const canBuyOnline = !!(product.shipping_length && product.shipping_width && product.shipping_height)
@@ -239,8 +244,16 @@ export default function ProductDetailClient({
           estimatedDays: data.estimatedDays,
           freeDelivery: data.freeDelivery,
         })
+        // COD availability from same response
+        setCodAvailable(!!data.cod_available)
+        setCodCharge(data.cod_charge || 0)
+        // If COD is not available, fall back to prepaid
+        if (!data.cod_available) setBuyNowPaymentMethod('prepaid')
       } else {
         setBuyNowDeliveryCharge({ charge: 0, courierName: '', estimatedDays: 5, freeDelivery: false, unavailable: !data.available })
+        setCodAvailable(false)
+        setCodCharge(0)
+        setBuyNowPaymentMethod('prepaid')
       }
     } catch (e) {
       console.error('Failed to fetch buy now delivery charge:', e)
@@ -329,8 +342,43 @@ export default function ProductDetailClient({
       setCartError('Please select a delivery address')
       return
     }
+    if (buyNowPaymentMethod === 'cod') {
+      handleCodOrder()
+      return
+    }
     setShowBuyNowConfirm(false)
     setIsPaymentModalOpen(true)
+  }
+
+  const handleCodOrder = async () => {
+    if (!selectedAddressId) {
+      setCartError('Please select a delivery address')
+      return
+    }
+    setCodLoading(true)
+    try {
+      const res = await authenticatedFetch('/api/orders/cod', {
+        method: 'POST',
+        body: JSON.stringify({
+          product_id: product.id,
+          quantity,
+          address_id: selectedAddressId,
+          delivery_charge: codCharge,
+        })
+      })
+      const data = await res.json()
+      if (res.ok && data.success) {
+        setCodSuccess(data.order_id)
+        setShowBuyNowConfirm(false)
+      } else {
+        setCartError(data.error || 'Failed to place COD order. Please try again.')
+      }
+    } catch (e) {
+      console.error('COD order error:', e)
+      setCartError('Network error. Please try again.')
+    } finally {
+      setCodLoading(false)
+    }
   }
 
   // Navigation handlers for image gallery
@@ -3536,6 +3584,48 @@ export default function ProductDetailClient({
                   )}
                 </div>
 
+                {/* Payment Method — only for products with shipping dimensions */}
+                {canBuyOnline && buyNowDeliveryCharge && !buyNowDeliveryLoading && (
+                  <div className="bnc-section">
+                    <h3 className="bnc-sec-title">Payment Method</h3>
+                    <div style={{display:'flex',flexDirection:'column',gap:10}}>
+                      {/* Prepaid / Online */}
+                      <label style={{display:'flex',alignItems:'center',gap:12,padding:'12px 14px',border:`1.5px solid ${buyNowPaymentMethod === 'prepaid' ? '#1a1a1a' : '#e0e0e0'}`,borderRadius:10,cursor:'pointer',background:buyNowPaymentMethod === 'prepaid' ? '#fafafa' : '#fff',transition:'all 0.15s'}}>
+                        <input type="radio" name="bnc-payment" value="prepaid" checked={buyNowPaymentMethod === 'prepaid'} onChange={() => setBuyNowPaymentMethod('prepaid')} style={{width:16,height:16,cursor:'pointer',flexShrink:0}} />
+                        <div style={{flex:1}}>
+                          <span style={{display:'block',fontSize:13,fontWeight:700,color:'#1a1a1a'}}>Online Payment</span>
+                          <span style={{display:'block',fontSize:12,color:'#888',marginTop:2}}>UPI, Cards, Net Banking via Razorpay</span>
+                        </div>
+                        {buyNowDeliveryCharge.charge === 0 ? (
+                          <span style={{fontSize:12,fontWeight:700,color:'#16a34a'}}>FREE delivery</span>
+                        ) : (
+                          <span style={{fontSize:12,fontWeight:600,color:'#555'}}>₹{Number(buyNowDeliveryCharge.charge).toLocaleString('en-IN')} delivery</span>
+                        )}
+                      </label>
+
+                      {/* COD */}
+                      {codAvailable ? (
+                        <label style={{display:'flex',alignItems:'center',gap:12,padding:'12px 14px',border:`1.5px solid ${buyNowPaymentMethod === 'cod' ? '#1a1a1a' : '#e0e0e0'}`,borderRadius:10,cursor:'pointer',background:buyNowPaymentMethod === 'cod' ? '#fafafa' : '#fff',transition:'all 0.15s'}}>
+                          <input type="radio" name="bnc-payment" value="cod" checked={buyNowPaymentMethod === 'cod'} onChange={() => setBuyNowPaymentMethod('cod')} style={{width:16,height:16,cursor:'pointer',flexShrink:0}} />
+                          <div style={{flex:1}}>
+                            <span style={{display:'block',fontSize:13,fontWeight:700,color:'#1a1a1a'}}>Cash on Delivery</span>
+                            <span style={{display:'block',fontSize:12,color:'#888',marginTop:2}}>Pay when your order arrives</span>
+                          </div>
+                          {codCharge === 0 ? (
+                            <span style={{fontSize:12,fontWeight:700,color:'#16a34a'}}>FREE delivery</span>
+                          ) : (
+                            <span style={{fontSize:12,fontWeight:600,color:'#555'}}>₹{Number(codCharge).toLocaleString('en-IN')} delivery</span>
+                          )}
+                        </label>
+                      ) : (
+                        <div style={{padding:'10px 14px',border:'1.5px solid #f0f0f0',borderRadius:10,background:'#fafafa',opacity:0.6}}>
+                          <span style={{fontSize:12,fontWeight:600,color:'#999'}}>Cash on Delivery not available for this pincode</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 {/* Price Breakdown */}
                 <div className="bnc-section bnc-pricing">
                   <h3 className="bnc-sec-title">Price Details</h3>
@@ -3546,17 +3636,18 @@ export default function ProductDetailClient({
                       {buyNowDeliveryLoading ? (
                         <span style={{color: '#999', fontSize: 12}}>Calculating...</span>
                       ) : buyNowDeliveryCharge ? (
-                        buyNowDeliveryCharge.charge === 0 ? (
-                          <span style={{color: '#16a34a', fontWeight: 600}}>FREE</span>
-                        ) : (
-                          <span>₹{Number(buyNowDeliveryCharge.charge).toLocaleString('en-IN')}</span>
-                        )
+                        (() => {
+                          const activeCharge = buyNowPaymentMethod === 'cod' ? codCharge : buyNowDeliveryCharge.charge
+                          return activeCharge === 0
+                            ? <span style={{color: '#16a34a', fontWeight: 600}}>FREE</span>
+                            : <span>₹{Number(activeCharge).toLocaleString('en-IN')}</span>
+                        })()
                       ) : (
                         <span style={{color: '#999', fontSize: 12}}>Select address</span>
                       )}
                     </span>
                   </div>
-                  {buyNowDeliveryCharge?.courierName && (
+                  {buyNowDeliveryCharge?.courierName && buyNowPaymentMethod === 'prepaid' && (
                     <div className="bnc-price-row" style={{fontSize: 11, color: '#888'}}>
                       <span>via {buyNowDeliveryCharge.courierName}</span>
                       <span>~{buyNowDeliveryCharge.estimatedDays} days</span>
@@ -3565,12 +3656,12 @@ export default function ProductDetailClient({
                   <div className="bnc-price-row"><span>GST (18%)</span><span>₹{Math.round(displayPrice * quantity * 0.18).toLocaleString('en-IN')}</span></div>
                   <div className="bnc-price-total">
                     <span>Total</span>
-                    <span>₹{Number(displayPrice * quantity + Math.round(displayPrice * quantity * 0.18) + (buyNowDeliveryCharge?.charge || 0)).toLocaleString('en-IN')}</span>
+                    <span>₹{Number(displayPrice * quantity + Math.round(displayPrice * quantity * 0.18) + (buyNowPaymentMethod === 'cod' ? codCharge : (buyNowDeliveryCharge?.charge || 0))).toLocaleString('en-IN')}</span>
                   </div>
                 </div>
 
-                <button className="bnc-pay-btn" onClick={handleProceedToPayment} disabled={!selectedAddressId || buyNowDeliveryLoading}>
-                  {buyNowDeliveryLoading ? 'Calculating delivery...' : `Proceed to Payment — ₹${Number(displayPrice * quantity + Math.round(displayPrice * quantity * 0.18) + (buyNowDeliveryCharge?.charge || 0)).toLocaleString('en-IN')}`}
+                <button className="bnc-pay-btn" onClick={handleProceedToPayment} disabled={!selectedAddressId || buyNowDeliveryLoading || codLoading}>
+                  {buyNowDeliveryLoading ? 'Calculating delivery...' : codLoading ? 'Placing order...' : buyNowPaymentMethod === 'cod' ? `Place COD Order — ₹${Number(displayPrice * quantity + Math.round(displayPrice * quantity * 0.18) + codCharge).toLocaleString('en-IN')}` : `Proceed to Payment — ₹${Number(displayPrice * quantity + Math.round(displayPrice * quantity * 0.18) + (buyNowDeliveryCharge?.charge || 0)).toLocaleString('en-IN')}`}
                 </button>
               </>
             )}
@@ -3623,6 +3714,34 @@ export default function ProductDetailClient({
             .bnc-pay-btn:hover { background: #333; }
             .bnc-pay-btn:disabled { background: #ccc; cursor: not-allowed; }
           `}</style>
+        </div>
+      )}
+
+      {/* COD Order Success Modal */}
+      {codSuccess && (
+        <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'rgba(0,0,0,0.55)',zIndex:9999,display:'flex',alignItems:'center',justifyContent:'center',padding:'16px',fontFamily:'Inter,system-ui,sans-serif'}}>
+          <div style={{background:'#fff',borderRadius:16,padding:'40px 32px',maxWidth:400,width:'100%',textAlign:'center',boxShadow:'0 20px 60px rgba(0,0,0,0.2)'}}>
+            <div style={{width:64,height:64,background:'#f0fdf4',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 20px'}}>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
+            </div>
+            <h2 style={{fontSize:22,fontWeight:800,color:'#1a1a1a',margin:'0 0 10px'}}>Order Placed!</h2>
+            <p style={{fontSize:14,color:'#666',margin:'0 0 6px'}}>Your order <strong>#{codSuccess}</strong> has been confirmed.</p>
+            <p style={{fontSize:13,color:'#888',margin:'0 0 28px'}}>Pay with cash when your order is delivered.</p>
+            <div style={{display:'flex',flexDirection:'column',gap:10}}>
+              <button
+                onClick={() => { setCodSuccess(null); router.push(`/orders/${codSuccess}`) }}
+                style={{width:'100%',padding:'13px',background:'#1a1a1a',color:'#fff',border:'none',borderRadius:10,fontSize:14,fontWeight:700,cursor:'pointer'}}
+              >
+                View Order Details
+              </button>
+              <button
+                onClick={() => setCodSuccess(null)}
+                style={{width:'100%',padding:'13px',background:'transparent',color:'#555',border:'1.5px solid #e0e0e0',borderRadius:10,fontSize:14,fontWeight:600,cursor:'pointer'}}
+              >
+                Continue Shopping
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

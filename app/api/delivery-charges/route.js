@@ -39,6 +39,8 @@ export async function GET(request) {
         courierName: 'Standard Delivery',
         courierId: null,
         estimatedDays: 5,
+        cod_available: true,
+        cod_charge: estimatedCharge,
         allRates: [{
           courier_id: null,
           courier_name: 'Standard Delivery',
@@ -51,24 +53,35 @@ export async function GET(request) {
     const { calculateRates, SHIPPING_DEFAULTS } = await import('../../../lib/bigship')
     const pickupPincode = process.env.BIGSHIP_PICKUP_PINCODE || '400001'
 
-    // Use per-product weight/dimensions if provided, otherwise fall back to SHIPPING_DEFAULTS
-    const result = await calculateRates({
-      shipmentCategory: SHIPPING_DEFAULTS.SHIPMENT_CATEGORY,
-      paymentType: SHIPPING_DEFAULTS.PAYMENT_TYPE,
-      pickupPincode,
-      destinationPincode: pincode,
-      shipmentInvoiceAmount: amount,
-      boxDetails: [
-        {
-          deadWeight: weight || SHIPPING_DEFAULTS.DEAD_WEIGHT,
-          length: length || SHIPPING_DEFAULTS.LENGTH,
-          width: width || SHIPPING_DEFAULTS.WIDTH,
-          height: height || SHIPPING_DEFAULTS.HEIGHT,
-          // Use provided box_count; fall back to SHIPPING_DEFAULTS.BOX_COUNT (1)
-          boxCount: boxCount || SHIPPING_DEFAULTS.BOX_COUNT,
-        },
-      ],
-    })
+    const boxDetails = [
+      {
+        deadWeight: weight || SHIPPING_DEFAULTS.DEAD_WEIGHT,
+        length: length || SHIPPING_DEFAULTS.LENGTH,
+        width: width || SHIPPING_DEFAULTS.WIDTH,
+        height: height || SHIPPING_DEFAULTS.HEIGHT,
+        boxCount: boxCount || SHIPPING_DEFAULTS.BOX_COUNT,
+      },
+    ]
+
+    // Run Prepaid and COD rate checks in parallel
+    const [result, codResult] = await Promise.all([
+      calculateRates({
+        shipmentCategory: SHIPPING_DEFAULTS.SHIPMENT_CATEGORY,
+        paymentType: 'Prepaid',
+        pickupPincode,
+        destinationPincode: pincode,
+        shipmentInvoiceAmount: amount,
+        boxDetails,
+      }),
+      calculateRates({
+        shipmentCategory: SHIPPING_DEFAULTS.SHIPMENT_CATEGORY,
+        paymentType: 'COD',
+        pickupPincode,
+        destinationPincode: pincode,
+        shipmentInvoiceAmount: amount,
+        boxDetails,
+      }),
+    ])
 
     if (!result.success || !result.data?.length) {
       return NextResponse.json({
@@ -76,14 +89,23 @@ export async function GET(request) {
         available: false,
         deliveryCharge: 0,
         freeDelivery: false,
+        cod_available: false,
+        cod_charge: 0,
         message: result.message || 'No couriers available for this pincode',
       })
     }
 
-    // Find the cheapest option (Amazon already filtered out inside calculateRates)
+    // Find the cheapest prepaid option (Amazon already filtered out inside calculateRates)
     const cheapest = result.data.reduce((a, b) =>
       parseFloat(a.total_shipping_charges) < parseFloat(b.total_shipping_charges) ? a : b
     )
+
+    // COD: find cheapest COD option if available
+    const codCheapest = codResult.success && codResult.data?.length
+      ? codResult.data.reduce((a, b) =>
+          parseFloat(a.total_shipping_charges) < parseFloat(b.total_shipping_charges) ? a : b
+        )
+      : null
 
     return NextResponse.json({
       success: true,
@@ -95,6 +117,10 @@ export async function GET(request) {
       courierType: cheapest.courier_type || null,
       estimatedDays: cheapest.tat || 5,
       billableWeight: cheapest.billable_weight || null,
+      cod_available: !!codCheapest,
+      cod_charge: codCheapest ? Math.round(codCheapest.total_shipping_charges) : 0,
+      cod_courier_name: codCheapest?.courier_name || null,
+      cod_estimated_days: codCheapest?.tat || 5,
       allRates: result.data.map((r) => ({
         courier_id: r.courier_id,
         courier_name: r.courier_name,
