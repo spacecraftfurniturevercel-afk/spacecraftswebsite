@@ -65,6 +65,7 @@ function SkeletonGroup() {
 function RelatedCard({ product, index }) {
   const imageUrl = product.images?.[0] || '/placeholder-product.jpg'
   const finalPrice = product.discount_price || product.price
+  const canBuyOnline = !!(product.shipping_length && product.shipping_width && product.shipping_height)
 
   return (
     <motion.div
@@ -84,16 +85,20 @@ function RelatedCard({ product, index }) {
         </div>
         <div className={styles.relatedInfo}>
           <p className={styles.relatedName}>{product.name}</p>
-          <div>
-            <span className={styles.relatedPrice}>
-              ₹{finalPrice?.toLocaleString('en-IN')}
-            </span>
-            {product.discount_price && product.price > product.discount_price && (
-              <span className={styles.relatedOriginalPrice}>
-                ₹{product.price?.toLocaleString('en-IN')}
+          {canBuyOnline ? (
+            <div>
+              <span className={styles.relatedPrice}>
+                ₹{finalPrice?.toLocaleString('en-IN')}
               </span>
-            )}
-          </div>
+              {product.discount_price && product.price > product.discount_price && (
+                <span className={styles.relatedOriginalPrice}>
+                  ₹{product.price?.toLocaleString('en-IN')}
+                </span>
+              )}
+            </div>
+          ) : (
+            <span className={styles.enquiryLabel}>Send Enquiry</span>
+          )}
         </div>
       </Link>
     </motion.div>
@@ -107,6 +112,7 @@ function MainProductCard({ product }) {
   const discount = product.discount_price
     ? Math.round(((product.price - product.discount_price) / product.price) * 100)
     : 0
+  const canBuyOnline = !!(product.shipping_length && product.shipping_width && product.shipping_height)
 
   return (
     <Link href={`/products/${product.slug}`} target="_blank" rel="noopener noreferrer" className={styles.mainCard}>
@@ -122,22 +128,26 @@ function MainProductCard({ product }) {
           <span className={styles.viewedDot} />
           Recently Viewed
         </span>
-        {discount > 0 && (
+        {canBuyOnline && discount > 0 && (
           <span className={styles.discountBadge}>{discount}% OFF</span>
         )}
       </div>
       <div className={styles.mainInfo}>
         <h3 className={styles.mainName}>{product.name}</h3>
-        <div className={styles.mainPriceRow}>
-          <span className={styles.mainPrice}>
-            ₹{finalPrice?.toLocaleString('en-IN')}
-          </span>
-          {product.discount_price && product.price > product.discount_price && (
-            <span className={styles.mainOriginalPrice}>
-              ₹{product.price?.toLocaleString('en-IN')}
+        {canBuyOnline ? (
+          <div className={styles.mainPriceRow}>
+            <span className={styles.mainPrice}>
+              ₹{finalPrice?.toLocaleString('en-IN')}
             </span>
-          )}
-        </div>
+            {product.discount_price && product.price > product.discount_price && (
+              <span className={styles.mainOriginalPrice}>
+                ₹{product.price?.toLocaleString('en-IN')}
+              </span>
+            )}
+          </div>
+        ) : (
+          <span className={styles.enquiryLabel}>Send Enquiry</span>
+        )}
         {product.rating > 0 && (
           <div className={styles.mainRating}>
             <StarIcon />

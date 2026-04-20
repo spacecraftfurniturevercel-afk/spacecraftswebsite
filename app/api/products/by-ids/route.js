@@ -26,6 +26,7 @@ export async function POST(request) {
       .from('products')
       .select(`
         id, name, slug, price, discount_price, stock, rating, review_count,
+        shipping_length, shipping_width, shipping_height,
         category_id, related_product_ids,
         product_images (url, alt, position)
       `)
@@ -51,6 +52,7 @@ export async function POST(request) {
         .from('products')
         .select(`
           id, name, slug, price, discount_price, stock, rating, review_count,
+          shipping_length, shipping_width, shipping_height,
           product_images (url, alt, position)
         `)
         .in('id', Array.from(allRelatedIds))
