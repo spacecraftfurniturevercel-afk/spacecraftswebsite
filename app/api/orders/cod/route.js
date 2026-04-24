@@ -123,24 +123,23 @@ export async function POST(request) {
       .update({ stock: Math.max(0, product.stock - quantity) })
       .eq('id', product.id)
 
-    // Auto-create BigShip shipment (non-blocking — does not delay the response)
-    ;(async () => {
+    // Auto-create BigShip shipment — blocking so Vercel doesn't kill it before it completes.
+    // Order still succeeds even if BigShip fails; error is saved to shipment_error.
+    try {
+      const { createShipmentForOrder } = await import('../../../../lib/createShipment')
+      const shipResult = await createShipmentForOrder(order.id, adminSupabase, { paymentMethod: 'COD' })
+      console.log('[cod] BigShip shipment result for order', order.id, ':', shipResult)
+    } catch (shipErr) {
+      console.error('[cod] BigShip shipment creation failed (non-fatal):', shipErr.message)
       try {
-        const { createShipmentForOrder } = await import('../../../../lib/createShipment')
-        const shipResult = await createShipmentForOrder(order.id, adminSupabase, { paymentMethod: 'COD' })
-        console.log('[cod] BigShip shipment result for order', order.id, ':', shipResult)
-      } catch (shipErr) {
-        console.error('[cod] BigShip shipment creation failed (non-fatal):', shipErr.message)
-        try {
-          await adminSupabase
-            .from('orders')
-            .update({ shipment_error: shipErr.message })
-            .eq('id', order.id)
-        } catch {}
-      }
-    })()
+        await adminSupabase
+          .from('orders')
+          .update({ shipment_error: shipErr.message })
+          .eq('id', order.id)
+      } catch {}
+    }
 
-    // Send order confirmation email to customer + admin (non-blocking)
+    // Send order confirmation email to customer + admin (non-blocking — email delay is fine)
     ;(async () => {
       try {
         const { sendOrderConfirmationEmails } = await import('../../../../lib/email')
