@@ -392,8 +392,8 @@ export default function AdminShippingPage() {
                               <ActionBtn label="Cancel" color="#ef4444" onClick={() => cancelShipment(order.id)} loading={actionLoading === order.id} />
                             </>
                           )}
-                          {/* Invoice — always available for paid orders */}
-                          {(order.payment_status === 'completed' || order.status === 'confirmed' || order.status === 'shipped' || order.status === 'delivered') && (
+                          {/* Invoice — always available for confirmed/processing/shipped/delivered orders, including COD */}
+                          {(order.payment_status === 'completed' || order.payment_method === 'cod' || order.status === 'confirmed' || order.status === 'processing' || order.status === 'shipped' || order.status === 'delivered') && (
                             <ActionBtn
                               label="&#x1F4C4; Invoice"
                               color="#7c3aed"
