@@ -676,7 +676,10 @@ export default function Header() {
                                 <li key={itemIdx}>
                                   <button
                                     className={styles['section-item-link']}
-                                    onClick={() => router.push(`/products/category/${item.slug}`)}
+                                    onClick={() => {
+                                      setHoveredCategory(null)
+                                      router.push(`/products/category/${item.slug}`)
+                                    }}
                                   >
                                     {item.name}
                                   </button>
@@ -700,7 +703,10 @@ export default function Header() {
                             <div className={`${styles['image-overlay-text']} ${styles['image-overlay-all']}`}>
                               <span className={styles['overlay-label']}>Explore</span>
                               <span className={styles['overlay-category']}>All Furniture</span>
-                              <button className={styles['overlay-cta']} onClick={() => router.push('/products')}>
+                              <button className={styles['overlay-cta']} onClick={() => {
+                                setHoveredCategory(null)
+                                router.push('/products')
+                              }}>
                                 Shop Now
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                                   <path d="M5 12h14"/>
@@ -725,7 +731,10 @@ export default function Header() {
                                   <li key={itemIdx}>
                                     <button
                                       className={styles['section-item-link']}
-                                      onClick={() => router.push(`/products/category/${item.slug}`)}
+                                      onClick={() => {
+                                        setHoveredCategory(null)
+                                        router.push(`/products/category/${item.slug}`)
+                                      }}
                                     >
                                       {item.name}
                                     </button>
@@ -734,7 +743,10 @@ export default function Header() {
                               </ul>
                               <button
                                 className={styles['shop-all-link']}
-                                onClick={() => router.push(`/products/category/${catSlug}`)}
+                                onClick={() => {
+                                  setHoveredCategory(null)
+                                  router.push(`/products/category/${catSlug}`)
+                                }}
                               >
                                 Shop All {category}
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -775,7 +787,10 @@ export default function Header() {
                             <h4 className={styles['section-title']}>{category}</h4>
                             <button
                               className={styles['shop-all-link']}
-                              onClick={() => router.push(`/products/category/${catSlug}`)}
+                              onClick={() => {
+                                setHoveredCategory(null)
+                                router.push(`/products/category/${catSlug}`)
+                              }}
                             >
                               Shop All {category}
                               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
