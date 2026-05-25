@@ -11,6 +11,7 @@ import ProductQA from './ProductQA'
 import RazorpayPayment from './RazorpayPayment'
 import { authenticatedFetch } from '../lib/authenticatedFetch'
 import { trackProductView } from '../lib/useProductViewTracker'
+import { useAuth } from '../app/providers/AuthProvider'
 import ProductOfferRow from './ProductOfferRow'
 
 export default function ProductDetailClient({ 
