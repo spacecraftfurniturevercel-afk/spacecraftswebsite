@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
+import ProductOfferRow from './ProductOfferRow'
 
 const NAV_TAGS = [
   { slug: 'living-room', name: 'Living Room' },
@@ -1351,6 +1352,8 @@ function ProductCard({ product, view }) {
             <span className="rating-text">({product.review_count || 0})</span>
           </div>
         )}
+
+        <ProductOfferRow product={product} variant="compact" />
 
         <div className="product-price-section">
           {canBuyOnline ? (

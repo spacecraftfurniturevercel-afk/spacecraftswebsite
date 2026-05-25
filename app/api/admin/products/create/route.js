@@ -39,6 +39,7 @@ export async function POST(req) {
       shipping_width: form.shipping_width ? parseInt(form.shipping_width) : null,
       shipping_height: form.shipping_height ? parseInt(form.shipping_height) : null,
       shipping_box_count: form.shipping_box_count ? parseInt(form.shipping_box_count) : 1,
+      offer_name: form.offer_name?.trim() || null,
     }]).select().single()
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })

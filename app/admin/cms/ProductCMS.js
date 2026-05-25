@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { OFFER_NAME_PRESETS } from '../../../lib/productOffer'
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -17,7 +18,7 @@ const EMPTY_FORM = {
   description: '', short_description: '',
   category_id: '', category_ids: [], brand_id: '',
   is_active: true, is_featured: false, is_best_seller: false, is_new_arrival: false,
-  sku: '', meta_title: '', meta_description: '',
+  sku: '', meta_title: '', meta_description: '', offer_name: '',
   shipping_weight: '', shipping_length: '', shipping_width: '', shipping_height: '',
   shipping_box_count: '1',
 }
@@ -132,6 +133,7 @@ export default function ProductCMS() {
       is_best_seller: product.is_best_seller || false,
       is_new_arrival: product.is_new_arrival || false,
       sku: product.sku || '',
+      offer_name: product.offer_name || '',
       meta_title: product.meta_title || '',
       meta_description: product.meta_description || '',
       shipping_weight: product.shipping_weight ?? '',
@@ -437,6 +439,27 @@ export default function ProductCMS() {
                   <div>
                     <label>Discount Price (₹) <span className="cfg-hint">leave blank if no discount</span></label>
                     <input type="number" min="0" step="0.01" value={form.discount_price} onChange={field('discount_price')} placeholder="11999" />
+                  </div>
+                  <div className="cfg-full">
+                    <label>Offer Label</label>
+                    <select
+                      defaultValue=""
+                      onChange={(e) => {
+                        if (e.target.value) setForm((f) => ({ ...f, offer_name: e.target.value }))
+                      }}
+                    >
+                      <option value="">Quick pick a preset…</option>
+                      {OFFER_NAME_PRESETS.map((name) => (
+                        <option key={name} value={name}>{name}</option>
+                      ))}
+                    </select>
+                    <input
+                      style={{ marginTop: 8 }}
+                      value={form.offer_name}
+                      onChange={field('offer_name')}
+                      placeholder="e.g. Limited time deal, Diwali Offer"
+                    />
+                    <p className="cfg-hint cfg-hint-block">Shown beside the discount badge on product cards and the product page.</p>
                   </div>
                   <div className="cfg-full">
                     <label>Primary Category</label>

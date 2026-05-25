@@ -6,6 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import styles from './FeaturedProductsSection.module.css'
+import ProductOfferRow from './ProductOfferRow'
 
 var tabs = [
   { id: 'bestsellers', label: 'Bestsellers', icon: '★' },
@@ -47,10 +48,9 @@ function FeaturedProductCard({ product }) {
       <div className={styles.featuredInfo}>
         <h3 className={styles.featuredName}>{product.name}</h3>
 
+        <ProductOfferRow product={product} variant="compact" />
+
         <div className={styles.priceRow}>
-          {discountPercentage > 0 && (
-            <span className={styles.discountPct}>-{discountPercentage}%</span>
-          )}
           <span className={styles.currentPrice}>
             <span className={styles.currency}>₹</span>
             <span className={styles.priceWhole}>{priceParts.whole}</span>

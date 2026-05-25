@@ -7,6 +7,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { authenticatedFetch } from '../lib/authenticatedFetch'
+import ProductOfferRow from './ProductOfferRow'
 
 export default function ProductCard({ product }) {
   const [isHovered, setIsHovered] = useState(false)
@@ -282,6 +283,8 @@ export default function ProductCard({ product }) {
 
           {/* Price block */}
           {canBuyOnline && (
+          <>
+          <ProductOfferRow product={product} variant="compact" />
           <div style={{
             display: 'flex',
             alignItems: 'baseline',
@@ -319,6 +322,7 @@ export default function ProductCard({ product }) {
               </span>
             )}
           </div>
+          </>
           )}
 
           {/* Delivery Info */}

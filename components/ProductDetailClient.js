@@ -11,7 +11,7 @@ import ProductQA from './ProductQA'
 import RazorpayPayment from './RazorpayPayment'
 import { authenticatedFetch } from '../lib/authenticatedFetch'
 import { trackProductView } from '../lib/useProductViewTracker'
-import { useAuth } from '../app/providers/AuthProvider'
+import ProductOfferRow from './ProductOfferRow'
 
 export default function ProductDetailClient({ 
   product, 
@@ -810,17 +810,22 @@ export default function ProductDetailClient({
             {/* Price */}
             {canBuyOnline && (
               hasDimensions ? (
-                <div className="product-price">
-                  <span className="current-price">₹{displayPrice.toLocaleString('en-IN')}</span>
-                  {hasDiscount && (
-                    <>
-                      <span className="mrp-line">
-                        MRP <span className="mrp-value">₹{product.price.toLocaleString('en-IN')}</span>
-                      </span>
-                      <span className="discount-off">({discountPercentage}% Off)</span>
-                    </>
-                  )}
-                </div>
+                <>
+                  <ProductOfferRow product={product} variant="detail" />
+                  <div className="product-price">
+                    <span className="current-price">₹{displayPrice.toLocaleString('en-IN')}</span>
+                    {hasDiscount && (
+                      <>
+                        <span className="mrp-line">
+                          M.R.P.: <span className="mrp-value">₹{product.price.toLocaleString('en-IN')}</span>
+                        </span>
+                        {!product.offer_name && (
+                          <span className="discount-off">({discountPercentage}% Off)</span>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </>
               ) : (
                 <div className="product-price contact-price-block">
                   <span className="contact-price-label">Contact for Price</span>
@@ -2006,25 +2011,25 @@ export default function ProductDetailClient({
         /* ===== PRICE ===== */
         .product-price {
           display: flex;
-          align-items: baseline;
-          gap: 12px;
-          flex-wrap: wrap;
-          padding: 8px 0 4px;
-          border-top: 1px solid #eee;
-          margin-top: 8px;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 4px;
+          padding: 4px 0 8px;
+          border-top: none;
+          margin-top: 0;
         }
 
         .current-price {
-          font-size: 32px;
+          font-size: 34px;
           font-weight: 700;
-          color: #1a1a1a;
+          color: #0f1111;
           letter-spacing: -0.5px;
-          line-height: 1;
+          line-height: 1.1;
         }
 
         .mrp-line {
-          font-size: 15px;
-          color: #888;
+          font-size: 14px;
+          color: #0f1111;
           font-weight: 400;
         }
 
@@ -4210,9 +4215,6 @@ function RelatedProductCard({ product }) {
   const imageUrl = product.images?.[0]?.url || product.images?.[0] || product.coverImage || '/placeholder-product.jpg'
   const hasDiscount = product.discount_price && product.discount_price < product.price
   const finalPrice = hasDiscount ? product.discount_price : product.price
-  const discountPercentage = hasDiscount
-    ? Math.round(((product.price - product.discount_price) / product.price) * 100)
-    : 0
   const priceParts = formatPriceParts(finalPrice)
   const mrpParts = formatPriceParts(product.price)
   const canBuyOnline = !!(product.shipping_length && product.shipping_width && product.shipping_height)
@@ -4233,10 +4235,8 @@ function RelatedProductCard({ product }) {
         <h4 className="rpc-name">{product.name}</h4>
         {canBuyOnline ? (
           <>
+            <ProductOfferRow product={product} variant="compact" />
             <div className="rpc-price-row">
-              {discountPercentage > 0 && (
-                <span className="rpc-discount">-{discountPercentage}%</span>
-              )}
               <span className="rpc-current">
                 <span className="rpc-currency">₹</span>
                 <span className="rpc-whole">{priceParts.whole}</span>
