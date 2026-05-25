@@ -1,33 +1,35 @@
 // Promotional Banners — Coupon Strip + 3 Offer Cards
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import styles from './PromoBanners.module.css'
+
+const SLIDE_DURATION = 4500
 
 var promoCards = [
   {
     title: 'Home Décor',
     subtitle: 'Gifting Made Easy',
     cta: 'Shop Now',
-    href: '/products/category/home-decor',
-    image: '/PromoCard/1.webp',
+    href: '/products',
+    image: '/PromoCard/1.png',
   },
   {
     title: 'Explore Premium',
     subtitle: 'Mattresses & Beds',
     cta: 'Explore',
-    href: '/products/category/beds-frames',
-    image: '/PromoCard/2.webp',
+    href: '/products',
+    image: '/PromoCard/2.png',
   },
   {
     title: 'Beds, Wardrobes &',
     subtitle: 'Storage at 60% Off',
     cta: 'Shop Deals',
-    href: '/products/category/wardrobes-cabinets',
-    image: '/PromoCard/3.webp',
+    href: '/products',
+    image: '/PromoCard/3.png',
   },
 ]
 
@@ -71,6 +73,131 @@ function PromoCard({ card, index, isVisible }) {
   )
 }
 
+function PromoCarouselCard({ card, isVisible }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      animate={isVisible ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+      style={{ height: '100%' }}
+    >
+      <Link href={card.href} style={{ textDecoration: 'none', color: 'inherit', display: 'block', height: '100%' }}>
+        <article className={styles.promoCarouselCard}>
+          <div className={styles.promoCarouselCardImage}>
+            <Image
+              src={card.image}
+              alt={card.title}
+              fill
+              unoptimized
+              sizes="100vw"
+              style={{ objectFit: 'cover', objectPosition: 'center' }}
+            />
+          </div>
+        </article>
+      </Link>
+    </motion.div>
+  )
+}
+
+function PromoMobileCarousel({ cards, isVisible }) {
+  var _slide = useState(0)
+  var currentSlide = _slide[0]
+  var setCurrentSlide = _slide[1]
+
+  var _dir = useState(1)
+  var direction = _dir[0]
+  var setDirection = _dir[1]
+
+  var touchStartX = useRef(0)
+
+  useEffect(function () {
+    var timer = setInterval(function () {
+      setDirection(1)
+      setCurrentSlide(function (prev) { return (prev + 1) % cards.length })
+    }, SLIDE_DURATION)
+    return function () { clearInterval(timer) }
+  }, [cards.length])
+
+  var goToSlide = useCallback(function (index) {
+    setCurrentSlide(function (prev) {
+      if (index === prev) return prev
+      setDirection(index > prev ? 1 : -1)
+      return index
+    })
+  }, [])
+
+  var goNext = useCallback(function () {
+    setDirection(1)
+    setCurrentSlide(function (prev) { return (prev + 1) % cards.length })
+  }, [cards.length])
+
+  var goPrev = useCallback(function () {
+    setDirection(-1)
+    setCurrentSlide(function (prev) { return (prev - 1 + cards.length) % cards.length })
+  }, [cards.length])
+
+  function handleTouchStart(e) {
+    touchStartX.current = e.touches[0].clientX
+  }
+
+  function handleTouchEnd(e) {
+    var diff = touchStartX.current - e.changedTouches[0].clientX
+    if (Math.abs(diff) < 40) return
+    if (diff > 0) goNext()
+    else goPrev()
+  }
+
+  var slide = cards[currentSlide]
+
+  var slideVariants = {
+    enter: function (dir) { return { x: dir > 0 ? '100%' : '-100%' } },
+    center: { x: 0 },
+    exit: function (dir) { return { x: dir > 0 ? '-100%' : '100%' } },
+  }
+
+  return (
+    <div className={styles.promoCarousel}>
+      <div
+        className={styles.promoCarouselViewport}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        <AnimatePresence initial={false} custom={direction}>
+          <motion.div
+            key={slide.title + currentSlide}
+            custom={direction}
+            variants={slideVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
+            className={styles.promoCarouselSlide}
+          >
+            <PromoCarouselCard card={slide} isVisible={isVisible} />
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      <div className={styles.promoCarouselDots}>
+        {cards.map(function (card, index) {
+          return (
+            <button
+              key={index}
+              type="button"
+              aria-label={'Go to promo ' + (index + 1)}
+              className={
+                styles.promoCarouselDot +
+                (currentSlide === index ? ' ' + styles.promoCarouselDotActive : '')
+              }
+              onClick={function () { goToSlide(index) }}
+            />
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 export default function PromoBanners() {
   var sectionRef = useRef(null)
   var _v = useState(false)
@@ -80,6 +207,17 @@ export default function PromoBanners() {
   var _copied = useState(false)
   var copied = _copied[0]
   var setCopied = _copied[1]
+
+  var _mobile = useState(false)
+  var isMobile = _mobile[0]
+  var setIsMobile = _mobile[1]
+
+  useEffect(function () {
+    function check() { setIsMobile(window.innerWidth <= 600) }
+    check()
+    window.addEventListener('resize', check)
+    return function () { window.removeEventListener('resize', check) }
+  }, [])
 
   useEffect(function () {
     var observer = new IntersectionObserver(
@@ -108,7 +246,7 @@ export default function PromoBanners() {
       <div className={styles.container}>
 
         {/* Coupon Strip */}
-        <motion.div
+        {/* <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={isVisible ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
@@ -151,16 +289,20 @@ export default function PromoBanners() {
 
             <span className={styles.tcText}>T&C Apply</span>
           </div>
-        </motion.div>
+        </motion.div> */}
 
-        {/* Three Promo Cards */}
-        <div className={styles.promoGrid}>
-          {promoCards.map(function (card, index) {
-            return (
-              <PromoCard key={index} card={card} index={index} isVisible={isVisible} />
-            )
-          })}
-        </div>
+        {/* Promo Cards — grid on desktop/tablet, carousel on mobile only */}
+        {isMobile ? (
+          <PromoMobileCarousel cards={promoCards} isVisible={isVisible} />
+        ) : (
+          <div className={styles.promoGrid}>
+            {promoCards.map(function (card, index) {
+              return (
+                <PromoCard key={index} card={card} index={index} isVisible={isVisible} />
+              )
+            })}
+          </div>
+        )}
       </div>
     </section>
   )

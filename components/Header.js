@@ -525,8 +525,21 @@ export default function Header() {
           {/* Right Side: Nav + User */}
           <div className={styles['header-right']}>
           <nav className={styles['header-nav']}>
-            <Link href="/products" className={styles['nav-link']}>Furniture</Link>
-            <Link href="/store-locator" className={styles['nav-link']}>Store</Link>
+            {/* <Link href="/products" className={styles['nav-link']}>Furniture</Link> */}
+            <Link href="/store-locator" className={`${styles['nav-link']} ${styles['find-store-link']}`} aria-label="Find a Store">
+              <span className={styles['find-store-text']}>
+                <span className={styles['find-store-line1']}>Find a</span>
+                <span className={styles['find-store-line2']}>Store</span>
+              </span>
+              <Image
+                src="/header/findastore.svg"
+                alt=""
+                width={24}
+                height={24}
+                className={styles['find-store-icon']}
+                aria-hidden="true"
+              />
+            </Link>
             <Link href="/wishlist" className={styles['nav-link']}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
@@ -824,11 +837,11 @@ export default function Header() {
                 <div className={styles['mobile-menu-divider']} />
               </>
             )}
-            <Link href="/products" className={styles['mobile-menu-item']} onClick={() => setIsMobileMenuOpen(false)}>
+            {/* <Link href="/products" className={styles['mobile-menu-item']} onClick={() => setIsMobileMenuOpen(false)}>
               Furniture
-            </Link>
+            </Link> */}
             <Link href="/store-locator" className={styles['mobile-menu-item']} onClick={() => setIsMobileMenuOpen(false)}>
-              Store
+              Find a Store
             </Link>
             <Link href="/wishlist" className={styles['mobile-menu-item']} onClick={() => setIsMobileMenuOpen(false)}>
                Wishlist

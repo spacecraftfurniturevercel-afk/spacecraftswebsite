@@ -121,54 +121,32 @@
   object-fit: contain;
 }
 
-/* ─── Marquee Ticker ─── */
+/* ─── Static Ticker (desktop & tablet) ─── */
 .ticker {
   margin-top: 10px;
   border-radius: 8px;
   background: linear-gradient(135deg, #111 0%, #1a1510 50%, #111 100%);
   overflow: hidden;
   position: relative;
-  padding: 7px 0;
+  padding: 9px 20px;
 }
 
-.ticker::before,
-.ticker::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 60px;
-  z-index: 2;
-  pointer-events: none;
-}
-
-.ticker::before {
-  left: 0;
-  background: linear-gradient(90deg, #111, transparent);
-}
-
-.ticker::after {
-  right: 0;
-  background: linear-gradient(270deg, #111, transparent);
-}
-
-.tickerTrack {
+.tickerTrackStatic {
   display: flex;
-  width: max-content;
-  animation: tickerScroll 28s linear infinite;
-}
-
-.ticker:hover .tickerTrack {
-  animation-play-state: paused;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  width: 100%;
+  overflow: hidden;
 }
 
 .tickerContent {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 0;
   white-space: nowrap;
   flex-shrink: 0;
-  padding-right: 0;
 }
 
 .tickerText {
@@ -185,18 +163,54 @@
   height: 5px;
   border-radius: 50%;
   background: #c9a84c;
-  margin: 0 20px;
+  margin: 0 16px;
   flex-shrink: 0;
   vertical-align: middle;
 }
 
-@keyframes tickerScroll {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
+/* ─── Mobile Ticker Carousel ─── */
+.tickerCarousel {
+  position: relative;
+  min-height: 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  touch-action: pan-y;
+}
+
+.tickerCarouselSlide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0 12px;
+  text-align: center;
+}
+
+.tickerCarouselDots {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.tickerCarouselDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.35);
+  transition: all 0.3s ease;
+}
+
+.tickerCarouselDotActive {
+  width: 16px;
+  border-radius: 3px;
+  background: #c9a84c;
 }
 
 /* ─── Responsive ─── */
@@ -214,6 +228,14 @@
 
   .logosMarquee {
     width: 100%;
+  }
+
+  .tickerDot {
+    margin: 0 12px;
+  }
+
+  .tickerText {
+    font-size: 12px;
   }
 }
 
@@ -243,10 +265,12 @@
   .ticker {
     margin-top: 10px;
     border-radius: 8px;
-    padding: 8px 0;
+    padding: 10px 12px 8px;
   }
 
   .tickerText {
     font-size: 12px;
+    line-height: 1.4;
+    white-space: normal;
   }
 }

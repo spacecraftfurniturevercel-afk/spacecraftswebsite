@@ -8,6 +8,44 @@ import { motion, AnimatePresence } from 'framer-motion'
 
 const SLIDE_DURATION = 6000
 
+/* ── New split hero assets (70% static / 30% carousel) ── */
+// Bump NEXT_PUBLIC_HERO_VERSION in .env.local when replacing hero images (same filenames)
+const HERO_IMAGE_VERSION = process.env.NEXT_PUBLIC_HERO_VERSION || '2'
+
+function withHeroVersion(path) {
+  return `${path}?v=${HERO_IMAGE_VERSION}`
+}
+
+const STATIC_HERO_IMAGE = withHeroVersion('/hero/static/static1.webp')
+
+const movingHeroSlides = [
+  { id: 1, image: withHeroVersion('/hero/moving/static2.webp'), alt: 'Hero promotion 1', link: '/products' },
+  { id: 2, image: withHeroVersion('/hero/moving/static3.webp'), alt: 'Hero promotion 2', link: '/products' },
+  { id: 3, image: withHeroVersion('/hero/moving/static4.webp'), alt: 'Hero promotion 3', link: '/products' },
+  { id: 4, image: withHeroVersion('/hero/moving/static5.webp'), alt: 'Hero promotion 4', link: '/products' },
+  { id: 5, image: withHeroVersion('/hero/moving/static6.webp'), alt: 'Hero promotion 5', link: '/products' },
+]
+
+const HERO_PRODUCTS_LINK = '/products'
+
+function HeroImageLink({ href, children, style, isMobile }) {
+  return (
+    <Link
+      href={href}
+      style={{ display: 'block', width: '100%', height: '100%', position: 'relative', ...style }}
+    >
+      <motion.div
+        whileHover={isMobile ? undefined : { scale: 1.015 }}
+        whileTap={{ scale: 0.985 }}
+        transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+        style={{ width: '100%', height: '100%', cursor: 'pointer', position: 'relative' }}
+      >
+        {children}
+      </motion.div>
+    </Link>
+  )
+}
+
 const heroSlides = [
   {
     id: 1,
@@ -73,6 +111,308 @@ const SplitTitle = ({ text }) => {
 }
 
 export default function ModernHeroCarousel() {
+  return <SplitHeroSection />
+}
+
+/* ── New split hero: 70% static left + 30% carousel right ── */
+function SplitHeroSection() {
+  const [currentSlide, setCurrentSlide] = useState(0)
+  const [direction, setDirection] = useState(1)
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true)
+  const [isMobile, setIsMobile] = useState(false)
+  const touchStartX = useRef(0)
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth <= 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
+
+  useEffect(() => {
+    if (!isAutoPlaying) return
+    const timer = setInterval(() => {
+      setDirection(1)
+      setCurrentSlide((prev) => (prev + 1) % movingHeroSlides.length)
+    }, SLIDE_DURATION)
+    return () => clearInterval(timer)
+  }, [isAutoPlaying])
+
+  const pauseAndResume = useCallback(() => {
+    setIsAutoPlaying(false)
+    setTimeout(() => setIsAutoPlaying(true), 8000)
+  }, [])
+
+  const goToSlide = useCallback((index) => {
+    setCurrentSlide((prev) => {
+      if (index === prev) return prev
+      setDirection(index > prev ? 1 : -1)
+      return index
+    })
+    pauseAndResume()
+  }, [pauseAndResume])
+
+  const goNext = useCallback((e) => {
+    e?.stopPropagation()
+    setDirection(1)
+    setCurrentSlide((prev) => (prev + 1) % movingHeroSlides.length)
+    pauseAndResume()
+  }, [pauseAndResume])
+
+  const goPrev = useCallback((e) => {
+    e?.stopPropagation()
+    setDirection(-1)
+    setCurrentSlide((prev) => (prev - 1 + movingHeroSlides.length) % movingHeroSlides.length)
+    pauseAndResume()
+  }, [pauseAndResume])
+
+  const handleTouchStart = useCallback((e) => {
+    touchStartX.current = e.touches[0].clientX
+  }, [])
+
+  const handleTouchEnd = useCallback((e) => {
+    const diff = touchStartX.current - e.changedTouches[0].clientX
+    if (Math.abs(diff) < 40) return
+    if (diff > 0) goNext()
+    else goPrev()
+  }, [goNext, goPrev])
+
+  const slide = movingHeroSlides[currentSlide]
+
+  const slideVariants = {
+    enter: (dir) => ({ x: dir > 0 ? '100%' : '-100%' }),
+    center: { x: 0 },
+    exit: (dir) => ({ x: dir > 0 ? '-100%' : '100%' }),
+  }
+
+  return (
+    <section className="split-hero">
+      <div className="split-hero__row">
+        {/* Left — static hero (70%) */}
+        <div className="split-hero__static">
+          <HeroImageLink href={HERO_PRODUCTS_LINK} isMobile={isMobile}>
+            <Image
+              src={STATIC_HERO_IMAGE}
+              alt="Spacecrafts Furniture — All Things Home Sale"
+              fill
+              priority
+              unoptimized
+              sizes="(max-width: 768px) 70vw, 70vw"
+              style={{ objectFit: 'cover', objectPosition: 'center center' }}
+            />
+          </HeroImageLink>
+        </div>
+
+        {/* Right — carousel (30%) */}
+        <div
+          className="split-hero__carousel"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
+          <AnimatePresence initial={false} custom={direction}>
+            <motion.div
+              key={slide.id}
+              custom={direction}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.55, ease: [0.32, 0.72, 0, 1] }}
+              style={{ position: 'absolute', inset: 0, willChange: 'transform' }}
+            >
+              <HeroImageLink href={HERO_PRODUCTS_LINK} isMobile={isMobile}>
+                <Image
+                  src={slide.image}
+                  alt={slide.alt}
+                  fill
+                  unoptimized
+                  sizes="(max-width: 768px) 30vw, 30vw"
+                  style={{ objectFit: 'cover', objectPosition: 'center center' }}
+                />
+              </HeroImageLink>
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Dot indicators */}
+          <div className="split-hero__dots">
+            {movingHeroSlides.map((s, i) => (
+              <button
+                key={s.id}
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  goToSlide(i)
+                }}
+                aria-label={`Go to slide ${i + 1}`}
+                className={`split-hero__dot${currentSlide === i ? ' split-hero__dot--active' : ''}`}
+              />
+            ))}
+          </div>
+
+          {/* Next arrow */}
+          <button
+            type="button"
+            onClick={goNext}
+            aria-label="Next slide"
+            className="split-hero__arrow"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="9 6 15 12 9 18" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <style jsx>{`
+        .split-hero {
+          width: 100%;
+          background: #fff;
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        /* Same 70/30 side-by-side on all breakpoints — avoids tall stacked mobile layout */
+        .split-hero__row {
+          display: flex;
+          flex-direction: row;
+          gap: 5px;
+          width: 100%;
+          aspect-ratio: 2.75 / 1;
+          max-height: 520px;
+        }
+
+        .split-hero__static,
+        .split-hero__carousel {
+          position: relative;
+          flex-shrink: 0;
+          overflow: hidden;
+        }
+
+        .split-hero__static {
+          flex: 7 1 0;
+        }
+
+        .split-hero__carousel {
+          flex: 3 1 0;
+          background: #111;
+          touch-action: pan-y;
+        }
+
+        .split-hero__dots {
+          position: absolute;
+          bottom: 16px;
+          left: 50%;
+          transform: translateX(-50%);
+          z-index: 10;
+          display: flex;
+          gap: 6px;
+          align-items: center;
+        }
+
+        .split-hero__dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          border: none;
+          padding: 0;
+          cursor: pointer;
+          background: rgba(255, 255, 255, 0.6);
+          transition: all 0.3s ease;
+        }
+
+        .split-hero__dot--active {
+          width: 10px;
+          height: 10px;
+          background: #e67e22;
+        }
+
+        .split-hero__arrow {
+          position: absolute;
+          bottom: 12px;
+          right: 12px;
+          z-index: 10;
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          border: none;
+          background: rgba(255, 255, 255, 0.92);
+          color: #333;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .split-hero__arrow:active {
+          transform: scale(0.94);
+        }
+
+        @media (max-width: 768px) {
+          .split-hero__row {
+            aspect-ratio: 2.15 / 1;
+            max-height: none;
+            min-height: 150px;
+          }
+
+          .split-hero__dots {
+            bottom: 8px;
+            gap: 4px;
+            max-width: calc(100% - 44px);
+            flex-wrap: wrap;
+            justify-content: center;
+          }
+
+          .split-hero__dot {
+            width: 6px;
+            height: 6px;
+          }
+
+          .split-hero__dot--active {
+            width: 7px;
+            height: 7px;
+          }
+
+          .split-hero__arrow {
+            bottom: 6px;
+            right: 6px;
+            width: 28px;
+            height: 28px;
+          }
+
+          .split-hero__arrow svg {
+            width: 14px;
+            height: 14px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .split-hero__row {
+            aspect-ratio: 2 / 1;
+            min-height: 140px;
+          }
+
+          .split-hero__dots {
+            bottom: 6px;
+          }
+
+          .split-hero__arrow {
+            width: 26px;
+            height: 26px;
+          }
+        }
+      `}</style>
+    </section>
+  )
+}
+
+/*
+ * ─────────────────────────────────────────────────────────────────────────────
+ * PREVIOUS FULL-WIDTH ANIMATED HERO (commented out — kept for reference)
+ * To restore: change export default to return <LegacyHeroCarousel /> instead
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+function LegacyHeroCarousel() {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [direction, setDirection] = useState(1)
   const [isAutoPlaying, setIsAutoPlaying] = useState(true)
@@ -504,3 +844,4 @@ export default function ModernHeroCarousel() {
     </section>
   )
 }
+/* ── End of previous full-width animated hero ── */
