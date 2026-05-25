@@ -1,5 +1,6 @@
 import { createSupabaseServerClient } from '../../../../../lib/supabaseClient'
 import { NextResponse } from 'next/server'
+import { PRODUCT_CATEGORY_EMBED_FULL } from '../../../../../lib/productCategoryQuery'
 
 export async function GET(request, { params }) {
   try {
@@ -11,7 +12,7 @@ export async function GET(request, { params }) {
       .from('products')
       .select(`
         *,
-        categories (id, name, slug),
+        ${PRODUCT_CATEGORY_EMBED_FULL},
         brands (id, name, slug)
       `)
       .eq('id', id)

@@ -1,6 +1,11 @@
 import { createSupabaseServerClient } from '../../../lib/supabaseClient'
 import ProductDetailClient from '../../../components/ProductDetailClient'
 import { notFound } from 'next/navigation'
+import {
+  PRODUCT_CATEGORY_EMBED_FULL,
+  PRODUCT_CATEGORY_EMBED_NAME,
+  PRODUCT_CATEGORY_EMBED_NAME_SLUG,
+} from '../../../lib/productCategoryQuery'
 
 // Always fetch fresh data — never serve a stale cached product page
 export const dynamic = 'force-dynamic'
@@ -11,7 +16,7 @@ export async function generateMetadata({ params }) {
     const supabase = createSupabaseServerClient()
     const { data } = await supabase
       .from('products')
-      .select('*, categories(name), brands(name)')
+      .select(`*, ${PRODUCT_CATEGORY_EMBED_NAME}, brands(name)`)
       .eq('slug', slug)
       .eq('is_active', true)
       .single()
@@ -67,7 +72,7 @@ export default async function ProductPage({ params }) {
       .from('products')
       .select(`
         *,
-        categories (id, name, slug),
+        ${PRODUCT_CATEGORY_EMBED_FULL},
         brands (id, name, slug)
       `)
       .eq('slug', slug)
@@ -167,7 +172,7 @@ export default async function ProductPage({ params }) {
         .from('products')
         .select(`
           *,
-          categories (name, slug),
+          ${PRODUCT_CATEGORY_EMBED_NAME_SLUG},
           brands (name, slug)
         `)
         .eq('category_id', product.category_id)
@@ -175,33 +180,31 @@ export default async function ProductPage({ params }) {
         .neq('id', product.id)
         .gte('stock', 1)
         .order('rating', { ascending: false })
-        .limit(8)
+        .limit(12)
       
       relatedProducts = categoryProducts || []
 
-      // If less than 4, supplement with same brand products
-      if (relatedProducts.length < 4 && product.brand_id) {
-        const categoryIds = relatedProducts.map(p => p.id)
+      // If less than 12, supplement with same brand products
+      if (relatedProducts.length < 12 && product.brand_id) {
+        const excludeFilter = [...new Set([product.id, ...relatedProducts.map((p) => p.id)])]
         const { data: brandProducts } = await supabase
           .from('products')
           .select(`
             *,
-            categories (name, slug),
+            ${PRODUCT_CATEGORY_EMBED_NAME_SLUG},
             brands (name, slug)
           `)
           .eq('brand_id', product.brand_id)
           .eq('is_active', true)
-          .neq('id', product.id)
-          .not('id', 'in', `(${categoryIds.join(',')})`)
+          .not('id', 'in', `(${excludeFilter.join(',')})`)
           .gte('stock', 1)
           .order('rating', { ascending: false })
-          .limit(4 - relatedProducts.length)
+          .limit(12 - relatedProducts.length)
         
         relatedProducts = [...relatedProducts, ...(brandProducts || [])]
       }
 
-      // Ensure we have at least 4
-      relatedProducts = relatedProducts.slice(0, Math.max(4, relatedProducts.length))
+      relatedProducts = relatedProducts.slice(0, 12)
       
       // Fetch images for related products
       if (relatedProducts.length > 0) {

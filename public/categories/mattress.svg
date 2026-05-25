@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="480" viewBox="0 0 400 480" fill="none">
+  <rect width="400" height="480" rx="16" fill="#F2F4F8"/>
+  <rect x="70" y="170" width="260" height="120" rx="20" fill="#E4EAF2" stroke="#B8C4D4" stroke-width="2"/>
+  <path d="M90 290 Q200 250 310 290" stroke="#C8D2E0" stroke-width="8" fill="none"/>
+  <rect x="100" y="300" width="200" height="16" rx="4" fill="#D0DAE8"/>
+  <text x="200" y="420" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="600" fill="#657089">Mattress</text>
+</svg>

@@ -3,14 +3,73 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
-import ProductCard from './ProductCard'
 import styles from './FeaturedProductsSection.module.css'
 
 var tabs = [
   { id: 'bestsellers', label: 'Bestsellers', icon: '★' },
   { id: 'offers',      label: 'Offers',      icon: '%' },
 ]
+
+function formatPriceParts(amount) {
+  var n = Number(amount) || 0
+  var parts = n.toFixed(2).split('.')
+  return {
+    whole: Number(parts[0]).toLocaleString('en-IN'),
+    dec: parts[1],
+  }
+}
+
+function FeaturedProductCard({ product }) {
+  var imageUrl = product.images?.[0] || product.coverImage || '/placeholder-product.jpg'
+  var hasDiscount = product.discount_price && product.discount_price < product.price
+  var finalPrice = hasDiscount ? product.discount_price : product.price
+  var discountPercentage = hasDiscount
+    ? Math.round(((product.price - product.discount_price) / product.price) * 100)
+    : 0
+  var priceParts = formatPriceParts(finalPrice)
+  var mrpParts = formatPriceParts(product.price)
+
+  return (
+    <Link href={'/products/' + product.slug} className={styles.featuredCard}>
+      <div className={styles.featuredImageWrap}>
+        <Image
+          src={imageUrl}
+          alt={product.name}
+          fill
+          unoptimized
+          sizes="(max-width: 768px) 50vw, 16vw"
+          style={{ objectFit: 'contain', objectPosition: 'center' }}
+        />
+      </div>
+
+      <div className={styles.featuredInfo}>
+        <h3 className={styles.featuredName}>{product.name}</h3>
+
+        <div className={styles.priceRow}>
+          {discountPercentage > 0 && (
+            <span className={styles.discountPct}>-{discountPercentage}%</span>
+          )}
+          <span className={styles.currentPrice}>
+            <span className={styles.currency}>₹</span>
+            <span className={styles.priceWhole}>{priceParts.whole}</span>
+            <span className={styles.priceDec}>{priceParts.dec}</span>
+          </span>
+        </div>
+
+        {hasDiscount && (
+          <div className={styles.mrpLine}>
+            M.R.P.:{' '}
+            <span className={styles.mrpValue}>
+              ₹{mrpParts.whole}.{mrpParts.dec}
+            </span>
+          </div>
+        )}
+      </div>
+    </Link>
+  )
+}
 
 export default function FeaturedProductsSection({ bestsellers = [], offered = [] }) {
   var _active = useState('bestsellers')
@@ -178,7 +237,7 @@ export default function FeaturedProductsSection({ bestsellers = [], offered = []
               displayProducts.map(function (product, i) {
                 return (
                   <div key={product.id || i} className={styles.gridItem}>
-                    <ProductCard product={product} index={i} />
+                    <FeaturedProductCard product={product} />
                   </div>
                 )
               })

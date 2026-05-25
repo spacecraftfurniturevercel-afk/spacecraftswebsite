@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '../../../../../../lib/supabaseClient'
+import { syncProductCategories } from '../../../../../../lib/productCategoryQuery'
 
 export async function POST(req, { params }) {
   try {
@@ -37,6 +38,13 @@ export async function POST(req, { params }) {
 
     const { data, error } = await supa.from('products').update(update).eq('id', id).select().single()
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+    if (Array.isArray(form.category_ids)) {
+      await syncProductCategories(supa, Number(id), form.category_ids, form.category_id)
+    } else if (form.category_id) {
+      await syncProductCategories(supa, Number(id), [form.category_id], form.category_id)
+    }
+
     return NextResponse.json({ product: data })
   } catch (err) {
     console.error(err)

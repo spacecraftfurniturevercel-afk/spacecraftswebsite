@@ -5,6 +5,7 @@ import BankBanner from '../components/BankBanner'
 import TrustBadges from '../components/TrustBadges'
 import KeepShoppingSection from '../components/KeepShoppingSection'
 import ModernCategoryGrid from '../components/ModernCategoryGrid'
+import { buildCategoryCountMap, PRODUCT_CATEGORY_EMBED_FULL } from '../lib/productCategoryQuery'
 import FeaturedProductsSection from '../components/FeaturedProductsSection'
 import ShopAllThingsHome from '../components/ShopAllThingsHome'
 import MoreIdeasSection from '../components/MoreIdeasSection'
@@ -61,23 +62,29 @@ export default async function Home() {
   try {
     const supabase = createSupabaseServerClient()
     
-    // Fetch ALL categories (needed by ShopAllThingsHome for slug→id mapping)
+    // Fetch ALL categories for homepage grid + filters
     const { data: cats } = await supabase
       .from('categories')
-      .select('*')
+      .select('id, name, slug, image_url, sort_order, is_active')
+      .eq('is_active', true)
 
-    // Fetch product counts per category
+    // Product counts — primary category_id + product_categories junction
     const { data: countData } = await supabase
       .from('products')
-      .select('category_id')
+      .select('id, category_id')
       .eq('is_active', true)
-    
-    const countMap = {}
-    if (countData) {
-      countData.forEach(p => {
-        if (p.category_id) countMap[p.category_id] = (countMap[p.category_id] || 0) + 1
-      })
+
+    let junctionData = []
+    try {
+      const { data: junctionRows } = await supabase
+        .from('product_categories')
+        .select('product_id, category_id')
+      junctionData = junctionRows || []
+    } catch (_) {
+      junctionData = []
     }
+
+    const countMap = buildCategoryCountMap(countData || [], junctionData)
     
     // Fetch latest products
     const { data: prods } = await supabase
@@ -119,14 +126,14 @@ export default async function Home() {
       .from('products')
       .select(`
         *,
-        categories (id, name, slug),
+        ${PRODUCT_CATEGORY_EMBED_FULL},
         product_images (url, alt, position)
       `)
       .eq('is_active', true)
       .order('rating', { ascending: false })
       .limit(200)
     
-    categories = (cats || []).map(c => ({ ...c, productCount: countMap[c.id] || 0 }))
+    categories = (cats || []).map((c) => ({ ...c, productCount: countMap[c.id] || 0 }))
     products = (prods || []).map(p => ({
       ...p,
       images: p.product_images?.sort((a, b) => a.position - b.position).map(img => img.url) || []
@@ -202,7 +209,7 @@ export default async function Home() {
         <ModernCategoryGrid serverCategories={categories} />
 
         {/* Shop All Things Home — Tag-based Tabs */}
-        <ShopAllThingsHome products={allProducts} />
+        {/* <ShopAllThingsHome products={allProducts} /> */}
 
         {/* Featured Products — Bestsellers & Offers */}
         <FeaturedProductsSection bestsellers={bestsellers} offered={offeredProducts} />

@@ -18,7 +18,6 @@ export default function Header() {
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [hoveredCategory, setHoveredCategory] = useState(null)
-  const [dbCategories, setDbCategories] = useState([])
   const [closeTimeout, setCloseTimeout] = useState(null)
   const [openTimeout, setOpenTimeout] = useState(null)
   const [scrolled, setScrolled] = useState(false)
@@ -215,10 +214,34 @@ export default function Header() {
     }
   }
 
-  // Use DB categories for nav; fall back to hardcoded keys while loading
-  const navCategories = dbCategories.length > 0
-    ? ['All', ...dbCategories.map(c => c.name)]
-    : Object.keys(categoryData)
+  // Header nav — fixed list (homepage grid uses 12 categories separately)
+  const NAV_CATEGORIES = [
+    'All',
+    'Space Saving Furniture',
+    'Beds',
+    'Chairs',
+    'Dining Sets',
+    'Sofa Sets',
+    'Tables',
+    'Wardrobe & Racks',
+  ]
+
+  const NAV_CATEGORY_SLUGS = {
+    'Space Saving Furniture': 'space-saving-furniture',
+    'Beds': 'beds',
+    'Chairs': 'chairs',
+    'Dining Sets': 'dining-sets',
+    'Sofa Sets': 'sofa-sets',
+    'Tables': 'tables',
+    'Wardrobe & Racks': 'wardrobe-racks',
+  }
+
+  const navCategories = NAV_CATEGORIES
+
+  const getCategorySlug = (category) => {
+    if (category === 'All') return null
+    return NAV_CATEGORY_SLUGS[category] || category.toLowerCase().replace(/[&]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-')
+  }
 
   const displayName = profile?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || ''
 
@@ -243,16 +266,6 @@ export default function Header() {
     const onScroll = () => setScrolled(window.scrollY > 10)
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
-  }, [])
-
-  // Fetch navigation categories from DB
-  useEffect(() => {
-    fetch('/api/categories')
-      .then(r => r.json())
-      .then(({ categories }) => {
-        if (Array.isArray(categories) && categories.length) setDbCategories(categories)
-      })
-      .catch(() => {})
   }, [])
 
   // Fetch popular searches
@@ -643,8 +656,7 @@ export default function Header() {
           onMouseLeave={handleNavMouseLeave}
         >
           {navCategories.map((category) => {
-            const dbCat = dbCategories.find(c => c.name === category)
-            const catSlug = dbCat?.slug || category.toLowerCase().replace(/[&]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-')
+            const catSlug = getCategorySlug(category)
             return (
             <div
               key={category}
@@ -826,17 +838,21 @@ export default function Header() {
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
           <div className={styles['mobile-menu']}>
-            {dbCategories.length > 0 && (
-              <>
-                <div className={styles['mobile-menu-section-title']}>Categories</div>
-                {dbCategories.map(cat => (
-                  <Link key={cat.id} href={`/products/category/${cat.slug}`} className={styles['mobile-menu-item']} onClick={() => setIsMobileMenuOpen(false)}>
-                    {cat.name}
-                  </Link>
-                ))}
-                <div className={styles['mobile-menu-divider']} />
-              </>
-            )}
+            <div className={styles['mobile-menu-section-title']}>Categories</div>
+            <Link href="/products" className={styles['mobile-menu-item']} onClick={() => setIsMobileMenuOpen(false)}>
+              All
+            </Link>
+            {NAV_CATEGORIES.filter((c) => c !== 'All').map((category) => (
+              <Link
+                key={category}
+                href={`/products/category/${getCategorySlug(category)}`}
+                className={styles['mobile-menu-item']}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                {category}
+              </Link>
+            ))}
+            <div className={styles['mobile-menu-divider']} />
             {/* <Link href="/products" className={styles['mobile-menu-item']} onClick={() => setIsMobileMenuOpen(false)}>
               Furniture
             </Link> */}

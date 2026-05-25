@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createSupabaseRouteHandlerClient } from '../../../lib/supabaseClient'
+import { PRODUCT_CATEGORY_EMBED_NAME_SLUG } from '../../../lib/productCategoryQuery'
 
 export async function GET(request) {
   try {
@@ -29,7 +30,7 @@ export async function GET(request) {
         stock,
         rating,
         review_count,
-        categories (name, slug),
+        ${PRODUCT_CATEGORY_EMBED_NAME_SLUG},
         brands (name, slug)
       `)
       .eq('is_active', true)

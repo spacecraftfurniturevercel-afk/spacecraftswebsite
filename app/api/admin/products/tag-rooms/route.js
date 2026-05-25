@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '../../../../../lib/supabaseClient'
+import { PRODUCT_CATEGORY_EMBED } from '../../../../../lib/productCategoryQuery'
 
 // Tag mapping: which sub-category tags belong to which room
 const ROOM_TAG_MAP = {
@@ -42,7 +43,7 @@ export async function POST() {
     // Fetch all active products with their category
     const { data: products, error } = await supa
       .from('products')
-      .select('id, tags, price, discount_price, is_offered, category_id, categories (slug)')
+      .select(`id, tags, price, discount_price, is_offered, category_id, ${PRODUCT_CATEGORY_EMBED} (slug)`)
       .eq('is_active', true)
 
     if (error) {

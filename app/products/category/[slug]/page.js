@@ -1,5 +1,6 @@
 import { createSupabaseServerClient } from '../../../../lib/supabaseClient'
 import ProductsClient from '../../../../components/ProductsClient'
+import { getActiveProductIdsForCategory, PRODUCT_CATEGORY_EMBED_FULL } from '../../../../lib/productCategoryQuery'
 import { notFound } from 'next/navigation'
 
 export const dynamic = 'force-dynamic'
@@ -402,7 +403,7 @@ export default async function CategoryPage({ params, searchParams }) {
       .from('products')
       .select(`
         *,
-        categories (id, name, slug),
+        ${PRODUCT_CATEGORY_EMBED_FULL},
         brands (id, name, slug)
       `, { count: 'exact' })
       .eq('is_active', true)
@@ -418,7 +419,12 @@ export default async function CategoryPage({ params, searchParams }) {
       const tagToFilter = meta?.tagSlug || subCatMatch?.slug || slug
       query = query.contains('tags', [tagToFilter])
     } else {
-      query = query.eq('category_id', currentCategory.id)
+      const productIds = await getActiveProductIdsForCategory(supabase, currentCategory.id)
+      if (productIds.length > 0) {
+        query = query.in('id', productIds)
+      } else {
+        query = query.eq('id', -1)
+      }
     }
     
     // Additional brand filter from query params

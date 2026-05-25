@@ -92,6 +92,8 @@ export default function ProductDetailClient({
   const [codCharge, setCodCharge] = useState(0)
   const [codLoading, setCodLoading] = useState(false)
   const [codSuccess, setCodSuccess] = useState(null)
+  const [showShareModal, setShowShareModal] = useState(false)
+  const [shareCopied, setShareCopied] = useState(false)
 
   // Product is buyable online only when shipping dimensions are set
   const canBuyOnline = !!(product.shipping_length && product.shipping_width && product.shipping_height)
@@ -112,6 +114,24 @@ export default function ProductDetailClient({
   const discountPercentage = product.discount_price 
     ? Math.round(((product.price - product.discount_price) / product.price) * 100)
     : 0
+  const hasDiscount = product.discount_price && product.discount_price < product.price
+  const [productShareUrl, setProductShareUrl] = useState(`https://www.spacecraftsfurniture.in/products/${product.slug}`)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setProductShareUrl(window.location.href)
+    }
+  }, [product.slug])
+
+  const handleCopyShareLink = async () => {
+    try {
+      await navigator.clipboard.writeText(productShareUrl)
+      setShareCopied(true)
+      setTimeout(() => setShareCopied(false), 2000)
+    } catch (_) {
+      setShareCopied(false)
+    }
+  }
   // Price & buy buttons shown only when shipping dimensions are fully set
   const hasDimensions = !!(product.shipping_weight && product.shipping_length && product.shipping_width && product.shipping_height)
 
@@ -764,8 +784,18 @@ export default function ProductDetailClient({
               </div>
             )}
 
-            {/* Product Title */}
-            <h1 className="product-title">{product.name}</h1>
+            {/* Product Title + Share */}
+            <div className="product-title-row">
+              <h1 className="product-title">{product.name}</h1>
+              <button type="button" className="share-btn" onClick={() => setShowShareModal(true)} aria-label="Share product">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+                  <polyline points="16 6 12 2 8 6"/>
+                  <line x1="12" y1="2" x2="12" y2="15"/>
+                </svg>
+                Share
+              </button>
+            </div>
             
             {/* Rating */}
             <div className="product-rating">
@@ -782,10 +812,12 @@ export default function ProductDetailClient({
               hasDimensions ? (
                 <div className="product-price">
                   <span className="current-price">₹{displayPrice.toLocaleString('en-IN')}</span>
-                  {product.discount_price && (
+                  {hasDiscount && (
                     <>
-                      <span className="original-price">₹{product.price.toLocaleString('en-IN')}</span>
-                      <span className="save-text">You save ₹{(product.price - product.discount_price).toLocaleString('en-IN')}</span>
+                      <span className="mrp-line">
+                        MRP <span className="mrp-value">₹{product.price.toLocaleString('en-IN')}</span>
+                      </span>
+                      <span className="discount-off">({discountPercentage}% Off)</span>
                     </>
                   )}
                 </div>
@@ -796,20 +828,6 @@ export default function ProductDetailClient({
                 </div>
               )
             )}
-
-            {/* Stock Status */}
-            <div className="stock-status">
-              {product.stock > 0 ? (
-                <span className="in-stock">
-                  <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-                    <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zm3.5 5.5l-4 4-2-2"/>
-                  </svg>
-                  In Stock ({product.stock} available)
-                </span>
-              ) : (
-                <span className="out-of-stock">Out of Stock</span>
-              )}
-            </div>
 
             {/* Short Description */}
             {product.description && (
@@ -1573,6 +1591,51 @@ export default function ProductDetailClient({
         )}
       </div>
 
+      {/* ========== SHARE MODAL ========== */}
+      {showShareModal && (
+        <div className="share-overlay" onClick={() => setShowShareModal(false)}>
+          <div className="share-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="share-modal-header">
+              <h3>Share With Your Family &amp; Friends</h3>
+              <button type="button" className="share-close" onClick={() => setShowShareModal(false)} aria-label="Close">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            </div>
+            <div className="share-link-row">
+              <input type="text" readOnly value={productShareUrl} className="share-link-input" />
+              <button type="button" className="share-copy-btn" onClick={handleCopyShareLink}>
+                {shareCopied ? 'Copied!' : 'Copy'}
+              </button>
+            </div>
+            <div className="share-social-row">
+              {[
+                { name: 'Whatsapp', color: '#25D366', href: `https://wa.me/?text=${encodeURIComponent(productShareUrl)}`, icon: 'W' },
+                { name: 'Facebook', color: '#1877F2', href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(productShareUrl)}`, icon: 'f' },
+                { name: 'Messenger', color: '#0084FF', href: `https://www.facebook.com/dialog/send?link=${encodeURIComponent(productShareUrl)}&redirect_uri=${encodeURIComponent(productShareUrl)}`, icon: 'M' },
+                { name: 'Telegram', color: '#26A5E4', href: `https://t.me/share/url?url=${encodeURIComponent(productShareUrl)}&text=${encodeURIComponent(product.name)}`, icon: 'T' },
+                { name: 'Twitter', color: '#1DA1F2', href: `https://twitter.com/intent/tweet?url=${encodeURIComponent(productShareUrl)}&text=${encodeURIComponent(product.name)}`, icon: 'X' },
+                { name: 'LinkedIn', color: '#0A66C2', href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(productShareUrl)}`, icon: 'in' },
+                { name: 'Mail', color: '#E87722', href: `mailto:?subject=${encodeURIComponent(product.name)}&body=${encodeURIComponent(productShareUrl)}`, icon: '@' },
+              ].map((item) => (
+                <a
+                  key={item.name}
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="share-social-item"
+                  onClick={() => setShowShareModal(false)}
+                >
+                  <span className="share-social-icon" style={{ background: item.color }}>{item.icon}</span>
+                  <span className="share-social-label">{item.name}</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ========== FULLSCREEN LIGHTBOX MODAL ========== */}
       {isLightboxOpen && (
         <div className="lightbox-overlay" onClick={closeLightbox}>
@@ -1881,12 +1944,44 @@ export default function ProductDetailClient({
           color: #d35400;
         }
 
+        .product-title-row {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 16px;
+        }
+
         .product-title {
           font-size: 22px;
           font-weight: 700;
           color: #1a1a1a;
           line-height: 1.3;
           margin: 0;
+          flex: 1;
+        }
+
+        .share-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          flex-shrink: 0;
+          background: none;
+          border: none;
+          padding: 4px 0;
+          font-size: 14px;
+          font-weight: 600;
+          color: #e87722;
+          cursor: pointer;
+          font-family: inherit;
+          transition: opacity 0.2s;
+        }
+
+        .share-btn:hover {
+          opacity: 0.8;
+        }
+
+        .share-btn svg {
+          stroke: #e87722;
         }
 
         .product-rating {
@@ -1912,27 +2007,35 @@ export default function ProductDetailClient({
         .product-price {
           display: flex;
           align-items: baseline;
-          gap: 10px;
+          gap: 12px;
           flex-wrap: wrap;
-          padding: 4px 0;
+          padding: 8px 0 4px;
+          border-top: 1px solid #eee;
+          margin-top: 8px;
         }
 
         .current-price {
-          font-size: 28px;
+          font-size: 32px;
           font-weight: 700;
           color: #1a1a1a;
+          letter-spacing: -0.5px;
+          line-height: 1;
         }
 
-        .original-price {
-          font-size: 16px;
-          color: #666;
+        .mrp-line {
+          font-size: 15px;
+          color: #888;
+          font-weight: 400;
+        }
+
+        .mrp-value {
           text-decoration: line-through;
         }
 
-        .save-text {
-          font-size: 12px;
-          color: #1a1a1a;
-          font-weight: 600;
+        .discount-off {
+          font-size: 15px;
+          color: #2e7d32;
+          font-weight: 500;
         }
 
         .contact-price-block {
@@ -3246,7 +3349,7 @@ export default function ProductDetailClient({
         }
 
         .related-products h2 {
-          font-size: 18px;
+          font-size: 20px;
           font-weight: 700;
           margin-bottom: 16px;
           color: #1a1a1a;
@@ -3254,8 +3357,124 @@ export default function ProductDetailClient({
 
         .products-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-          gap: 16px;
+          grid-template-columns: repeat(6, minmax(0, 1fr));
+          gap: 12px;
+        }
+
+        /* ========== SHARE MODAL ========== */
+        .share-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.45);
+          z-index: 10000;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 16px;
+        }
+
+        .share-modal {
+          background: #fff;
+          border-radius: 8px;
+          width: 100%;
+          max-width: 520px;
+          padding: 24px 28px 28px;
+          box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+        }
+
+        .share-modal-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 20px;
+        }
+
+        .share-modal-header h3 {
+          margin: 0;
+          font-size: 18px;
+          font-weight: 700;
+          color: #1a1a1a;
+        }
+
+        .share-close {
+          background: none;
+          border: none;
+          cursor: pointer;
+          color: #666;
+          padding: 4px;
+          display: flex;
+        }
+
+        .share-link-row {
+          display: flex;
+          align-items: stretch;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          overflow: hidden;
+          margin-bottom: 28px;
+        }
+
+        .share-link-input {
+          flex: 1;
+          border: none;
+          padding: 12px 14px;
+          font-size: 13px;
+          color: #666;
+          background: #fff;
+          outline: none;
+          min-width: 0;
+        }
+
+        .share-copy-btn {
+          border: none;
+          border-left: 1px solid #ddd;
+          background: #fff;
+          color: #e87722;
+          font-size: 14px;
+          font-weight: 700;
+          padding: 0 20px;
+          cursor: pointer;
+          white-space: nowrap;
+          font-family: inherit;
+        }
+
+        .share-copy-btn:hover {
+          background: #fff8f3;
+        }
+
+        .share-social-row {
+          display: flex;
+          justify-content: space-between;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+
+        .share-social-item {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+          text-decoration: none;
+          color: #333;
+          min-width: 56px;
+        }
+
+        .share-social-icon {
+          width: 44px;
+          height: 44px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #fff;
+          font-size: 14px;
+          font-weight: 700;
+        }
+
+        .share-social-label {
+          font-size: 12px;
+          color: #333;
+          text-align: center;
         }
 
         /* ========== FULLSCREEN LIGHTBOX ========== */
@@ -3388,6 +3607,10 @@ export default function ProductDetailClient({
           .magnifier-preview {
             display: none;
           }
+
+          .products-grid {
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+          }
         }
 
         @media (max-width: 1024px) {
@@ -3403,6 +3626,10 @@ export default function ProductDetailClient({
           .product-info-section {
             max-height: none;
           }
+
+          .products-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+          }
         }
 
         @media (max-width: 768px) {
@@ -3414,8 +3641,26 @@ export default function ProductDetailClient({
             font-size: 18px;
           }
 
+          .product-title-row {
+            flex-direction: column;
+            gap: 8px;
+          }
+
+          .share-btn {
+            align-self: flex-start;
+          }
+
           .current-price {
-            font-size: 22px;
+            font-size: 26px;
+          }
+
+          .products-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+          }
+
+          .share-social-row {
+            justify-content: center;
           }
 
           .action-buttons {
@@ -3952,94 +4197,132 @@ export default function ProductDetailClient({
   )
 }
 
+function formatPriceParts(amount) {
+  const n = Number(amount) || 0
+  const parts = n.toFixed(2).split('.')
+  return {
+    whole: Number(parts[0]).toLocaleString('en-IN'),
+    dec: parts[1],
+  }
+}
+
 function RelatedProductCard({ product }) {
-  const [isHovered, setIsHovered] = useState(false)
-  const [imgErr, setImgErr] = useState(false)
-  const displayPrice = product.discount_price || product.price
-  const imgUrl = product.images?.[0]?.url || product.images?.[0] || product.coverImage || '/placeholder-product.jpg'
-  const discPct = product.discount_price
+  const imageUrl = product.images?.[0]?.url || product.images?.[0] || product.coverImage || '/placeholder-product.jpg'
+  const hasDiscount = product.discount_price && product.discount_price < product.price
+  const finalPrice = hasDiscount ? product.discount_price : product.price
+  const discountPercentage = hasDiscount
     ? Math.round(((product.price - product.discount_price) / product.price) * 100)
     : 0
+  const priceParts = formatPriceParts(finalPrice)
+  const mrpParts = formatPriceParts(product.price)
   const canBuyOnline = !!(product.shipping_length && product.shipping_width && product.shipping_height)
 
   return (
-    <motion.article
-      className="rpc-card"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <Link href={`/products/${product.slug}`} target="_blank" rel="noopener noreferrer" className="rpc-link">
-        <div className="rpc-img-wrap">
-          <Image
-            src={imgErr ? '/placeholder-product.jpg' : imgUrl}
-            alt={product.name}
-            fill
-            sizes="(max-width: 768px) 50vw, 25vw"
-            style={{
-              objectFit: 'contain',
-              padding: '12px',
-              transform: isHovered ? 'scale(1.04)' : 'scale(1)',
-              transition: 'transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94)',
-            }}
-            onError={() => setImgErr(true)}
-          />
-          {canBuyOnline && discPct > 0 && <span className="rpc-badge">-{discPct}%</span>}
-          <div className={`rpc-actions ${isHovered ? 'rpc-actions-visible' : ''}`}>
-            <button className="rpc-action-btn" onClick={e => { e.preventDefault(); window.location.href = `/products/${product.slug}` }} aria-label="View product">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-            </button>
-          </div>
-        </div>
-        <div className="rpc-info">
-          <h4 className="rpc-name">{product.name}</h4>
-          {product.rating > 0 && (
-            <div className="rpc-rating">
-              <div className="rpc-stars">
-                {[...Array(5)].map((_, i) => (
-                  <span key={i} style={{ color: i < Math.round(product.rating) ? '#c9a84c' : '#e0ddd5' }}>★</span>
-                ))}
-              </div>
-              <span className="rpc-rev-count">({product.review_count || 0})</span>
+    <Link href={`/products/${product.slug}`} className="rpc-card">
+      <div className="rpc-img-wrap">
+        <Image
+          src={imageUrl}
+          alt={product.name}
+          fill
+          unoptimized
+          sizes="(max-width: 768px) 50vw, 16vw"
+          style={{ objectFit: 'contain', objectPosition: 'center' }}
+        />
+      </div>
+      <div className="rpc-info">
+        <h4 className="rpc-name">{product.name}</h4>
+        {canBuyOnline ? (
+          <>
+            <div className="rpc-price-row">
+              {discountPercentage > 0 && (
+                <span className="rpc-discount">-{discountPercentage}%</span>
+              )}
+              <span className="rpc-current">
+                <span className="rpc-currency">₹</span>
+                <span className="rpc-whole">{priceParts.whole}</span>
+                <span className="rpc-dec">{priceParts.dec}</span>
+              </span>
             </div>
-          )}
-          <div className="rpc-price-row">
-            {canBuyOnline ? (
-              <>
-                <span className="rpc-price">₹{displayPrice.toLocaleString('en-IN')}</span>
-                {product.discount_price && (
-                  <span className="rpc-orig">₹{product.price.toLocaleString('en-IN')}</span>
-                )}
-                {discPct > 0 && <span className="rpc-save">Save {discPct}%</span>}
-              </>
-            ) : (
-              <span style={{ fontSize: 13, color: '#888', fontStyle: 'italic' }}>Contact for price</span>
+            {hasDiscount && (
+              <div className="rpc-mrp">
+                M.R.P.: <span>₹{mrpParts.whole}.{mrpParts.dec}</span>
+              </div>
             )}
-          </div>
-        </div>
-      </Link>
-      <style>{`
-        .rpc-card { position: relative; border-radius: 16px; overflow: hidden; background: #fff; border: 1px solid rgba(0,0,0,0.06); transition: box-shadow 0.4s ease, transform 0.4s ease, border-color 0.4s ease; }
-        .rpc-card:hover { box-shadow: 0 16px 36px rgba(0,0,0,0.08), 0 6px 14px rgba(0,0,0,0.04); transform: translateY(-5px); border-color: rgba(0,0,0,0.10); }
-        .rpc-link { text-decoration: none; color: inherit; display: block; }
-        .rpc-img-wrap { position: relative; width: 100%; aspect-ratio: 4/5; overflow: hidden; background: #fff; }
-        .rpc-badge { position: absolute; top: 12px; left: 12px; padding: 4px 10px; background: rgba(200,50,50,0.85); color: #fff; font-size: 11px; font-weight: 700; border-radius: 20px; letter-spacing: 0.4px; z-index: 2; }
-        .rpc-actions { position: absolute; top: 12px; right: 12px; display: flex; flex-direction: column; gap: 8px; opacity: 0; transform: translateX(8px); transition: opacity 0.3s ease, transform 0.3s ease; z-index: 2; }
-        .rpc-actions-visible { opacity: 1; transform: translateX(0); }
-        .rpc-action-btn { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.92); border: 1px solid rgba(255,255,255,0.4); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 3px 10px rgba(0,0,0,0.10); transition: transform 0.2s ease; }
-        .rpc-action-btn:hover { transform: scale(1.1); }
-        .rpc-info { padding: 14px 16px 16px; }
-        .rpc-name { font-size: 14px; font-weight: 600; color: #1a1a1a; line-height: 1.35; margin: 0 0 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-family: Inter, system-ui, sans-serif; }
-        .rpc-rating { display: flex; align-items: center; gap: 5px; margin-bottom: 8px; }
-        .rpc-stars { display: flex; gap: 1px; font-size: 13px; }
-        .rpc-rev-count { font-size: 12px; color: #999; font-weight: 500; }
-        .rpc-price-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
-        .rpc-price { font-size: 18px; font-weight: 700; color: #1a1a1a; letter-spacing: -0.02em; font-family: Inter, sans-serif; }
-        .rpc-orig { font-size: 13px; color: #b0aaa0; text-decoration: line-through; }
-        .rpc-save { font-size: 12px; color: #c0392b; font-weight: 600; }
+          </>
+        ) : (
+          <span className="rpc-contact">Contact for price</span>
+        )}
+      </div>
+      <style jsx>{`
+        .rpc-card {
+          display: block;
+          text-decoration: none;
+          color: inherit;
+          background: #fff;
+          border-radius: 10px;
+          overflow: hidden;
+          border: 1px solid rgba(0, 0, 0, 0.06);
+          transition: box-shadow 0.25s ease, transform 0.25s ease;
+          height: 100%;
+        }
+        .rpc-card:hover {
+          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+          transform: translateY(-2px);
+        }
+        .rpc-img-wrap {
+          position: relative;
+          width: 100%;
+          aspect-ratio: 4 / 3;
+          background: #fff;
+          overflow: hidden;
+        }
+        .rpc-info {
+          padding: 8px 10px 10px;
+        }
+        .rpc-name {
+          font-size: 12px;
+          font-weight: 500;
+          color: #1a1a1a;
+          margin: 0 0 6px;
+          line-height: 1.35;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          min-height: 2.7em;
+        }
+        .rpc-price-row {
+          display: flex;
+          align-items: baseline;
+          gap: 6px;
+          flex-wrap: wrap;
+        }
+        .rpc-discount {
+          font-size: 20px;
+          font-weight: 700;
+          color: #cc0c39;
+          line-height: 1;
+        }
+        .rpc-current {
+          display: inline-flex;
+          align-items: baseline;
+          color: #0f1111;
+          font-weight: 700;
+          line-height: 1;
+        }
+        .rpc-currency { font-size: 12px; margin-right: 1px; }
+        .rpc-whole { font-size: 22px; letter-spacing: -0.5px; }
+        .rpc-dec { font-size: 12px; font-weight: 700; vertical-align: super; line-height: 0; margin-left: 1px; }
+        .rpc-mrp {
+          margin-top: 2px;
+          font-size: 12px;
+          color: #565959;
+          line-height: 1.3;
+        }
+        .rpc-mrp span { text-decoration: line-through; }
+        .rpc-contact { font-size: 13px; color: #888; font-style: italic; }
       `}</style>
-    </motion.article>
+    </Link>
   )
 }

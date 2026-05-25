@@ -15,11 +15,20 @@ function slugify(str) {
 const EMPTY_FORM = {
   name: '', slug: '', price: '', discount_price: '', stock: '0',
   description: '', short_description: '',
-  category_id: '', brand_id: '',
+  category_id: '', category_ids: [], brand_id: '',
   is_active: true, is_featured: false, is_best_seller: false, is_new_arrival: false,
   sku: '', meta_title: '', meta_description: '',
   shipping_weight: '', shipping_length: '', shipping_width: '', shipping_height: '',
   shipping_box_count: '1',
+}
+
+function sortCategories(categories = []) {
+  return [...categories].sort((a, b) => {
+    const ao = a.sort_order ?? 999
+    const bo = b.sort_order ?? 999
+    if (ao !== bo) return ao - bo
+    return (a.name || '').localeCompare(b.name || '')
+  })
 }
 
 // ─── Main Component ───────────────────────────────────────────────────────────
@@ -89,8 +98,24 @@ export default function ProductCMS() {
     }
   }
 
-  const openEdit = (product) => {
+  const openEdit = async (product) => {
     setSelectedProduct(product)
+    let categoryIds = product.category_id ? [Number(product.category_id)] : []
+
+    try {
+      const res = await fetch(`/api/admin/products/${product.id}/categories`)
+      if (res.ok) {
+        const data = await res.json()
+        if (Array.isArray(data.category_ids) && data.category_ids.length) {
+          categoryIds = data.category_ids.map(Number)
+        }
+      }
+    } catch (_) {}
+
+    if (product.category_id && !categoryIds.includes(Number(product.category_id))) {
+      categoryIds.unshift(Number(product.category_id))
+    }
+
     setForm({
       name: product.name || '',
       slug: product.slug || '',
@@ -100,6 +125,7 @@ export default function ProductCMS() {
       description: product.description || '',
       short_description: product.short_description || '',
       category_id: product.category_id || '',
+      category_ids: [...new Set(categoryIds.filter(Boolean))],
       brand_id: product.brand_id || '',
       is_active: product.is_active !== false,
       is_featured: product.is_featured || false,
@@ -148,6 +174,35 @@ export default function ProductCMS() {
       return next
     })
   }
+
+  const setPrimaryCategory = (categoryId) => {
+    const id = categoryId ? Number(categoryId) : null
+    setForm((f) => {
+      const ids = new Set((f.category_ids || []).map(Number))
+      if (id) ids.add(id)
+      return {
+        ...f,
+        category_id: categoryId,
+        category_ids: id ? Array.from(ids) : [],
+      }
+    })
+  }
+
+  const toggleExtraCategory = (categoryId) => {
+    const id = Number(categoryId)
+    const primaryId = Number(form.category_id)
+    if (id === primaryId) return
+
+    setForm((f) => {
+      const ids = new Set((f.category_ids || []).map(Number))
+      if (ids.has(id)) ids.delete(id)
+      else ids.add(id)
+      if (primaryId) ids.add(primaryId)
+      return { ...f, category_ids: Array.from(ids) }
+    })
+  }
+
+  const sortedCategories = sortCategories(meta.categories)
 
   const handleImageFiles = (e) => {
     const files = Array.from(e.target.files)
@@ -383,12 +438,35 @@ export default function ProductCMS() {
                     <label>Discount Price (₹) <span className="cfg-hint">leave blank if no discount</span></label>
                     <input type="number" min="0" step="0.01" value={form.discount_price} onChange={field('discount_price')} placeholder="11999" />
                   </div>
-                  <div>
-                    <label>Category</label>
-                    <select value={form.category_id} onChange={field('category_id')}>
-                      <option value="">— Select Category —</option>
-                      {meta.categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  <div className="cfg-full">
+                    <label>Primary Category</label>
+                    <select value={form.category_id} onChange={(e) => setPrimaryCategory(e.target.value)}>
+                      <option value="">— Select Primary Category —</option>
+                      {sortedCategories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                     </select>
+                    <p className="cfg-hint cfg-hint-block">Main category used for SEO and default grouping.</p>
+                  </div>
+                  <div className="cfg-full">
+                    <label>Additional Categories</label>
+                    <p className="cfg-hint cfg-hint-block">Product will also appear on these category pages and filters.</p>
+                    <div className="cms-category-grid">
+                      {sortedCategories.map((c) => {
+                        const id = Number(c.id)
+                        const isPrimary = Number(form.category_id) === id
+                        const isChecked = isPrimary || (form.category_ids || []).map(Number).includes(id)
+                        return (
+                          <label key={c.id} className={`cms-category-chip ${isPrimary ? 'primary' : ''} ${isChecked ? 'checked' : ''}`}>
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              disabled={isPrimary}
+                              onChange={() => toggleExtraCategory(c.id)}
+                            />
+                            <span>{c.name}{isPrimary ? ' (Primary)' : ''}</span>
+                          </label>
+                        )
+                      })}
+                    </div>
                   </div>
                   <div>
                     <label>Brand</label>
@@ -979,8 +1057,49 @@ export default function ProductCMS() {
           color: #aaa;
           text-transform: none;
           letter-spacing: 0;
+        }
+        .cfg-hint-block {
           display: block;
-          margin-top: 3px;
+          margin: 6px 0 0;
+        }
+
+        .cms-category-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+          gap: 8px;
+          margin-top: 4px;
+        }
+        .cms-category-chip {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 10px;
+          border: 1px solid #e5e5e5;
+          border-radius: 8px;
+          font-size: 13px;
+          color: #444;
+          cursor: pointer;
+          user-select: none;
+          background: #fafafa;
+        }
+        .cms-category-chip input {
+          width: auto;
+          margin: 0;
+          padding: 0;
+        }
+        .cms-category-chip.checked {
+          border-color: #1a1a1a;
+          background: #fff;
+        }
+        .cms-category-chip.primary {
+          border-color: #1a1a1a;
+          background: #f5f5f5;
+          font-weight: 600;
+        }
+        .cms-category-chip span {
+          text-transform: none;
+          font-weight: inherit;
+          letter-spacing: 0;
         }
 
         /* Flags */

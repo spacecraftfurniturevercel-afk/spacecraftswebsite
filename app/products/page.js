@@ -1,5 +1,6 @@
 import { createSupabaseServerClient } from '../../lib/supabaseClient'
 import ProductsClient from '../../components/ProductsClient'
+import { getActiveProductIdsForCategories, PRODUCT_CATEGORY_EMBED_FULL } from '../../lib/productCategoryQuery'
 
 export const dynamic = 'force-dynamic'
 
@@ -91,19 +92,24 @@ export default async function ProductsPage({ searchParams }) {
       .from('products')
       .select(`
         *,
-        categories (id, name, slug),
+        ${PRODUCT_CATEGORY_EMBED_FULL},
         brands (id, name, slug)
       `, { count: 'exact' })
       .eq('is_active', true)
     
-    // Filter by multiple categories
+    // Filter by multiple categories (primary + secondary via product_categories)
     if (searchParams?.categories) {
       const categoryArray = searchParams.categories.split(',')
       const categoryIds = categories
         .filter(c => categoryArray.includes(c.slug))
         .map(c => c.id)
       if (categoryIds.length > 0) {
-        query = query.in('category_id', categoryIds)
+        const productIds = await getActiveProductIdsForCategories(supabase, categoryIds)
+        if (productIds.length > 0) {
+          query = query.in('id', productIds)
+        } else {
+          query = query.eq('id', -1)
+        }
       }
     }
     
