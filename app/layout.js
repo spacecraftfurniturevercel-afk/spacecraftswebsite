@@ -5,6 +5,7 @@ import TopNavigationBar from '../components/TopNavigationBar'
 import Header from '../components/Header'
 import ModernFooter from '../components/ModernFooter'
 import DelayedSignupModal from '../components/DelayedSignupModal'
+import ChatWidget from '../components/ChatWidget/ChatWidget'
 import { AuthProvider } from './providers/AuthProvider'
 
 export const viewport = {
@@ -126,6 +127,7 @@ export default function RootLayout({ children }) {
           </main>
           <ModernFooter />
           <DelayedSignupModal />
+          <ChatWidget />
         </AuthProvider>
       </body>
     </html>
