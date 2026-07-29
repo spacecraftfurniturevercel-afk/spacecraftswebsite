@@ -69,7 +69,7 @@ function ProductCards({ products }) {
       {products.map((p) => (
         <Link key={p.id} href={`/products/${p.slug}`} className={styles.productCard} target="_blank" rel="noopener noreferrer">
           <div className={styles.productImg}>
-            <Image src={p.image_url} alt={p.name} fill unoptimized sizes="160px" style={{ objectFit: 'contain' }} />
+            <Image src={p.image_url} alt={p.name} fill quality={75} sizes="160px" style={{ objectFit: 'contain' }} />
           </div>
           <div className={styles.productBody}>
             <p className={styles.productName}>{p.name}</p>

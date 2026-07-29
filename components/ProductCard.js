@@ -61,6 +61,7 @@ export default function ProductCard({ product }) {
             src={imageError ? '/placeholder-product.jpg' : imageUrl}
             alt={product.name}
             fill
+            quality={80}
             style={{ 
               objectFit: 'contain',
               transform: isHovered ? 'scale(1.04)' : 'scale(1)',

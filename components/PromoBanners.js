@@ -48,7 +48,7 @@ function PromoCard({ card, index, isVisible }) {
               alt={card.title}
               width={800}
               height={400}
-              unoptimized
+              quality={80}
               sizes="(max-width: 768px) 100vw, 33vw"
               style={{ width: '100%', height: 'auto', display: 'block' }}
             />
@@ -88,7 +88,7 @@ function PromoCarouselCard({ card, isVisible }) {
               src={card.image}
               alt={card.title}
               fill
-              unoptimized
+              quality={80}
               sizes="100vw"
               style={{ objectFit: 'cover', objectPosition: 'center' }}
             />

@@ -1309,6 +1309,8 @@ function ProductCard({ product, view }) {
             alt={product.name}
             width={view === 'list' ? 200 : 400}
             height={view === 'list' ? 200 : 400}
+            quality={80}
+            sizes={view === 'list' ? '200px' : '(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw'}
             className={`product-img ${isHovering ? 'hovering' : ''}`}
             onError={() => setImageError(true)}
           />

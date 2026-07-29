@@ -196,7 +196,7 @@ function SplitHeroSection() {
               alt="Spacecrafts Furniture — All Things Home Sale"
               fill
               priority
-              unoptimized
+              quality={85}
               sizes="(max-width: 768px) 70vw, 70vw"
               style={{ objectFit: 'cover', objectPosition: 'center center' }}
             />
@@ -225,7 +225,7 @@ function SplitHeroSection() {
                   src={slide.image}
                   alt={slide.alt}
                   fill
-                  unoptimized
+                  quality={85}
                   sizes="(max-width: 768px) 30vw, 30vw"
                   style={{ objectFit: 'cover', objectPosition: 'center center' }}
                 />
@@ -533,7 +533,7 @@ function LegacyHeroCarousel() {
               alt={slide.title}
               fill
               priority
-              unoptimized
+              quality={85}
               sizes="100vw"
               style={{
                 objectFit: 'cover',

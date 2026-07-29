@@ -678,7 +678,8 @@ export default function ProductDetailClient({
                   alt={product.name}
                   width={800}
                   height={800}
-                  unoptimized
+                  quality={90}
+                  sizes="(max-width: 768px) 100vw, 50vw"
                   style={{ 
                     objectFit: 'cover', 
                     width: '100%', 
@@ -764,7 +765,8 @@ export default function ProductDetailClient({
                       alt={img.alt || `${product.name} view ${index + 1}`}
                       width={80}
                       height={80}
-                      unoptimized
+                      quality={75}
+                      sizes="80px"
                       style={{ objectFit: 'cover' }}
                       onError={() => setImageError(true)}
                     />
@@ -1695,7 +1697,8 @@ export default function ProductDetailClient({
                       alt={`Thumb ${idx + 1}`}
                       width={60}
                       height={60}
-                      unoptimized
+                      quality={75}
+                      sizes="60px"
                       style={{ objectFit: 'cover' }}
                     />
                   </button>
@@ -4227,7 +4230,7 @@ function RelatedProductCard({ product }) {
           src={imageUrl}
           alt={product.name}
           fill
-          unoptimized
+          quality={80}
           sizes="(max-width: 768px) 50vw, 16vw"
           style={{ objectFit: 'contain', objectPosition: 'center' }}
         />

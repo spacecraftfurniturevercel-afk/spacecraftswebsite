@@ -39,7 +39,7 @@ function FeaturedProductCard({ product }) {
           src={imageUrl}
           alt={product.name}
           fill
-          unoptimized
+          quality={80}
           sizes="(max-width: 768px) 50vw, 16vw"
           style={{ objectFit: 'contain', objectPosition: 'center' }}
         />

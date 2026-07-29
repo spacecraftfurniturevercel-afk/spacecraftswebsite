@@ -22,7 +22,7 @@ function CategoryCard({ category, index, isVisible }) {
               src={category.image}
               alt={category.name + ' furniture collection'}
               fill
-              unoptimized
+              quality={80}
               sizes="(max-width: 600px) 50vw, 16vw"
               style={{ objectFit: 'cover', objectPosition: 'center' }}
             />
