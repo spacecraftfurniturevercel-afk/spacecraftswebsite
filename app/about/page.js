@@ -94,12 +94,12 @@ export default function About() {
 
           <div className={styles.introImages}>
             <img 
-              src="https://oduvaeykaeabnpmyliut.supabase.co/storage/v1/object/public/spacecraftsdigital/aboutus/exterior1.webp" 
+              src="/aboutus/exterior1.webp" 
               alt="Spacecrafts Furniture showroom exterior"
               className={styles.introImage}
             />
             <img 
-              src="https://oduvaeykaeabnpmyliut.supabase.co/storage/v1/object/public/spacecraftsdigital/aboutus/inner1.webp" 
+              src="/aboutus/inner1.webp" 
               alt="Spacecrafts Furniture showroom interior"
               className={styles.introImage}
             />

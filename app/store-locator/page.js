@@ -38,18 +38,18 @@ export default function StoreLocator() {
   }
 
   const exteriorImages = [
-    'https://oduvaeykaeabnpmyliut.supabase.co/storage/v1/object/public/spacecraftsdigital/aboutus/exterior1.webp',
-    'https://oduvaeykaeabnpmyliut.supabase.co/storage/v1/object/public/spacecraftsdigital/aboutus/exterior2.webp',
-    'https://oduvaeykaeabnpmyliut.supabase.co/storage/v1/object/public/spacecraftsdigital/aboutus/exterior3.webp'
+    '/aboutus/exterior1.webp',
+    '/aboutus/exterior2.webp',
+    '/aboutus/exterior3.webp',
   ]
 
   const interiorImages = [
-    'https://oduvaeykaeabnpmyliut.supabase.co/storage/v1/object/public/spacecraftsdigital/aboutus/inner1.webp',
-    'https://oduvaeykaeabnpmyliut.supabase.co/storage/v1/object/public/spacecraftsdigital/aboutus/inner2.webp',
-    'https://oduvaeykaeabnpmyliut.supabase.co/storage/v1/object/public/spacecraftsdigital/aboutus/inner3.webp',
-    'https://oduvaeykaeabnpmyliut.supabase.co/storage/v1/object/public/spacecraftsdigital/aboutus/inner4.webp',
-    'https://oduvaeykaeabnpmyliut.supabase.co/storage/v1/object/public/spacecraftsdigital/aboutus/inner5.webp',
-    'https://oduvaeykaeabnpmyliut.supabase.co/storage/v1/object/public/spacecraftsdigital/aboutus/inner6.webp'
+    '/aboutus/inner1.webp',
+    '/aboutus/inner2.webp',
+    '/aboutus/inner3.webp',
+    '/aboutus/inner4.webp',
+    '/aboutus/inner5.webp',
+    '/aboutus/inner6.webp',
   ]
 
   return (
@@ -180,7 +180,7 @@ export default function StoreLocator() {
             '@context': 'https://schema.org',
             '@type': 'LocalBusiness',
             'name': 'Spacecrafts Furniture',
-            'image': 'https://oduvaeykaeabnpmyliut.supabase.co/storage/v1/object/public/spacecraftsdigital/aboutus/exterior1.webp',
+            'image': 'https://www.spacecraftsfurniture.in/aboutus/exterior1.webp',
             'address': {
               '@type': 'PostalAddress',
               'streetAddress': '94A/1, 3rd Main Rd, Old Ambattur, Attipattu',
