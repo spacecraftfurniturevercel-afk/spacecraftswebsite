@@ -71,12 +71,19 @@ export default function StoragePanel() {
 
       if (body.action === 'verify') {
         setVerify(data)
-        setMsg({
-          type: data.ready ? 'success' : 'error',
-          text: data.ready
-            ? `All ${data.checked} image files exist in the ${data.account} account.`
-            : `${data.missing_count} of ${data.checked} files are missing from the ${data.account} account.`,
-        })
+        if (data.ready) {
+          setMsg({ type: 'success', text: `All ${data.checked} image files exist in the ${data.account} account.` })
+        } else if (data.safe_to_switch) {
+          setMsg({
+            type: 'success',
+            text: `Safe to switch. ${data.broken_everywhere_count} file(s) are missing from both accounts, so they are already broken on the site and a switch will not change that.`,
+          })
+        } else {
+          setMsg({
+            type: 'error',
+            text: `${data.copyable_count} file(s) exist elsewhere but not in the ${data.account} account. Copy them across before switching.`,
+          })
+        }
       } else {
         setStatus((s) => ({ ...s, distribution: data.distribution, active: data.active }))
         setCustomPercent(pct(data.distribution?.secondary || 0, data.distribution?.total || 0))
@@ -304,18 +311,35 @@ export default function StoragePanel() {
               </button>
             </div>
 
-            {verify && verify.missing?.length > 0 && (
+            {verify?.copyable?.length > 0 && (
               <div style={{ marginTop: 14, padding: 14, borderRadius: 8, background: '#fef2f2', border: '1px solid #fecaca' }}>
                 <strong style={{ fontSize: 14, color: '#991b1b' }}>
-                  Missing from {verify.account} (showing up to 50):
+                  Missing from {verify.account}, but available in the other account (showing up to 50):
                 </strong>
                 <ul style={{ margin: '8px 0 0 18px', fontSize: 12, color: '#7f1d1d', maxHeight: 220, overflow: 'auto' }}>
-                  {verify.missing.map((p) => (
+                  {verify.copyable.map((p) => (
                     <li key={p} style={{ wordBreak: 'break-all' }}>{p}</li>
                   ))}
                 </ul>
                 <p style={{ fontSize: 12, color: '#7f1d1d', margin: '10px 0 0' }}>
-                  Run <code>npm run storage:sync</code> to copy the missing files across.
+                  Run <code>npm run storage:sync</code> to copy these across before switching.
+                </p>
+              </div>
+            )}
+
+            {verify?.broken_everywhere?.length > 0 && (
+              <div style={{ marginTop: 14, padding: 14, borderRadius: 8, background: '#fffbeb', border: '1px solid #fde68a' }}>
+                <strong style={{ fontSize: 14, color: '#92400e' }}>
+                  Referenced by the database but missing from both accounts (showing up to 50):
+                </strong>
+                <ul style={{ margin: '8px 0 0 18px', fontSize: 12, color: '#92400e', maxHeight: 220, overflow: 'auto' }}>
+                  {verify.broken_everywhere.map((p) => (
+                    <li key={p} style={{ wordBreak: 'break-all' }}>{p}</li>
+                  ))}
+                </ul>
+                <p style={{ fontSize: 12, color: '#92400e', margin: '10px 0 0' }}>
+                  These images are already broken on the live site. Syncing cannot fix them — the
+                  product needs its images re-uploaded, or the stale rows removed.
                 </p>
               </div>
             )}

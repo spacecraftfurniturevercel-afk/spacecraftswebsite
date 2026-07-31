@@ -183,12 +183,32 @@ async function verifyAccount(supabase, accountId) {
   const stored = await listStoredPaths(account, prefixes)
   const missing = unique.filter((p) => !stored.has(p))
 
+  // A file missing here but present in the other account can be copied across. A file
+  // missing from both is a broken database row that syncing cannot fix.
+  const otherId = accountId === 'primary' ? 'secondary' : 'primary'
+  const other = getAccount(otherId)
+  let copyable = missing
+  let brokenEverywhere = []
+
+  if (missing.length && other?.configured) {
+    const otherStored = await listStoredPaths(other, prefixes)
+    copyable = missing.filter((p) => otherStored.has(p))
+    brokenEverywhere = missing.filter((p) => !otherStored.has(p))
+  }
+
   return {
     account: accountId,
     checked: unique.length,
     present: unique.length - missing.length,
     missing_count: missing.length,
     missing: missing.slice(0, 50),
+    copyable_count: copyable.length,
+    copyable: copyable.slice(0, 50),
+    broken_everywhere_count: brokenEverywhere.length,
+    broken_everywhere: brokenEverywhere.slice(0, 50),
+    // Switching is safe when nothing would newly break — rows already broken in the
+    // other account look identical before and after a switch.
+    safe_to_switch: copyable.length === 0,
     ready: missing.length === 0,
   }
 }
