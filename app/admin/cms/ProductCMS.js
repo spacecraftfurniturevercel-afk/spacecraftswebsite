@@ -53,6 +53,8 @@ export default function ProductCMS() {
   const [imageFiles, setImageFiles] = useState([])
   const [imagePreviews, setImagePreviews] = useState([])
   const [uploading, setUploading] = useState(false)
+  const [uploadTo, setUploadTo] = useState('both')       // both | primary | secondary
+  const [urlAccount, setUrlAccount] = useState('active') // active | primary | secondary
 
   const searchRef = useRef(null)
   const debounceRef = useRef(null)
@@ -245,18 +247,32 @@ export default function ProductCMS() {
       }
 
       // Upload images if any
+      let uploadNote = ''
       if (imageFiles.length > 0) {
         setUploading(true)
-        const fd = new FormData()
-        imageFiles.forEach(f => fd.append('file', f))
-        fd.append('product_id', productId)
-        await fetch('/api/upload-image', { method: 'POST', body: fd })
-        setImageFiles([])
-        setImagePreviews([])
-        setUploading(false)
+        try {
+          const fd = new FormData()
+          imageFiles.forEach(f => fd.append('file', f))
+          fd.append('product_id', productId)
+          fd.append('upload_to', uploadTo)
+          fd.append('url_account', urlAccount)
+          const upRes = await fetch('/api/upload-image', { method: 'POST', body: fd })
+          const upData = await upRes.json()
+          if (!upRes.ok) {
+            setSaveMsg({ type: 'error', text: upData.error || 'Image upload failed' })
+            return
+          }
+          const partial = (upData.results || []).filter(r => r.failed?.length)
+          uploadNote = ` ${upData.count} image(s) uploaded to ${(upData.uploaded_to || []).join(' + ')}, served from ${upData.served_by}.`
+          if (partial.length) uploadNote += ` ${partial.length} did not reach every account.`
+          setImageFiles([])
+          setImagePreviews([])
+        } finally {
+          setUploading(false)
+        }
       }
 
-      setSaveMsg({ type: 'success', text: mode === 'new' ? 'Product created!' : 'Product saved!' })
+      setSaveMsg({ type: 'success', text: (mode === 'new' ? 'Product created!' : 'Product saved!') + uploadNote })
       loadProducts(searchQuery || '', !searchQuery)
     } catch (err) {
       setSaveMsg({ type: 'error', text: err.message || 'Something went wrong' })
@@ -629,6 +645,28 @@ export default function ProductCMS() {
                   )}
                   <label>Upload Images</label>
                   <input type="file" multiple accept="image/*" onChange={handleImageFiles} className="cms-file-input" />
+
+                  <div className="cms-form-grid">
+                    <div>
+                      <label>Upload file to</label>
+                      <select value={uploadTo} onChange={e => setUploadTo(e.target.value)}>
+                        <option value="both">Both accounts (recommended)</option>
+                        <option value="primary">Primary account only</option>
+                        <option value="secondary">Secondary account only</option>
+                      </select>
+                      <span className="cfg-hint cfg-hint-block">Storing the file in both accounts lets you switch the image source later without re-uploading.</span>
+                    </div>
+                    <div>
+                      <label>Serve image URL from</label>
+                      <select value={urlAccount} onChange={e => setUrlAccount(e.target.value)}>
+                        <option value="active">Match current site source</option>
+                        <option value="primary">Primary account</option>
+                        <option value="secondary">Secondary account</option>
+                      </select>
+                      <span className="cfg-hint cfg-hint-block">Change the split for all products in Admin → <a href="/admin/storage">Image Storage</a>.</span>
+                    </div>
+                  </div>
+
                   {imagePreviews.length > 0 && (
                     <div className="cms-image-grid">
                       {imagePreviews.map((url, i) => (

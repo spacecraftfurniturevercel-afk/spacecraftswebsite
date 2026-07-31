@@ -1,5 +1,12 @@
 import { NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '../../../../../lib/supabaseClient'
+import {
+  configuredAccounts,
+  getAccount,
+  getActiveAccountId,
+  publicUrlFor,
+  uploadToAccounts,
+} from '../../../../../lib/storage/dualStorage'
 
 // Helper: parse CSV text into array of objects
 // Handles multi-line quoted fields (descriptions with newlines)
@@ -122,14 +129,11 @@ function extractGDriveFileId(url) {
   return match ? match[1] : null
 }
 
-// Download image from Google Drive and upload to Supabase storage
-// Returns the Supabase public URL, or null on failure
-async function downloadAndUploadImage(supa, gdUrl, slug, imageIndex) {
+// Download image from Google Drive and upload to every configured Supabase storage
+// account. Returns the public URL served by `urlAccountId`, or null on failure.
+async function downloadAndUploadImage(gdUrl, slug, imageIndex, urlAccountId = 'primary') {
   const fileId = extractGDriveFileId(gdUrl)
   if (!fileId) return null
-
-  const bucket = 'spacecraftsdigital'
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 
   // Google Drive direct download URL
   const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`
@@ -152,17 +156,23 @@ async function downloadAndUploadImage(supa, gdUrl, slug, imageIndex) {
     const buffer = Buffer.from(await res.arrayBuffer())
     const storagePath = `products/${slug}-${imageIndex}.${ext}`
 
-    // Upload to Supabase storage (upsert — overwrite if exists)
-    const { error } = await supa.storage.from(bucket).upload(storagePath, buffer, {
+    const targets = configuredAccounts().map((a) => a.id)
+    const { uploaded, failed } = await uploadToAccounts(targets, {
+      path: storagePath,
+      buffer,
       contentType,
-      upsert: true,
     })
-    if (error) {
-      console.error(`Storage upload failed for ${storagePath}:`, error.message)
-      return null
-    }
 
-    return `${supabaseUrl}/storage/v1/object/public/${bucket}/${storagePath}`
+    if (failed.length) {
+      console.error(
+        `Storage upload failed for ${storagePath}:`,
+        failed.map((f) => `${f.accountId}: ${f.error}`).join('; ')
+      )
+    }
+    if (!uploaded.length) return null
+
+    const owner = uploaded.includes(urlAccountId) ? urlAccountId : uploaded[0]
+    return publicUrlFor(getAccount(owner), storagePath)
   } catch (e) {
     clearTimeout(timeout)
     console.error(`Image download failed for ${slug}-${imageIndex}:`, e.message)
@@ -449,6 +459,8 @@ export async function POST(req) {
 
       const supa = createSupabaseServerClient()
       const results = { success: [], errors: [] }
+      // New image URLs follow whichever account is currently serving the site
+      const urlAccountId = await getActiveAccountId(supa)
 
       send({ type: 'start', total: rows.length })
 
@@ -514,7 +526,7 @@ export async function POST(req) {
                 let url = raw
                 if (isGoogleDriveUrl(raw)) {
                   send({ type: 'progress', index: rowIdx + 1, total: rows.length, name: row.name, step: `downloading image ${i}` })
-                  const uploaded = await downloadAndUploadImage(supa, raw, slug, i)
+                  const uploaded = await downloadAndUploadImage(raw, slug, i, urlAccountId)
                   if (uploaded) {
                     url = uploaded
                   } else {
@@ -522,8 +534,7 @@ export async function POST(req) {
                     continue
                   }
                 } else if (!raw.startsWith('http')) {
-                  const bucket = 'spacecraftsdigital'
-                  url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${bucket}/products/${raw}`
+                  url = publicUrlFor(getAccount(urlAccountId), `products/${raw}`)
                 }
                 images.push({
                   product_id: productId,

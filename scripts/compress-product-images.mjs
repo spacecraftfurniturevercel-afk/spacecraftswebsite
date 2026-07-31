@@ -35,15 +35,44 @@ if (!url || !key) {
   process.exit(1)
 }
 
-const BUCKET = 'spacecraftsdigital'
+const BUCKET = get('SUPABASE_STORAGE_BUCKET') || 'spacecraftsdigital'
 const minBytes = minKb * 1024
 const supabase = createClient(url, key)
 
+// Images are mirrored across two Supabase accounts under identical paths. Compressed
+// files must land in both, otherwise switching the image source shows stale files.
+const secondaryUrl = get('SECONDARY_SUPABASE_URL')
+const secondaryKey = get('SECONDARY_SUPABASE_SERVICE_ROLE_KEY')
+const SECONDARY_BUCKET = get('SECONDARY_SUPABASE_BUCKET') || 'spacecraftsdigital'
+const secondary = secondaryUrl && secondaryKey ? createClient(secondaryUrl, secondaryKey) : null
+
+const ACCOUNTS = {
+  primary: { id: 'primary', client: supabase, bucket: BUCKET, base: `${url}/storage/v1/object/public/${BUCKET}/` },
+}
+if (secondary) {
+  ACCOUNTS.secondary = {
+    id: 'secondary',
+    client: secondary,
+    bucket: SECONDARY_BUCKET,
+    base: `${secondaryUrl}/storage/v1/object/public/${SECONDARY_BUCKET}/`,
+  }
+}
+
+function accountForUrl(publicUrl) {
+  for (const account of Object.values(ACCOUNTS)) {
+    if (publicUrl.startsWith(account.base)) return account
+  }
+  return ACCOUNTS.primary
+}
+
 function storagePathFromPublicUrl(publicUrl) {
-  const marker = `/object/public/${BUCKET}/`
+  const marker = '/object/public/'
   const idx = publicUrl.indexOf(marker)
   if (idx === -1) return null
-  return decodeURIComponent(publicUrl.slice(idx + marker.length).split('?')[0])
+  const rest = publicUrl.slice(idx + marker.length)
+  const slash = rest.indexOf('/')
+  if (slash === -1) return null
+  return decodeURIComponent(rest.slice(slash + 1).split('?')[0])
 }
 
 async function fetchAllImageRows() {
@@ -131,8 +160,8 @@ function replaceExt(storagePath, newExt) {
   return storagePath.replace(/\.[^.]+$/, `.${newExt}`)
 }
 
-function publicUrlFor(storagePath) {
-  return `${url}/storage/v1/object/public/${BUCKET}/${storagePath}`
+function publicUrlFor(storagePath, account = ACCOUNTS.primary) {
+  return `${account.base}${storagePath}`
 }
 
 function fmtKb(bytes) {
@@ -231,24 +260,32 @@ for (let i = 0; i < targets.length; i += 1) {
     }
 
     const newPath = replaceExt(row.path, outExt)
-    const { error } = await supabase.storage.from(BUCKET).upload(newPath, output, {
-      contentType,
-      upsert: true,
-      cacheControl: '31536000',
-    })
-    if (error) throw new Error(error.message)
+    const rowAccount = accountForUrl(row.url)
 
-    const newUrl = publicUrlFor(newPath)
+    // Write the compressed file to every configured account, keeping paths identical
+    for (const account of Object.values(ACCOUNTS)) {
+      const { error } = await account.client.storage.from(account.bucket).upload(newPath, output, {
+        contentType,
+        upsert: true,
+        cacheControl: '31536000',
+      })
+      if (error) throw new Error(`${account.id} upload: ${error.message}`)
+    }
+
+    // Keep the row on whichever account already served it
+    const newUrl = publicUrlFor(newPath, rowAccount)
     if (newUrl !== row.url) {
       const { error: dbErr } = await supabase
         .from('product_images')
         .update({ url: newUrl })
         .eq('id', row.id)
       if (dbErr) throw new Error(`DB update: ${dbErr.message}`)
+    }
 
-      // Remove old file if path changed (e.g. .png → .webp)
-      if (newPath !== row.path) {
-        await supabase.storage.from(BUCKET).remove([row.path])
+    // Remove old file from both accounts if the path changed (e.g. .png → .webp)
+    if (newPath !== row.path) {
+      for (const account of Object.values(ACCOUNTS)) {
+        await account.client.storage.from(account.bucket).remove([row.path])
       }
     }
 

@@ -33,8 +33,9 @@ export default function BulkImageUpload() {
       const file = files[i]
       const formData = new FormData()
       formData.append('file', file)
-      if (productId) formData.append('productId', productId)
+      if (productId) formData.append('product_id', productId)
       formData.append('folder', 'products')
+      formData.append('upload_to', 'both')
 
       try {
         const response = await fetch('/api/upload-image', {
