@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "analyze": "ANALYZE=true next build"
+    "analyze": "ANALYZE=true next build",
+    "images:audit": "node scripts/compress-product-images.mjs --dry-run",
+    "images:compress": "node scripts/compress-product-images.mjs --apply"
   },
   "dependencies": {
     "@stripe/stripe-js": "^2.4.0",
