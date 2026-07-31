@@ -56,6 +56,18 @@ function publicAccountInfo(account) {
   }
 }
 
+/**
+ * Names (never values) of the SECONDARY_* variables visible to this runtime, with the
+ * length of each. Distinguishes "variable not injected into the deployment" from
+ * "variable name has a typo or stray whitespace".
+ */
+function envDiagnostics() {
+  return Object.keys(process.env)
+    .filter((k) => /secondary/i.test(k))
+    .sort()
+    .map((k) => `${JSON.stringify(k)} → ${String(process.env[k] || '').length} chars`)
+}
+
 export async function GET(request) {
   const auth = await requireAdmin(request)
   if (auth.error) return auth.error
@@ -70,6 +82,7 @@ export async function GET(request) {
       distribution,
       active,
       missing_env: missingSecondaryEnv(),
+      env_diagnostics: envDiagnostics(),
     })
   } catch (err) {
     console.error('[admin/storage] GET', err)

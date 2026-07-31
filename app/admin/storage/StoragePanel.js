@@ -148,6 +148,22 @@ export default function StoragePanel() {
               {status.missing_env?.length > 0 && (
                 <p style={{ margin: '10px 0 0' }}>Currently missing: {status.missing_env.join(', ')}</p>
               )}
+              <div style={{ margin: '10px 0 0' }}>
+                <strong>SECONDARY_* variables this deployment can see:</strong>
+                {status.env_diagnostics?.length ? (
+                  <ul style={{ margin: '6px 0 0 18px' }}>
+                    {status.env_diagnostics.map((line) => (
+                      <li key={line}><code>{line}</code></li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p style={{ margin: '6px 0 0' }}>
+                    None at all — the variables were not injected into this deployment.
+                    Redeploy <em>without</em> the build cache, and confirm they were added to the
+                    same Vercel project that serves this domain.
+                  </p>
+                )}
+              </div>
             </div>
           )}
 
