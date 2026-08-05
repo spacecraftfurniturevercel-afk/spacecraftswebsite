@@ -1,19 +1,13 @@
 import ModernHeroCarousel from '../components/ModernHeroCarousel'
 import PromoBanners from '../components/PromoBanners'
 import BankBanner from '../components/BankBanner'
-import TrustBadges from '../components/TrustBadges'
 import KeepShoppingSection from '../components/KeepShoppingSection'
 import ModernCategoryGrid from '../components/ModernCategoryGrid'
 import FeaturedProductsSection from '../components/FeaturedProductsSection'
-import ShopAllThingsHome from '../components/ShopAllThingsHome'
 import MoreIdeasSection from '../components/MoreIdeasSection'
 import NewArrivalsGrid from '../components/NewArrivalsGrid'
 import CustomerReviewsSection from '../components/CustomerReviewsSection'
 import AboutFurnitureSection from '../components/AboutFurnitureSection'
-import SpecialOfferBanner from '../components/SpecialOfferBanner'
-import StoreLocatorSection from '../components/StoreLocatorSection'
-import NeedHelpBuyingSection from '../components/NeedHelpBuyingSection'
-import NewsletterSection from '../components/NewsletterSection'
 import { CATALOG_REVALIDATE_SECONDS } from '../lib/catalogCache'
 import { getCachedHomeCatalog } from '../lib/catalogData'
 
@@ -119,9 +113,6 @@ export default async function Home() {
         {/* Categories Section */}
         <ModernCategoryGrid serverCategories={categories} />
 
-        {/* Shop All Things Home — Tag-based Tabs */}
-        {/* <ShopAllThingsHome products={[]} /> */}
-
         {/* Featured Products — Bestsellers & Offers */}
         <FeaturedProductsSection bestsellers={bestsellers} offered={offeredProducts} />
 
@@ -136,18 +127,6 @@ export default async function Home() {
 
         {/* About Furniture — SEO Content Block */}
         <AboutFurnitureSection />
-
-        {/* Special Offer Banner */}
-        {/* <SpecialOfferBanner /> */}
-
-        {/* Store Locator */}
-        {/* <StoreLocatorSection /> */}
-
-        {/* Help Section */}
-        {/* <NeedHelpBuyingSection /> */}
-
-        {/* Newsletter Section */}
-        {/* <NewsletterSection /> */}
       </main>
     </>
   )
