@@ -1,8 +1,8 @@
-import { createSupabaseServerClient } from '../../lib/supabaseClient'
 import ProductsClient from '../../components/ProductsClient'
-import { getActiveProductIdsForCategories, PRODUCT_CATEGORY_EMBED_FULL } from '../../lib/productCategoryQuery'
+import { CATALOG_REVALIDATE_SECONDS } from '../../lib/catalogCache'
+import { getCachedProductsListing } from '../../lib/catalogData'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = CATALOG_REVALIDATE_SECONDS
 
 export const metadata = {
   title: 'All Products - Spacecrafts Furniture | Shop Premium Furniture Online',
@@ -64,138 +64,31 @@ export default async function ProductsPage({ searchParams }) {
   let categories = []
   let brands = []
   let totalCount = 0
-  
+
   try {
-    const supabase = createSupabaseServerClient()
-    
-    // Fetch categories for filter
-    const { data: categoriesData } = await supabase
-      .from('categories')
-      .select('id, name, slug')
-      .order('name')
-    categories = categoriesData || []
-    
-    // Fetch brands for filter (brands table has no is_active column)
-    const { data: brandsData } = await supabase
-      .from('brands')
-      .select('id, name, slug')
-      .order('name')
-    brands = brandsData || []
-    
-    // Pagination
-    const page = parseInt(searchParams?.page || '1', 10)
-    const from = (page - 1) * PRODUCTS_PER_PAGE
-    const to = from + PRODUCTS_PER_PAGE - 1
-
-    // Build query based on filters
-    let query = supabase
-      .from('products')
-      .select(`
-        *,
-        ${PRODUCT_CATEGORY_EMBED_FULL},
-        brands (id, name, slug)
-      `, { count: 'exact' })
-      .eq('is_active', true)
-    
-    // Filter by multiple categories (primary + secondary via product_categories)
-    if (searchParams?.categories) {
-      const categoryArray = searchParams.categories.split(',')
-      const categoryIds = categories
-        .filter(c => categoryArray.includes(c.slug))
-        .map(c => c.id)
-      if (categoryIds.length > 0) {
-        const productIds = await getActiveProductIdsForCategories(supabase, categoryIds)
-        if (productIds.length > 0) {
-          query = query.in('id', productIds)
-        } else {
-          query = query.eq('id', -1)
-        }
-      }
-    }
-    
-    // Filter by multiple brands
-    if (searchParams?.brands) {
-      const brandArray = searchParams.brands.split(',')
-      const brandIds = brands
-        .filter(b => brandArray.includes(b.slug))
-        .map(b => b.id)
-      if (brandIds.length > 0) {
-        query = query.in('brand_id', brandIds)
-      }
-    }
-    
-    // Filter by sub-categories (product type tags)
-    if (searchParams?.subcategories) {
-      const subCatArray = searchParams.subcategories.split(',')
-      query = query.overlaps('tags', subCatArray)
-    }
-
-    // Filter by nav tags (living-room, bedroom, etc.)
-    const tagFilter = searchParams?.tags || searchParams?.tag
-    if (tagFilter) {
-      const tagArray = tagFilter.split(',')
-      query = query.overlaps('tags', tagArray)
-    }
-
-    // Filter by price range
-    if (searchParams?.minPrice) {
-      query = query.gte('price', parseFloat(searchParams.minPrice))
-    }
-    if (searchParams?.maxPrice) {
-      query = query.lte('price', parseFloat(searchParams.maxPrice))
-    }
-    
-    // Search query
-    const searchQuery = searchParams?.q || searchParams?.search
-    if (searchQuery) {
-      // Use name + description ilike only — tags.cs is unreliable for multi-word terms
-      query = query.or(`name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`)
-    }
-    
-    // Sort
-    const sortBy = searchParams?.sort || 'rating-desc'
-    switch (sortBy) {
-      case 'price-asc':
-        query = query.order('price', { ascending: true })
-        break
-      case 'price-desc':
-        query = query.order('price', { ascending: false })
-        break
-      case 'name-asc':
-        query = query.order('name', { ascending: true })
-        break
-      case 'newest':
-        query = query.order('created_at', { ascending: false })
-        break
-      case 'rating-desc':
-      default:
-        query = query.order('rating', { ascending: false })
-    }
-    
-    // Apply pagination
-    query = query.range(from, to)
-    
-    const { data, count } = await query
-    products = data || []
-    totalCount = count || 0
-    
-    // Fetch product images for each product
-    if (products.length > 0) {
-      const productIds = products.map(p => p.id)
-      const { data: imagesData } = await supabase
-        .from('product_images')
-        .select('*')
-        .in('product_id', productIds)
-        .order('position')
-      
-      // Attach images to products
-      products = products.map(product => ({
-        ...product,
-        images: imagesData?.filter(img => img.product_id === product.id) || []
-      }))
-    }
-    
+    const listing = await getCachedProductsListing({
+      page: searchParams?.page || '1',
+      perPage: PRODUCTS_PER_PAGE,
+      categories: searchParams?.categories || '',
+      brands: searchParams?.brands || '',
+      subcategories: searchParams?.subcategories || '',
+      tags: searchParams?.tags || searchParams?.tag || '',
+      minPrice: searchParams?.minPrice || '',
+      maxPrice: searchParams?.maxPrice || '',
+      q: searchParams?.q || searchParams?.search || '',
+      sort: searchParams?.sort || 'rating-desc',
+    })
+    products = listing.products
+    categories = listing.categories
+    brands = listing.brands
+    totalCount = listing.totalCount
   } catch (error) {
+    if (
+      error?.digest === 'DYNAMIC_SERVER_USAGE' ||
+      String(error?.message || '').includes('Dynamic server usage')
+    ) {
+      throw error
+    }
     console.error('Error fetching products:', error)
   }
 

@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server'
-import { revalidatePath } from 'next/cache'
 import {
   createSupabaseRouteHandlerClient,
   createSupabaseServerClient,
 } from '../../../../lib/supabaseClient'
+import { revalidateCatalog } from '../../../../lib/catalogCache'
 import {
   createStorageClient,
   fetchAllImageRows,
@@ -255,7 +255,7 @@ export async function POST(request) {
     }
 
     const result = await applyDistribution(supabase, percent)
-    revalidatePath('/', 'layout')
+    revalidateCatalog()
 
     const distribution = await getImageDistribution(supabase)
     return NextResponse.json({ ...result, distribution, active: await getActiveAccountId(supabase) })

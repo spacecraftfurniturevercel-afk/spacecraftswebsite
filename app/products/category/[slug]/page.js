@@ -1,9 +1,9 @@
-import { createSupabaseServerClient } from '../../../../lib/supabaseClient'
 import ProductsClient from '../../../../components/ProductsClient'
-import { getActiveProductIdsForCategory, PRODUCT_CATEGORY_EMBED_FULL } from '../../../../lib/productCategoryQuery'
 import { notFound } from 'next/navigation'
+import { CATALOG_REVALIDATE_SECONDS } from '../../../../lib/catalogCache'
+import { getCachedCategoryBySlug, getCachedCategoryListing } from '../../../../lib/catalogData'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = CATALOG_REVALIDATE_SECONDS
 
 // Cross-category collections — matched via tag overlaps regardless of DB category_id
 const COLLECTION_TAGS = {
@@ -310,13 +310,8 @@ export async function generateMetadata({ params }) {
 
   // Fallback: fetch category name from DB
   try {
-    const supabase = createSupabaseServerClient()
-    const { data: cat } = await supabase
-      .from('categories')
-      .select('name, slug')
-      .eq('slug', slug)
-      .single()
-    
+    const cat = await getCachedCategoryBySlug(slug)
+
     if (cat) {
       const title = cat.name
       const description = `Shop ${cat.name} online at ${siteName}. Browse our curated collection with best prices, premium quality & free delivery across India.`
@@ -354,17 +349,10 @@ export default async function CategoryPage({ params, searchParams }) {
   let isSubCategory = false
   let totalCount = 0
   const PRODUCTS_PER_PAGE = 16
-  
+
   try {
-    const supabase = createSupabaseServerClient()
-    
-    // Fetch the current category
-    const { data: catData } = await supabase
-      .from('categories')
-      .select('id, name, slug')
-      .eq('slug', slug)
-      .single()
-    
+    const catData = await getCachedCategoryBySlug(slug)
+
     // If no DB category found, treat as sub-category tag filter
     if (!catData) {
       // Check if we have SEO metadata for this sub-category slug
@@ -378,132 +366,45 @@ export default async function CategoryPage({ params, searchParams }) {
     } else {
       currentCategory = catData
     }
-    
-    // Fetch all categories for sidebar filter
-    const { data: categoriesData } = await supabase
-      .from('categories')
-      .select('id, name, slug')
-      .order('name')
-    categories = categoriesData || []
-    
-    // Fetch brands for filter (brands table has no is_active column)
-    const { data: brandsData } = await supabase
-      .from('brands')
-      .select('id, name, slug')
-      .order('name')
-    brands = brandsData || []
-    
-    // Pagination
-    const page = parseInt(searchParams?.page || '1', 10)
-    const from = (page - 1) * PRODUCTS_PER_PAGE
-    const to = from + PRODUCTS_PER_PAGE - 1
 
-    // Build query — filter by this category or sub-category tag
-    let query = supabase
-      .from('products')
-      .select(`
-        *,
-        ${PRODUCT_CATEGORY_EMBED_FULL},
-        brands (id, name, slug)
-      `, { count: 'exact' })
-      .eq('is_active', true)
+    const meta = categoryMeta[slug]
+    const subCatMatch = SUB_CATEGORIES.find((sc) => sc.slug === slug)
+    const tagToFilter = meta?.tagSlug || subCatMatch?.slug || slug
 
-    if (slug in COLLECTION_TAGS) {
-      // Collection page — products matching any of the listed tags
-      query = query.overlaps('tags', COLLECTION_TAGS[slug])
-    } else if (isSubCategory) {
-      // Filter by sub-category tag (e.g. "bunk-beds", "corner-sofas")
-      // Use tagSlug from categoryMeta if available (handles slug mismatches like study-chair vs study-chairs)
-      const meta = categoryMeta[slug]
-      const subCatMatch = SUB_CATEGORIES.find(sc => sc.slug === slug)
-      const tagToFilter = meta?.tagSlug || subCatMatch?.slug || slug
-      query = query.contains('tags', [tagToFilter])
-    } else {
-      const productIds = await getActiveProductIdsForCategory(supabase, currentCategory.id)
-      if (productIds.length > 0) {
-        query = query.in('id', productIds)
-      } else {
-        query = query.eq('id', -1)
+    const listing = await getCachedCategoryListing(
+      slug,
+      {
+        page: searchParams?.page || '1',
+        perPage: PRODUCTS_PER_PAGE,
+        brands: searchParams?.brands || '',
+        subcategories: searchParams?.subcategories || '',
+        tags: searchParams?.tags || searchParams?.tag || '',
+        minPrice: searchParams?.minPrice || '',
+        maxPrice: searchParams?.maxPrice || '',
+        sort: searchParams?.sort || 'rating-desc',
+      },
+      {
+        collectionTags: slug in COLLECTION_TAGS ? COLLECTION_TAGS[slug] : null,
+        isSubCategory,
+        tagToFilter: isSubCategory ? tagToFilter : null,
+        categoryId: !isSubCategory && !(slug in COLLECTION_TAGS) ? currentCategory.id : null,
       }
-    }
-    
-    // Additional brand filter from query params
-    if (searchParams?.brands) {
-      const brandArray = searchParams.brands.split(',')
-      const brandIds = brands
-        .filter(b => brandArray.includes(b.slug))
-        .map(b => b.id)
-      if (brandIds.length > 0) {
-        query = query.in('brand_id', brandIds)
-      }
-    }
+    )
 
-    // Filter by sub-category tags (product type)
-    if (searchParams?.subcategories) {
-      const subCatArray = searchParams.subcategories.split(',')
-      query = query.overlaps('tags', subCatArray)
-    }
-
-    // Filter by nav tags (living-room, bedroom, etc.)
-    const tagFilter = searchParams?.tags || searchParams?.tag
-    if (tagFilter) {
-      const tagArray = tagFilter.split(',')
-      query = query.overlaps('tags', tagArray)
-    }
-    
-    // Price filters
-    if (searchParams?.minPrice) {
-      query = query.gte('price', parseFloat(searchParams.minPrice))
-    }
-    if (searchParams?.maxPrice) {
-      query = query.lte('price', parseFloat(searchParams.maxPrice))
-    }
-    
-    // Sort
-    const sortBy = searchParams?.sort || 'rating-desc'
-    switch (sortBy) {
-      case 'price-asc':
-        query = query.order('price', { ascending: true })
-        break
-      case 'price-desc':
-        query = query.order('price', { ascending: false })
-        break
-      case 'name-asc':
-        query = query.order('name', { ascending: true })
-        break
-      case 'newest':
-        query = query.order('created_at', { ascending: false })
-        break
-      case 'rating-desc':
-      default:
-        query = query.order('rating', { ascending: false })
-    }
-    
-    query = query.range(from, to)
-    
-    const { data, count } = await query
-    products = data || []
-    totalCount = count || 0
-    
-    // Fetch product images
-    if (products.length > 0) {
-      const productIds = products.map(p => p.id)
-      const { data: imagesData } = await supabase
-        .from('product_images')
-        .select('*')
-        .in('product_id', productIds)
-        .order('position')
-      
-      products = products.map(product => ({
-        ...product,
-        images: imagesData?.filter(img => img.product_id === product.id) || []
-      }))
-    }
-    
+    products = listing.products
+    categories = listing.categories
+    brands = listing.brands
+    totalCount = listing.totalCount
   } catch (error) {
+    if (
+      error?.digest === 'DYNAMIC_SERVER_USAGE' ||
+      String(error?.message || '').includes('Dynamic server usage')
+    ) {
+      throw error
+    }
     console.error('Error fetching category products:', error)
   }
-  
+
   if (!currentCategory) {
     notFound()
   }

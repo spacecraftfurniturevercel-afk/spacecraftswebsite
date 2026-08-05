@@ -1375,7 +1375,8 @@ function ProductCard({ product, view }) {
 
         {view === 'list' && product.description && (
           <p className="product-description">
-            {product.description.substring(0, 200)}...
+            {product.description.substring(0, 200)}
+            {product.description.length > 200 ? '...' : ''}
           </p>
         )}
       </div>

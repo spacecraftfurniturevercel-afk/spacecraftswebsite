@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '../../../lib/supabaseClient'
+import { revalidateCatalog } from '../../../lib/catalogCache'
 import {
   configuredAccounts,
   getAccount,
@@ -114,6 +115,17 @@ export async function POST(req) {
     if (rowsToInsert.length) {
       const { error } = await supabase.from('product_images').insert(rowsToInsert)
       if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+      let slug = null
+      if (productId) {
+        const { data: product } = await supabase
+          .from('products')
+          .select('slug')
+          .eq('id', productId)
+          .maybeSingle()
+        slug = product?.slug || null
+      }
+      revalidateCatalog({ slug })
     }
 
     const firstUrl = results.find((r) => r.url)?.url || null

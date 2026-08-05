@@ -1,11 +1,9 @@
-import { createSupabaseServerClient } from '../lib/supabaseClient'
 import ModernHeroCarousel from '../components/ModernHeroCarousel'
 import PromoBanners from '../components/PromoBanners'
 import BankBanner from '../components/BankBanner'
 import TrustBadges from '../components/TrustBadges'
 import KeepShoppingSection from '../components/KeepShoppingSection'
 import ModernCategoryGrid from '../components/ModernCategoryGrid'
-import { buildCategoryCountMap, PRODUCT_CATEGORY_EMBED_FULL } from '../lib/productCategoryQuery'
 import FeaturedProductsSection from '../components/FeaturedProductsSection'
 import ShopAllThingsHome from '../components/ShopAllThingsHome'
 import MoreIdeasSection from '../components/MoreIdeasSection'
@@ -16,9 +14,11 @@ import SpecialOfferBanner from '../components/SpecialOfferBanner'
 import StoreLocatorSection from '../components/StoreLocatorSection'
 import NeedHelpBuyingSection from '../components/NeedHelpBuyingSection'
 import NewsletterSection from '../components/NewsletterSection'
+import { CATALOG_REVALIDATE_SECONDS } from '../lib/catalogCache'
+import { getCachedHomeCatalog } from '../lib/catalogData'
 
-// Force dynamic rendering — always fetch fresh data from Supabase
-export const dynamic = 'force-dynamic'
+// Cache homepage catalog data — cuts PostgREST egress vs force-dynamic every visit
+export const revalidate = CATALOG_REVALIDATE_SECONDS
 
 // SEO Metadata
 export const metadata = {
@@ -52,104 +52,15 @@ export const metadata = {
 }
 
 export default async function Home() {
-  // Server-side data fetching for better SEO
   let categories = []
-  let products = []
   let bestsellers = []
   let offeredProducts = []
-  let allProducts = []
-  
+
   try {
-    const supabase = createSupabaseServerClient()
-    
-    // Fetch ALL categories for homepage grid + filters
-    const { data: cats } = await supabase
-      .from('categories')
-      .select('id, name, slug, image_url, sort_order, is_active')
-      .eq('is_active', true)
-
-    // Product counts — primary category_id + product_categories junction
-    const { data: countData } = await supabase
-      .from('products')
-      .select('id, category_id')
-      .eq('is_active', true)
-
-    let junctionData = []
-    try {
-      const { data: junctionRows } = await supabase
-        .from('product_categories')
-        .select('product_id, category_id')
-      junctionData = junctionRows || []
-    } catch (_) {
-      junctionData = []
-    }
-
-    const countMap = buildCategoryCountMap(countData || [], junctionData)
-    
-    // Fetch latest products
-    const { data: prods } = await supabase
-      .from('products')
-      .select(`
-        *,
-        product_images (url, alt, position)
-      `)
-      .eq('is_active', true)
-      .order('created_at', { ascending: false })
-      .limit(20)
-    
-    // Fetch bestseller products (best_seller = true)
-    const { data: bestsellerData } = await supabase
-      .from('products')
-      .select(`
-        *,
-        product_images (url, alt, position)
-      `)
-      .eq('is_active', true)
-      .eq('best_seller', true)
-      .order('rating', { ascending: false })
-      .limit(20)
-
-    // Fetch offered products (is_offered = true)
-    const { data: offeredData } = await supabase
-      .from('products')
-      .select(`
-        *,
-        product_images (url, alt, position)
-      `)
-      .eq('is_active', true)
-      .eq('is_offered', true)
-      .order('rating', { ascending: false })
-      .limit(20)
-
-    // Fetch all active products for ShopAllThingsHome tabs (with category relation)
-    const { data: allProds } = await supabase
-      .from('products')
-      .select(`
-        *,
-        ${PRODUCT_CATEGORY_EMBED_FULL},
-        product_images (url, alt, position)
-      `)
-      .eq('is_active', true)
-      .order('rating', { ascending: false })
-      .limit(200)
-    
-    categories = (cats || []).map((c) => ({ ...c, productCount: countMap[c.id] || 0 }))
-    products = (prods || []).map(p => ({
-      ...p,
-      images: p.product_images?.sort((a, b) => a.position - b.position).map(img => img.url) || []
-    }))
-    bestsellers = (bestsellerData || []).map(p => ({
-      ...p,
-      images: p.product_images?.sort((a, b) => a.position - b.position).map(img => img.url) || []
-    }))
-    offeredProducts = (offeredData || []).map(p => ({
-      ...p,
-      images: p.product_images?.sort((a, b) => a.position - b.position).map(img => img.url) || []
-    }))
-    allProducts = (allProds || []).map(p => ({
-      ...p,
-      images: p.product_images?.sort((a, b) => a.position - b.position).map(img => img.url) || []
-    }))
+    const catalog = await getCachedHomeCatalog()
+    categories = catalog.categories
+    bestsellers = catalog.bestsellers
+    offeredProducts = catalog.offeredProducts
   } catch (e) {
     console.warn('Supabase not configured for server fetch in Home:', e.message)
   }
@@ -209,7 +120,7 @@ export default async function Home() {
         <ModernCategoryGrid serverCategories={categories} />
 
         {/* Shop All Things Home — Tag-based Tabs */}
-        {/* <ShopAllThingsHome products={allProducts} /> */}
+        {/* <ShopAllThingsHome products={[]} /> */}
 
         {/* Featured Products — Bestsellers & Offers */}
         <FeaturedProductsSection bestsellers={bestsellers} offered={offeredProducts} />

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '../../../../../../lib/supabaseClient'
 import { syncProductCategories } from '../../../../../../lib/productCategoryQuery'
+import { revalidateCatalog } from '../../../../../../lib/catalogCache'
 
 export async function POST(req, { params }) {
   try {
@@ -46,6 +47,7 @@ export async function POST(req, { params }) {
       await syncProductCategories(supa, Number(id), [form.category_id], form.category_id)
     }
 
+    revalidateCatalog({ slug: data.slug })
     return NextResponse.json({ product: data })
   } catch (err) {
     console.error(err)
