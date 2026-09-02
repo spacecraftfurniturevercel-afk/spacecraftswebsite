@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '../../../../../lib/supabaseClient'
 import { revalidateCatalog } from '../../../../../lib/catalogCache'
+import { PRODUCT_CATEGORY_EMBED_NAME } from '../../../../../lib/productCategoryQuery'
 
 function generateSlug(name) {
   if (!name) return ''
@@ -47,7 +48,7 @@ export async function GET(request) {
       .select(`
         id, name, slug, sku, price, discount_price, stock, is_active,
         category_id, brand_id,
-        categories ( id, name ),
+        ${PRODUCT_CATEGORY_EMBED_NAME},
         brands ( id, name )
       `)
       .order('name', { ascending: true })
