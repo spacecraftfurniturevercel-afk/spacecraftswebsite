@@ -30,18 +30,36 @@ function mapProduct(p) {
   }
 }
 
+function applyListFilters(query, { q, status }) {
+  if (status === 'active') query = query.eq('is_active', true)
+  if (status === 'inactive') query = query.eq('is_active', false)
+  if (q) {
+    query = query.or(`name.ilike.%${q}%,slug.ilike.%${q}%,sku.ilike.%${q}%`)
+  }
+  return query
+}
+
 /**
- * GET /api/admin/products/bulk?q=&status=all|active|inactive&limit=500
- * List products for the spreadsheet editor.
+ * GET /api/admin/products/bulk?q=&status=all|active|inactive&page=1&pageSize=50
  */
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url)
     const q = (searchParams.get('q') || '').trim()
     const status = searchParams.get('status') || 'all'
-    const limit = Math.min(parseInt(searchParams.get('limit') || '500', 10), 2000)
+    const page = Math.max(parseInt(searchParams.get('page') || '1', 10), 1)
+    const pageSize = Math.min(Math.max(parseInt(searchParams.get('pageSize') || '50', 10), 10), 100)
+    const from = (page - 1) * pageSize
+    const to = from + pageSize - 1
 
     const supa = createSupabaseServerClient()
+
+    let countQuery = supa.from('products').select('id', { count: 'exact', head: true })
+    countQuery = applyListFilters(countQuery, { q, status })
+    const { count, error: countError } = await countQuery
+    if (countError) {
+      return NextResponse.json({ error: countError.message }, { status: 500 })
+    }
 
     let query = supa
       .from('products')
@@ -52,23 +70,24 @@ export async function GET(request) {
         brands ( id, name )
       `)
       .order('name', { ascending: true })
-      .limit(limit)
+      .range(from, to)
 
-    if (status === 'active') query = query.eq('is_active', true)
-    if (status === 'inactive') query = query.eq('is_active', false)
-
-    if (q) {
-      query = query.or(`name.ilike.%${q}%,slug.ilike.%${q}%,sku.ilike.%${q}%`)
-    }
+    query = applyListFilters(query, { q, status })
 
     const { data, error } = await query
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
+    const total = count ?? 0
+    const totalPages = Math.max(Math.ceil(total / pageSize), 1)
+
     return NextResponse.json({
       products: (data || []).map(mapProduct),
-      total: data?.length || 0,
+      total,
+      page,
+      pageSize,
+      totalPages,
     })
   } catch (err) {
     console.error('[admin/products/bulk GET]', err)
