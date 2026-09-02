@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useAuth } from '../../providers/AuthProvider'
+import ProductSpreadsheet from './ProductSpreadsheet'
 
 export default function CSVImport() {
   const { user } = useAuth()
@@ -110,8 +111,14 @@ export default function CSVImport() {
   }
 
   return (
-    <div style={{ maxWidth: '900px', margin: '0 auto', padding: '20px' }}>
-      <h1>Import Products from CSV</h1>
+    <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '20px' }}>
+      <h1>Product import &amp; bulk editor</h1>
+
+      <ProductSpreadsheet />
+
+      <hr style={{ margin: '32px 0', border: 'none', borderTop: '1px solid #dee2e6' }} />
+
+      <h2 style={{ fontSize: '1.25rem', marginBottom: '16px' }}>Import from CSV file</h2>
 
       <div style={{ background: '#f8f9fa', padding: '16px', borderRadius: '8px', marginBottom: '20px', fontSize: '14px' }}>
         <strong>How it works:</strong>
