@@ -60,12 +60,23 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url)
     const q = (searchParams.get('q') || '').trim()
     const status = searchParams.get('status') || 'all'
+    const idsOnly = searchParams.get('idsOnly') === 'true'
+
+    const supa = createSupabaseServerClient()
+
+    if (idsOnly) {
+      let query = supa.from('products').select('id').order('name', { ascending: true }).limit(5000)
+      query = applyListFilters(query, { q, status })
+      const { data, error } = await query
+      if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+      const ids = (data || []).map((r) => r.id)
+      return NextResponse.json({ ids, total: ids.length })
+    }
+
     const page = Math.max(parseInt(searchParams.get('page') || '1', 10), 1)
     const pageSize = Math.min(Math.max(parseInt(searchParams.get('pageSize') || '50', 10), 10), 100)
     const from = (page - 1) * pageSize
     const to = from + pageSize - 1
-
-    const supa = createSupabaseServerClient()
 
     let countQuery = supa.from('products').select('id', { count: 'exact', head: true })
     countQuery = applyListFilters(countQuery, { q, status })

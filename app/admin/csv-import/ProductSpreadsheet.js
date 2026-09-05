@@ -244,6 +244,7 @@ export default function ProductSpreadsheet() {
   const selectedKeys = useRef(new Set())
   const [editRevision, setEditRevision] = useState(0)
   const [selectionRevision, setSelectionRevision] = useState(0)
+  const [selectingAll, setSelectingAll] = useState(false)
 
   const visibleColumns = useMemo(
     () => SPREADSHEET_COLUMNS.filter((c) => visibleGroups[c.group]),
@@ -350,6 +351,25 @@ export default function ProductSpreadsheet() {
   const deselectAll = () => {
     selectedKeys.current.clear()
     setSelectionRevision((v) => v + 1)
+  }
+
+  const selectAllMatching = async () => {
+    if (viewFilter !== 'all') return
+    setSelectingAll(true)
+    try {
+      const params = new URLSearchParams({ idsOnly: 'true' })
+      if (search.trim()) params.set('q', search.trim())
+      if (statusFilter !== 'all') params.set('status', statusFilter)
+      const res = await fetch(`/api/admin/products/bulk?${params}`)
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Failed to load product ids')
+      ;(data.ids || []).forEach((id) => selectedKeys.current.add(`id-${id}`))
+      setSelectionRevision((v) => v + 1)
+    } catch (err) {
+      alert(err.message)
+    } finally {
+      setSelectingAll(false)
+    }
   }
 
   const updateRow = (rowKey, field, value) => {
@@ -533,11 +553,14 @@ export default function ProductSpreadsheet() {
 
       <BulkEditToolbar
         selectedCount={selectedCount}
+        totalMatching={viewFilter === 'all' ? total : null}
         onSelectPage={selectPage}
+        onSelectAllMatching={selectAllMatching}
         onDeselectAll={deselectAll}
         onApply={applyBulkField}
         meta={meta}
         disabled={loading || saving}
+        selectingAll={selectingAll}
       />
 
       {loadError && <div style={{ padding: '12px', background: '#f8d7da', color: '#842029', borderRadius: '6px', marginBottom: '12px' }}>{loadError}</div>}

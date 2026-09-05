@@ -5,11 +5,14 @@ import { BULK_EDIT_FIELDS, OFFER_PRESETS } from '../../../../lib/admin/spreadshe
 
 export default function BulkEditToolbar({
   selectedCount,
+  totalMatching,
   onSelectPage,
+  onSelectAllMatching,
   onDeselectAll,
   onApply,
   meta,
   disabled,
+  selectingAll,
 }) {
   const [field, setField] = useState('is_active')
   const [value, setValue] = useState('true')
@@ -37,9 +40,12 @@ export default function BulkEditToolbar({
     >
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center', marginBottom: '10px' }}>
         <strong>Selection:</strong>
-        <span>{selectedCount} row(s) selected</span>
+        <span>{selectedCount} row(s) selected{totalMatching != null ? ` · ${totalMatching} match filter` : ''}</span>
         <button type="button" onClick={onSelectPage} disabled={disabled} style={btn('#6c757d')}>
           Select page
+        </button>
+        <button type="button" onClick={onSelectAllMatching} disabled={disabled || selectingAll || !totalMatching} style={btn('#0056b3')}>
+          {selectingAll ? 'Selecting…' : `Select all (${totalMatching || 0})`}
         </button>
         <button type="button" onClick={onDeselectAll} disabled={disabled || selectedCount === 0} style={btn('#6c757d')}>
           Deselect all

@@ -1,12 +1,15 @@
 import { NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '../../../../../lib/supabaseClient'
 import {
-  configuredAccounts,
   getAccount,
   getActiveAccountId,
   publicUrlFor,
-  uploadToAccounts,
 } from '../../../../../lib/storage/dualStorage'
+import {
+  collectImageSourcesFromRow,
+  importImageFromSource,
+  toBool as imageToBool,
+} from '../../../../../lib/storage/importImageFromUrl'
 
 // Helper: parse CSV text into array of objects
 // Handles multi-line quoted fields (descriptions with newlines)
@@ -118,66 +121,87 @@ function generateSlug(name) {
     .replace(/(^-|-$)/g, '')
 }
 
-// Check if a URL is a Google Drive share link
+// Check if a URL is a Google Drive share link (re-exported logic lives in importImageFromUrl)
 function isGoogleDriveUrl(url) {
-  return url && /drive\.google\.com\/file\/d\//.test(url)
+  return url && /drive\.google\.com|docs\.google\.com\/uc/.test(url)
 }
 
-// Extract the Google Drive file ID from a share link
-function extractGDriveFileId(url) {
-  const match = url.match(/drive\.google\.com\/file\/d\/([^/]+)/)
-  return match ? match[1] : null
-}
+async function processRowImages(supa, {
+  row,
+  productId,
+  slug,
+  name,
+  urlAccountId,
+  isUpdate,
+  send,
+  rowIdx,
+  total,
+}) {
+  const sources = collectImageSourcesFromRow(row)
+  if (!sources.length) return { images: [], imageErrors: [] }
 
-// Download image from Google Drive and upload to every configured Supabase storage
-// account. Returns the public URL served by `urlAccountId`, or null on failure.
-async function downloadAndUploadImage(gdUrl, slug, imageIndex, urlAccountId = 'primary') {
-  const fileId = extractGDriveFileId(gdUrl)
-  if (!fileId) return null
+  const replace = imageToBool(row.replace_images)
+  const uploadTo = row.upload_to || 'both'
 
-  // Google Drive direct download URL
-  const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`
+  if (isUpdate && replace) {
+    await supa.from('product_images').delete().eq('product_id', productId)
+  }
 
-  // Add 30s timeout per image to avoid hanging
-  const controller = new AbortController()
-  const timeout = setTimeout(() => controller.abort(), 30000)
+  let startPosition = 0
+  if (isUpdate && !replace) {
+    const { data: last } = await supa
+      .from('product_images')
+      .select('position')
+      .eq('product_id', productId)
+      .order('position', { ascending: false })
+      .limit(1)
+    startPosition = (last?.[0]?.position ?? -1) + 1
+  }
 
-  try {
-    const res = await fetch(downloadUrl, { redirect: 'follow', signal: controller.signal })
-    clearTimeout(timeout)
-    if (!res.ok) return null
+  const images = []
+  const imageErrors = []
 
-    const contentType = res.headers.get('content-type') || 'image/jpeg'
-    // Determine extension from content type
-    let ext = 'jpg'
-    if (contentType.includes('png')) ext = 'png'
-    else if (contentType.includes('webp')) ext = 'webp'
-
-    const buffer = Buffer.from(await res.arrayBuffer())
-    const storagePath = `products/${slug}-${imageIndex}.${ext}`
-
-    const targets = configuredAccounts().map((a) => a.id)
-    const { uploaded, failed } = await uploadToAccounts(targets, {
-      path: storagePath,
-      buffer,
-      contentType,
+  for (let i = 0; i < sources.length; i += 1) {
+    const raw = sources[i]
+    send({
+      type: 'progress',
+      index: rowIdx + 1,
+      total,
+      name,
+      step: `image ${i + 1}/${sources.length}`,
     })
 
-    if (failed.length) {
-      console.error(
-        `Storage upload failed for ${storagePath}:`,
-        failed.map((f) => `${f.accountId}: ${f.error}`).join('; ')
-      )
+    let url = raw
+    if (isGoogleDriveUrl(raw) || raw.startsWith('http')) {
+      const uploaded = await importImageFromSource(raw, {
+        slug,
+        imageIndex: startPosition + i + 1,
+        urlAccountId,
+        uploadTo,
+      })
+      if (uploaded) {
+        url = uploaded
+      } else {
+        imageErrors.push(`image ${i + 1}: failed to download/upload`)
+        continue
+      }
+    } else if (!raw.startsWith('http')) {
+      url = publicUrlFor(getAccount(urlAccountId), `products/${raw}`)
     }
-    if (!uploaded.length) return null
 
-    const owner = uploaded.includes(urlAccountId) ? urlAccountId : uploaded[0]
-    return publicUrlFor(getAccount(owner), storagePath)
-  } catch (e) {
-    clearTimeout(timeout)
-    console.error(`Image download failed for ${slug}-${imageIndex}:`, e.message)
-    return null
+    images.push({
+      product_id: productId,
+      url,
+      alt: `${name} - Image ${i + 1}`,
+      position: startPosition + i,
+    })
   }
+
+  if (images.length > 0) {
+    await supa.from('product_images').insert(images)
+  }
+
+  return { images, imageErrors }
 }
 
 // Convert cm to inches (1 inch = 2.54 cm)
@@ -516,39 +540,18 @@ export async function POST(req) {
             productId = data.id
           }
 
-          // Process images — only for NEW products; skip on update to preserve existing images
-          const images = []
-          const imageErrors = []
-          if (!existing) {
-            for (let i = 1; i <= 10; i++) {
-              const raw = row[`image_${i}`]
-              if (raw) {
-                let url = raw
-                if (isGoogleDriveUrl(raw)) {
-                  send({ type: 'progress', index: rowIdx + 1, total: rows.length, name: row.name, step: `downloading image ${i}` })
-                  const uploaded = await downloadAndUploadImage(raw, slug, i, urlAccountId)
-                  if (uploaded) {
-                    url = uploaded
-                  } else {
-                    imageErrors.push(`image_${i}: failed to download/upload`)
-                    continue
-                  }
-                } else if (!raw.startsWith('http')) {
-                  url = publicUrlFor(getAccount(urlAccountId), `products/${raw}`)
-                }
-                images.push({
-                  product_id: productId,
-                  url,
-                  alt: `${row.name} - Image ${i}`,
-                  position: i - 1,
-                })
-              }
-            }
-
-            if (images.length > 0) {
-              await supa.from('product_images').insert(images)
-            }
-          }
+          // Process images — new products always; updates when image columns / image_links provided
+          const { images, imageErrors } = await processRowImages(supa, {
+            row,
+            productId,
+            slug,
+            name: row.name,
+            urlAccountId,
+            isUpdate: !!existing,
+            send,
+            rowIdx,
+            total: rows.length,
+          })
 
           // Variants
           const variants = []

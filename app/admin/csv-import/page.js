@@ -120,12 +120,55 @@ export default function CSVImport() {
 
       <h2 style={{ fontSize: '1.25rem', marginBottom: '16px' }}>Import from CSV file</h2>
 
+      <div style={{ background: '#e8f5e9', padding: '16px', borderRadius: '8px', marginBottom: '16px', border: '1px solid #c3e6cb', fontSize: '14px' }}>
+        <strong>📥 Download CSV template</strong>
+        <p style={{ margin: '8px 0 12px', color: '#2e5937' }}>
+          Use this template to bulk-update products. Put Google Drive links in <code>image_1</code>…<code>image_10</code>
+          or multiple links in <code>image_links</code> (comma or pipe separated). Set <code>replace_images</code> to TRUE to replace existing images.
+        </p>
+        <a
+          href="/PRODUCT_BULK_UPDATE_TEMPLATE.csv"
+          download="PRODUCT_BULK_UPDATE_TEMPLATE.csv"
+          style={{
+            display: 'inline-block',
+            padding: '8px 16px',
+            background: '#28a745',
+            color: '#fff',
+            borderRadius: '6px',
+            textDecoration: 'none',
+            fontWeight: 600,
+            fontSize: '14px',
+          }}
+        >
+          Download bulk update template (.csv)
+        </a>
+        <a
+          href="/PRODUCT_TEMPLATE_FOR_CLIENT.csv"
+          download="PRODUCT_TEMPLATE_FOR_CLIENT.csv"
+          style={{
+            display: 'inline-block',
+            marginLeft: '10px',
+            padding: '8px 16px',
+            background: '#17a2b8',
+            color: '#fff',
+            borderRadius: '6px',
+            textDecoration: 'none',
+            fontWeight: 600,
+            fontSize: '14px',
+          }}
+        >
+          Full new-product template
+        </a>
+      </div>
+
       <div style={{ background: '#f8f9fa', padding: '16px', borderRadius: '8px', marginBottom: '20px', fontSize: '14px' }}>
         <strong>How it works:</strong>
         <ul style={{ margin: '8px 0 0', paddingLeft: '20px' }}>
           <li>Upload your CSV file with product data</li>
           <li>Slug is auto-generated from product name if empty</li>
-          <li>Google Drive image links are downloaded and uploaded to storage automatically</li>
+          <li><strong>Google Drive links</strong> in image columns are downloaded and uploaded to both Supabase storage accounts</li>
+          <li>Up to <strong>10 images per row</strong> (<code>image_1</code>…<code>image_10</code>) or use <code>image_links</code> for multiple URLs</li>
+          <li>On update: images are <strong>appended</strong> unless <code>replace_images</code> is TRUE</li>
           <li>Existing products (matched by SKU or slug) are <strong>updated</strong>, new ones are <strong>created</strong></li>
           <li>Safe to re-run — no duplicates</li>
         </ul>
