@@ -42,10 +42,11 @@ function applyListFilters(query, { q, status }) {
 const PRODUCT_SELECT = `
   id, name, slug, sku, price, discount_price, stock, is_active,
   category_id, brand_id,
-  description, material, delivery_info, care_instructions,
+  description, short_description, material, delivery_info, care_instructions,
   tags, warranty_period, warranty_type,
-  best_seller, is_offered, offer_name,
+  best_seller, is_offered, is_featured, is_new_arrival, offer_name,
   shipping_weight, shipping_length, shipping_width, shipping_height, shipping_box_count,
+  meta_title, meta_description,
   ${PRODUCT_CATEGORY_EMBED_NAME},
   brands ( id, name ),
   product_images ( id, url, position )

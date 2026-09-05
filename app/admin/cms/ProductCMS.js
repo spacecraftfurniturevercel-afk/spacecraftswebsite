@@ -132,7 +132,7 @@ export default function ProductCMS() {
       brand_id: product.brand_id || '',
       is_active: product.is_active !== false,
       is_featured: product.is_featured || false,
-      is_best_seller: product.is_best_seller || false,
+      is_best_seller: product.is_best_seller || product.best_seller || false,
       is_new_arrival: product.is_new_arrival || false,
       sku: product.sku || '',
       offer_name: product.offer_name || '',
