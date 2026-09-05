@@ -73,6 +73,30 @@ export async function GET(request) {
       return NextResponse.json({ ids, total: ids.length })
     }
 
+    const idsParam = (searchParams.get('ids') || '').trim()
+    if (idsParam) {
+      const ids = idsParam
+        .split(',')
+        .map((s) => parseInt(s.trim(), 10))
+        .filter(Boolean)
+        .slice(0, 500)
+      if (!ids.length) {
+        return NextResponse.json({ products: [], total: 0 })
+      }
+      const { data, error } = await supa
+        .from('products')
+        .select(PRODUCT_SELECT)
+        .in('id', ids)
+        .order('name', { ascending: true })
+      if (error) {
+        return NextResponse.json({ error: error.message }, { status: 500 })
+      }
+      return NextResponse.json({
+        products: (data || []).map(mapProduct),
+        total: data?.length || 0,
+      })
+    }
+
     const page = Math.max(parseInt(searchParams.get('page') || '1', 10), 1)
     const pageSize = Math.min(Math.max(parseInt(searchParams.get('pageSize') || '50', 10), 10), 100)
     const from = (page - 1) * pageSize

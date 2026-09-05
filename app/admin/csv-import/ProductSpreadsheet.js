@@ -245,6 +245,8 @@ export default function ProductSpreadsheet() {
   const [editRevision, setEditRevision] = useState(0)
   const [selectionRevision, setSelectionRevision] = useState(0)
   const [selectingAll, setSelectingAll] = useState(false)
+  const [bulkApplying, setBulkApplying] = useState(false)
+  const [bulkApplyMsg, setBulkApplyMsg] = useState(null)
 
   const visibleColumns = useMemo(
     () => SPREADSHEET_COLUMNS.filter((c) => visibleGroups[c.group]),
@@ -395,28 +397,60 @@ export default function ProductSpreadsheet() {
     setSyncResult(null)
   }
 
-  const applyBulkField = (field, value) => {
+  const applyBulkField = async (field, value) => {
     const keys = Array.from(selectedKeys.current)
     if (!keys.length) return
 
-    for (const selKey of keys) {
-      let row = editCache.current.get(selKey)
-      if (!row) {
-        row = rows.find((r) => cacheKey(r) === selKey)
-      }
-      if (!row) continue
-      const next = { ...row, [field]: value }
-      editCache.current.set(cacheKey(next), next)
-    }
-
-    setRows((prev) => prev.map((r) => {
-      const key = cacheKey(r)
-      if (!selectedKeys.current.has(key)) return r
-      const cached = editCache.current.get(key)
-      return cached || r
-    }))
-    setEditRevision((v) => v + 1)
+    setBulkApplying(true)
+    setBulkApplyMsg(null)
     setSyncResult(null)
+
+    try {
+      const idsToFetch = []
+      let applied = 0
+
+      for (const selKey of keys) {
+        const cached = editCache.current.get(selKey)
+        if (cached) {
+          const next = { ...cached, [field]: value }
+          editCache.current.set(cacheKey(next), next)
+          applied += 1
+          continue
+        }
+        if (selKey.startsWith('id-')) {
+          idsToFetch.push(Number(selKey.replace('id-', '')))
+        }
+      }
+
+      const uniqueIds = [...new Set(idsToFetch)]
+      const CHUNK = 100
+      for (let i = 0; i < uniqueIds.length; i += CHUNK) {
+        const chunk = uniqueIds.slice(i, i + CHUNK)
+        const res = await fetch(`/api/admin/products/bulk?ids=${chunk.join(',')}`)
+        const data = await res.json()
+        if (!res.ok) throw new Error(data.error || 'Failed to load selected products')
+
+        for (const p of data.products || []) {
+          const row = productToRow(p)
+          const next = { ...row, [field]: value }
+          editCache.current.set(cacheKey(next), next)
+          applied += 1
+        }
+      }
+
+      setRows((prev) => prev.map((r) => {
+        const key = cacheKey(r)
+        if (!selectedKeys.current.has(key)) return r
+        return editCache.current.get(key) || r
+      }))
+
+      setEditRevision((v) => v + 1)
+      setBulkApplyMsg(`Applied "${field}" to ${applied} product(s). Click Save / Sync to write to database.`)
+    } catch (err) {
+      setBulkApplyMsg(`Bulk apply failed: ${err.message}`)
+    } finally {
+      setBulkApplying(false)
+    }
   }
 
   const addRow = () => {
@@ -546,10 +580,37 @@ export default function ProductSpreadsheet() {
           <option value="new">Show: New only ({newCount})</option>
         </select>
         <span style={{ fontSize: '13px', color: '#666' }}>
-          {loading ? 'Loading…' : `${displayTotal} row(s) · page ${displayPage}/${displayTotalPages}`}
-          {dirtyCount > 0 && <span style={{ color: '#b45309', fontWeight: 600, marginLeft: 8 }}>{dirtyCount} unsaved</span>}
+          {loading ? 'Loading…' : (
+            <>
+              {total} products · page {displayPage} of {displayTotalPages}
+              {selectedCount > 0 && (
+                <span style={{ color: '#0056b3', fontWeight: 600, marginLeft: 8 }}>
+                  {selectedCount} selected
+                </span>
+              )}
+              {dirtyCount > 0 && (
+                <span style={{ color: '#b45309', fontWeight: 600, marginLeft: 8 }}>
+                  {dirtyCount} unsaved
+                </span>
+              )}
+            </>
+          )}
         </span>
       </div>
+
+      {bulkApplyMsg && (
+        <div style={{
+          padding: '10px 12px',
+          background: bulkApplyMsg.includes('failed') ? '#f8d7da' : '#d1e7dd',
+          color: bulkApplyMsg.includes('failed') ? '#842029' : '#0f5132',
+          borderRadius: '6px',
+          marginBottom: '12px',
+          fontSize: '14px',
+        }}
+        >
+          {bulkApplyMsg}
+        </div>
+      )}
 
       <BulkEditToolbar
         selectedCount={selectedCount}
@@ -559,8 +620,9 @@ export default function ProductSpreadsheet() {
         onDeselectAll={deselectAll}
         onApply={applyBulkField}
         meta={meta}
-        disabled={loading || saving}
+        disabled={loading || saving || bulkApplying}
         selectingAll={selectingAll}
+        bulkApplying={bulkApplying}
       />
 
       {loadError && <div style={{ padding: '12px', background: '#f8d7da', color: '#842029', borderRadius: '6px', marginBottom: '12px' }}>{loadError}</div>}

@@ -13,19 +13,20 @@ export default function BulkEditToolbar({
   meta,
   disabled,
   selectingAll,
+  bulkApplying,
 }) {
   const [field, setField] = useState('is_active')
   const [value, setValue] = useState('true')
 
   const col = BULK_EDIT_FIELDS.find((c) => c.key === field) || BULK_EDIT_FIELDS[0]
 
-  const handleApply = () => {
+  const handleApply = async () => {
     let parsed = value
     if (col.type === 'bool') parsed = value === 'true'
     else if (col.type === 'number') parsed = value
     else if (col.type === 'category') parsed = value
     else if (col.type === 'brand') parsed = value
-    onApply(field, parsed)
+    await onApply(field, parsed)
   }
 
   return (
@@ -122,8 +123,8 @@ export default function BulkEditToolbar({
             )}
           </div>
 
-          <button type="button" onClick={handleApply} disabled={disabled} style={btn('#007bff')}>
-            Apply to {selectedCount} selected
+          <button type="button" onClick={handleApply} disabled={disabled || bulkApplying} style={btn('#007bff')}>
+            {bulkApplying ? 'Applying…' : `Apply to ${selectedCount} selected`}
           </button>
         </div>
       )}
