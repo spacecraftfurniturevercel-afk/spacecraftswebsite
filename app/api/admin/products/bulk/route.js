@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '../../../../../lib/supabaseClient'
 import { revalidateCatalog } from '../../../../../lib/catalogCache'
 import { PRODUCT_CATEGORY_EMBED_NAME } from '../../../../../lib/productCategoryQuery'
+import { buildDbPayload, snapshotFromProduct } from '../../../../../lib/admin/spreadsheetFields'
 
 function generateSlug(name) {
   if (!name) return ''
@@ -14,19 +15,15 @@ function generateSlug(name) {
 }
 
 function mapProduct(p) {
+  const images = (p.product_images || []).sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+  const base = snapshotFromProduct(p)
   return {
     id: p.id,
-    name: p.name || '',
-    slug: p.slug || '',
-    sku: p.sku || '',
-    price: p.price ?? '',
-    discount_price: p.discount_price ?? '',
-    stock: p.stock ?? 0,
-    is_active: p.is_active !== false,
-    category_id: p.category_id || '',
-    brand_id: p.brand_id || '',
+    ...base,
     category_name: p.categories?.name || '',
     brand_name: p.brands?.name || '',
+    image_count: images.length,
+    thumbnail_url: images[0]?.url || '',
   }
 }
 
@@ -34,10 +31,26 @@ function applyListFilters(query, { q, status }) {
   if (status === 'active') query = query.eq('is_active', true)
   if (status === 'inactive') query = query.eq('is_active', false)
   if (q) {
-    query = query.or(`name.ilike.%${q}%,slug.ilike.%${q}%,sku.ilike.%${q}%`)
+    const term = q.replace(/%/g, '')
+    query = query.or(
+      `name.ilike.%${term}%,slug.ilike.%${term}%,sku.ilike.%${term}%,description.ilike.%${term}%,material.ilike.%${term}%,offer_name.ilike.%${term}%,delivery_info.ilike.%${term}%`
+    )
   }
   return query
 }
+
+const PRODUCT_SELECT = `
+  id, name, slug, sku, price, discount_price, stock, is_active,
+  category_id, brand_id,
+  description, short_description, material, delivery_info, care_instructions,
+  tags, warranty_period, warranty_type,
+  best_seller, is_offered, is_featured, is_new_arrival, offer_name,
+  shipping_weight, shipping_length, shipping_width, shipping_height, shipping_box_count,
+  meta_title, meta_description,
+  ${PRODUCT_CATEGORY_EMBED_NAME},
+  brands ( id, name ),
+  product_images ( id, url, position )
+`
 
 /**
  * GET /api/admin/products/bulk?q=&status=all|active|inactive&page=1&pageSize=50
@@ -63,12 +76,7 @@ export async function GET(request) {
 
     let query = supa
       .from('products')
-      .select(`
-        id, name, slug, sku, price, discount_price, stock, is_active,
-        category_id, brand_id,
-        ${PRODUCT_CATEGORY_EMBED_NAME},
-        brands ( id, name )
-      `)
+      .select(PRODUCT_SELECT)
       .order('name', { ascending: true })
       .range(from, to)
 
@@ -96,8 +104,7 @@ export async function GET(request) {
 }
 
 /**
- * POST /api/admin/products/bulk
- * Body: { rows: [{ id?, _isNew?, name, slug, sku, price, discount_price, stock, is_active, category_id, brand_id }] }
+ * POST /api/admin/products/bulk — sync edited spreadsheet rows
  */
 export async function POST(req) {
   try {
@@ -114,26 +121,12 @@ export async function POST(req) {
     for (const row of rows) {
       const label = row.name?.trim() || row.slug?.trim() || '(unnamed)'
       try {
-        if (!row.name?.trim()) {
-          throw new Error('Product name is required')
-        }
+        if (!row.name?.trim()) throw new Error('Product name is required')
 
         const slug = (row.slug && row.slug.trim()) ? row.slug.trim() : generateSlug(row.name)
         if (!slug) throw new Error('Slug is required')
 
-        const payload = {
-          name: row.name.trim(),
-          slug,
-          price: parseFloat(row.price) || 0,
-          discount_price: row.discount_price !== '' && row.discount_price != null
-            ? parseFloat(row.discount_price)
-            : null,
-          stock: parseInt(row.stock, 10) || 0,
-          is_active: row.is_active !== false && row.is_active !== 'false',
-          sku: row.sku?.trim() || null,
-          category_id: row.category_id ? Number(row.category_id) : null,
-          brand_id: row.brand_id ? Number(row.brand_id) : null,
-        }
+        const payload = buildDbPayload({ ...row, slug })
 
         let productId = row.id
         let action = 'updated'
@@ -169,8 +162,6 @@ export async function POST(req) {
               .from('products')
               .insert({
                 ...payload,
-                warranty_period: 12,
-                warranty_type: 'Standard',
                 emi_enabled: true,
                 return_days: 30,
                 assembly_cost: 0,

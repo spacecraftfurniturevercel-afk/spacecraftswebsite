@@ -1,6 +1,16 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import {
+  COLUMN_GROUPS,
+  SPREADSHEET_COLUMNS,
+  TRACKED_FIELD_KEYS,
+  normalizeField,
+  snapshotFromProduct,
+  OFFER_PRESETS,
+} from '../../../lib/admin/spreadsheetFields'
+import ImageEditorModal from './spreadsheet/ImageEditorModal'
+import BulkEditToolbar from './spreadsheet/BulkEditToolbar'
 
 let rowKeyCounter = 0
 function nextKey() {
@@ -8,243 +18,205 @@ function nextKey() {
   return `row-${rowKeyCounter}`
 }
 
-const TRACKED_FIELDS = ['name', 'slug', 'sku', 'price', 'discount_price', 'stock', 'is_active', 'category_id', 'brand_id']
-const PAGE_SIZE_OPTIONS = [25, 50, 100]
-
 function slugify(str) {
-  return (str || '')
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-}
-
-function snapshotRow(row) {
-  return {
-    name: row.name || '',
-    slug: row.slug || '',
-    sku: row.sku || '',
-    price: row.price === '' || row.price == null ? '' : String(row.price),
-    discount_price: row.discount_price === '' || row.discount_price == null ? '' : String(row.discount_price),
-    stock: row.stock ?? 0,
-    is_active: row.is_active !== false,
-    category_id: row.category_id || '',
-    brand_id: row.brand_id || '',
-  }
+  return (str || '').toLowerCase().trim().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-')
 }
 
 function cacheKey(row) {
   return row.id ? `id-${row.id}` : row._key
 }
 
-function normalizeField(field, val) {
-  if (field === 'is_active') return !!val
-  if (field === 'category_id' || field === 'brand_id') {
-    return val === '' || val == null ? '' : String(val)
+function productToRow(p) {
+  const base = snapshotFromProduct(p)
+  return {
+    _key: nextKey(),
+    _isNew: false,
+    id: p.id,
+    ...base,
+    image_count: p.image_count ?? 0,
+    thumbnail_url: p.thumbnail_url || '',
+    _original: { ...base },
   }
-  if (field === 'stock') return String(parseInt(val, 10) || 0)
-  if (field === 'price' || field === 'discount_price') {
-    if (val === '' || val == null) return ''
-    const n = parseFloat(val)
-    return Number.isNaN(n) ? '' : String(n)
+}
+
+function emptyRow() {
+  const base = snapshotFromProduct({})
+  return {
+    _key: nextKey(),
+    _isNew: true,
+    id: null,
+    ...base,
+    image_count: 0,
+    thumbnail_url: '',
+    _original: { ...base },
   }
-  return String(val ?? '').trim()
 }
 
 function isFieldChanged(row, field) {
-  if (row._isNew) return Boolean(String(row[field] ?? '').trim()) || field === 'is_active'
+  if (field === 'image_count' || field === 'thumbnail_url') return false
+  if (row._isNew) {
+    const v = row[field]
+    if (typeof v === 'boolean') return v === true && field !== 'is_active'
+    return Boolean(String(v ?? '').trim())
+  }
   if (!row._original) return false
   return normalizeField(field, row[field]) !== normalizeField(field, row._original[field])
 }
 
 function isRowDirty(row) {
   if (row._isNew) return true
-  return TRACKED_FIELDS.some((f) => isFieldChanged(row, f))
-}
-
-function productToRow(p) {
-  const base = snapshotRow({
-    name: p.name || '',
-    slug: p.slug || '',
-    sku: p.sku || '',
-    price: p.price === '' || p.price == null ? '' : String(p.price),
-    discount_price: p.discount_price === '' || p.discount_price == null ? '' : String(p.discount_price),
-    stock: p.stock ?? 0,
-    is_active: p.is_active !== false,
-    category_id: p.category_id || '',
-    brand_id: p.brand_id || '',
-  })
-  return {
-    _key: nextKey(),
-    _isNew: false,
-    id: p.id,
-    ...base,
-    _original: { ...base },
-  }
-}
-
-function emptyRow() {
-  const base = snapshotRow({
-    name: '',
-    slug: '',
-    sku: '',
-    price: '',
-    discount_price: '',
-    stock: 0,
-    is_active: true,
-    category_id: '',
-    brand_id: '',
-  })
-  return {
-    _key: nextKey(),
-    _isNew: true,
-    id: null,
-    ...base,
-    _original: { ...base },
-  }
+  return TRACKED_FIELD_KEYS.some((f) => isFieldChanged(row, f))
 }
 
 function buildPageNumbers(current, total) {
   if (total <= 1) return [1]
   if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1)
-
   const pages = [1]
   if (current > 3) pages.push('…')
-
   const start = Math.max(2, current - 1)
   const end = Math.min(total - 1, current + 1)
   for (let i = start; i <= end; i += 1) pages.push(i)
-
   if (current < total - 2) pages.push('…')
   pages.push(total)
   return pages
 }
 
 function formatOriginal(field, val, meta) {
-  if (field === 'is_active') return val ? 'Active' : 'Inactive'
-  if (field === 'category_id') {
-    const c = meta.categories.find((x) => String(x.id) === String(val))
-    return c?.name || val || '—'
-  }
-  if (field === 'brand_id') {
-    const b = meta.brands.find((x) => String(x.id) === String(val))
-    return b?.name || val || '—'
-  }
+  const col = SPREADSHEET_COLUMNS.find((c) => c.key === field)
+  if (col?.type === 'bool') return val ? 'Yes' : 'No'
+  if (field === 'category_id') return meta.categories.find((x) => String(x.id) === String(val))?.name || val || '—'
+  if (field === 'brand_id') return meta.brands.find((x) => String(x.id) === String(val))?.name || val || '—'
   if (val === '' || val == null) return '—'
-  return String(val)
+  const s = String(val)
+  return s.length > 40 ? `${s.slice(0, 40)}…` : s
 }
 
 const inputStyle = {
-  width: '100%',
-  padding: '6px 8px',
-  border: '1px solid #ced4da',
-  borderRadius: '4px',
-  fontSize: '13px',
-  boxSizing: 'border-box',
+  width: '100%', padding: '6px 8px', border: '1px solid #ced4da',
+  borderRadius: '4px', fontSize: '13px', boxSizing: 'border-box',
 }
-
-const selectStyle = { ...inputStyle, minWidth: '120px' }
-
 const changedInputStyle = {
-  ...inputStyle,
-  background: '#fff3cd',
-  borderColor: '#e67e22',
+  ...inputStyle, background: '#fff3cd', borderColor: '#e67e22',
   boxShadow: 'inset 0 0 0 1px rgba(230, 126, 34, 0.25)',
 }
-
-const changedSelectStyle = { ...changedInputStyle, minWidth: '120px' }
-
-function ChangedCell({ row, field, meta, children }) {
-  const changed = isFieldChanged(row, field)
-  if (!changed) return children
-
-  const original = row._isNew
-    ? '(new)'
-    : formatOriginal(field, row._original?.[field], meta)
-
-  return (
-    <div>
-      {children}
-      <div style={{ fontSize: '11px', color: '#b45309', marginTop: '2px', lineHeight: 1.2 }}>
-        was: {original}
-      </div>
-    </div>
-  )
-}
+const selectStyle = { ...inputStyle, minWidth: '100px' }
+const changedSelectStyle = { ...changedInputStyle, minWidth: '100px' }
 
 function PaginationBar({ page, totalPages, total, pageSize, onPageChange, onPageSizeChange, disabled }) {
   const pages = buildPageNumbers(page, totalPages)
   const from = total === 0 ? 0 : (page - 1) * pageSize + 1
   const to = Math.min(page * pageSize, total)
-
   return (
     <div style={{
-      display: 'flex',
-      flexWrap: 'wrap',
-      gap: '12px',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      padding: '12px 8px',
-      borderTop: '1px solid #dee2e6',
-      background: '#f8f9fa',
-      fontSize: '14px',
+      display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center',
+      justifyContent: 'space-between', padding: '12px 8px',
+      borderTop: '1px solid #dee2e6', background: '#f8f9fa', fontSize: '14px',
     }}
     >
-      <span style={{ color: '#555' }}>
-        Showing {from}–{to} of {total}
-      </span>
-
+      <span style={{ color: '#555' }}>Showing {from}–{to} of {total}</span>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center' }}>
-        <button
-          type="button"
-          disabled={disabled || page <= 1}
-          onClick={() => onPageChange(page - 1)}
-          style={pageBtnStyle(false, disabled || page <= 1)}
-        >
-          ‹ Prev
-        </button>
-
-        {pages.map((p, i) => (
-          p === '…' ? (
-            <span key={`ellipsis-${i}`} style={{ padding: '0 4px', color: '#888' }}>…</span>
-          ) : (
-            <button
-              key={p}
-              type="button"
-              disabled={disabled}
-              onClick={() => onPageChange(p)}
-              style={pageBtnStyle(p === page, disabled)}
-            >
-              {p}
-            </button>
-          )
-        ))}
-
-        <button
-          type="button"
-          disabled={disabled || page >= totalPages}
-          onClick={() => onPageChange(page + 1)}
-          style={pageBtnStyle(false, disabled || page >= totalPages)}
-        >
-          Next ›
-        </button>
+        <button type="button" disabled={disabled || page <= 1} onClick={() => onPageChange(page - 1)} style={pageBtnStyle(false, disabled || page <= 1)}>‹ Prev</button>
+        {pages.map((p, i) => (p === '…' ? (
+          <span key={`e-${i}`} style={{ padding: '0 4px', color: '#888' }}>…</span>
+        ) : (
+          <button key={p} type="button" disabled={disabled} onClick={() => onPageChange(p)} style={pageBtnStyle(p === page, disabled)}>{p}</button>
+        )))}
+        <button type="button" disabled={disabled || page >= totalPages} onClick={() => onPageChange(page + 1)} style={pageBtnStyle(false, disabled || page >= totalPages)}>Next ›</button>
       </div>
-
       <label style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#555' }}>
         Per page
-        <select
-          value={pageSize}
-          disabled={disabled}
-          onChange={(e) => onPageSizeChange(Number(e.target.value))}
-          style={{ ...selectStyle, width: 'auto' }}
-        >
-          {PAGE_SIZE_OPTIONS.map((n) => (
-            <option key={n} value={n}>{n}</option>
-          ))}
+        <select value={pageSize} disabled={disabled} onChange={(e) => onPageSizeChange(Number(e.target.value))} style={{ ...selectStyle, width: 'auto' }}>
+          {[25, 50, 100].map((n) => <option key={n} value={n}>{n}</option>)}
         </select>
       </label>
     </div>
+  )
+}
+
+function ChangedWrap({ row, field, meta, children }) {
+  if (!isFieldChanged(row, field)) return children
+  const original = row._isNew ? '(new)' : formatOriginal(field, row._original?.[field], meta)
+  return (
+    <div>
+      {children}
+      <div style={{ fontSize: '11px', color: '#b45309', marginTop: '2px' }}>was: {original}</div>
+    </div>
+  )
+}
+
+function CellEditor({ col, row, meta, onChange }) {
+  const changed = isFieldChanged(row, col.key)
+  const istyle = changed ? changedInputStyle : inputStyle
+  const sstyle = changed ? changedSelectStyle : selectStyle
+
+  if (col.type === 'images') {
+    return (
+      <button type="button" onClick={() => onChange('__images__', row)} style={{ fontSize: '12px', padding: '4px 8px', cursor: 'pointer' }}>
+        {row.image_count || 0} 📷
+      </button>
+    )
+  }
+
+  if (col.type === 'bool') {
+    return (
+      <ChangedWrap row={row} field={col.key} meta={meta}>
+        <input type="checkbox" checked={!!row[col.key]} onChange={(e) => onChange(col.key, e.target.checked)} />
+      </ChangedWrap>
+    )
+  }
+
+  if (col.type === 'category') {
+    return (
+      <ChangedWrap row={row} field={col.key} meta={meta}>
+        <select value={row.category_id} onChange={(e) => onChange('category_id', e.target.value)} style={sstyle}>
+          <option value="">—</option>
+          {meta.categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+        </select>
+      </ChangedWrap>
+    )
+  }
+
+  if (col.type === 'brand') {
+    return (
+      <ChangedWrap row={row} field={col.key} meta={meta}>
+        <select value={row.brand_id} onChange={(e) => onChange('brand_id', e.target.value)} style={sstyle}>
+          <option value="">—</option>
+          {meta.brands.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+        </select>
+      </ChangedWrap>
+    )
+  }
+
+  if (col.type === 'textarea') {
+    return (
+      <ChangedWrap row={row} field={col.key} meta={meta}>
+        <textarea rows={2} value={row[col.key] || ''} onChange={(e) => onChange(col.key, e.target.value)} style={{ ...istyle, minHeight: '48px', resize: 'vertical' }} />
+      </ChangedWrap>
+    )
+  }
+
+  if (col.type === 'offer') {
+    return (
+      <ChangedWrap row={row} field={col.key} meta={meta}>
+        <input list={`offer-${row._key}`} value={row.offer_name || ''} onChange={(e) => onChange('offer_name', e.target.value)} style={istyle} placeholder="Offer name" />
+        <datalist id={`offer-${row._key}`}>
+          {OFFER_PRESETS.map((n) => <option key={n} value={n} />)}
+        </datalist>
+      </ChangedWrap>
+    )
+  }
+
+  return (
+    <ChangedWrap row={row} field={col.key} meta={meta}>
+      <input
+        type={col.type === 'number' ? 'number' : 'text'}
+        value={row[col.key] ?? ''}
+        onChange={(e) => onChange(col.key, e.target.value)}
+        style={istyle}
+        min={col.type === 'number' ? 0 : undefined}
+        step={col.key.includes('price') || col.key === 'shipping_weight' ? '0.01' : undefined}
+      />
+    </ChangedWrap>
   )
 }
 
@@ -253,7 +225,7 @@ export default function ProductSpreadsheet() {
   const [meta, setMeta] = useState({ categories: [], brands: [] })
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
-  const [viewFilter, setViewFilter] = useState('all') // all | changed | new
+  const [viewFilter, setViewFilter] = useState('all')
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(50)
   const [total, setTotal] = useState(0)
@@ -263,14 +235,30 @@ export default function ProductSpreadsheet() {
   const [saving, setSaving] = useState(false)
   const [loadError, setLoadError] = useState(null)
   const [syncResult, setSyncResult] = useState(null)
+  const [imageRow, setImageRow] = useState(null)
+  const [visibleGroups, setVisibleGroups] = useState(() =>
+    Object.fromEntries(Object.entries(COLUMN_GROUPS).map(([k, v]) => [k, v.default]))
+  )
   const debounceRef = useRef(null)
   const editCache = useRef(new Map())
+  const selectedKeys = useRef(new Set())
   const [editRevision, setEditRevision] = useState(0)
+  const [selectionRevision, setSelectionRevision] = useState(0)
+
+  const visibleColumns = useMemo(
+    () => SPREADSHEET_COLUMNS.filter((c) => visibleGroups[c.group]),
+    [visibleGroups]
+  )
 
   const allDirtyRows = useMemo(
     () => Array.from(editCache.current.values()).filter(isRowDirty),
     [rows, editRevision, syncResult]
   )
+
+  const selectedCount = useMemo(() => {
+    void selectionRevision
+    return selectedKeys.current.size
+  }, [selectionRevision, rows])
 
   const dirtyCount = allDirtyRows.length
   const changedCount = allDirtyRows.filter((r) => !r._isNew).length
@@ -294,10 +282,7 @@ export default function ProductSpreadsheet() {
     setLoading(true)
     setLoadError(null)
     try {
-      const params = new URLSearchParams({
-        page: String(pageNum),
-        pageSize: String(size),
-      })
+      const params = new URLSearchParams({ page: String(pageNum), pageSize: String(size) })
       if (query.trim()) params.set('q', query.trim())
       if (statusVal !== 'all') params.set('status', statusVal)
 
@@ -321,22 +306,15 @@ export default function ProductSpreadsheet() {
   }, [search, statusFilter, page, pageSize, mergeFromCache])
 
   useEffect(() => {
-    fetch('/api/admin/meta')
-      .then((r) => r.json())
-      .then((d) => setMeta({ categories: d.categories || [], brands: d.brands || [] }))
-      .catch(() => {})
+    fetch('/api/admin/meta').then((r) => r.json()).then((d) => setMeta({ categories: d.categories || [], brands: d.brands || [] })).catch(() => {})
   }, [])
 
-  // Single fetch effect — avoids race that reset page back to 1
   useEffect(() => {
     if (viewFilter !== 'all') return undefined
-
     clearTimeout(debounceRef.current)
-    const delay = search.trim() ? 350 : 0
     debounceRef.current = setTimeout(() => {
       loadProducts({ q: search, status: statusFilter, pg: page, ps: pageSize })
-    }, delay)
-
+    }, search.trim() ? 350 : 0)
     return () => clearTimeout(debounceRef.current)
   }, [search, statusFilter, page, pageSize, viewFilter, loadProducts])
 
@@ -355,24 +333,68 @@ export default function ProductSpreadsheet() {
   const displayPage = viewFilter === 'all' ? page : changedPage
   const displayTotalPages = viewFilter === 'all' ? totalPages : changedTotalPages
 
-  const updateRow = (key, field, value) => {
+  const isSelected = (row) => selectedKeys.current.has(cacheKey(row))
+
+  const toggleSelect = (row) => {
+    const key = cacheKey(row)
+    if (selectedKeys.current.has(key)) selectedKeys.current.delete(key)
+    else selectedKeys.current.add(key)
+    setSelectionRevision((v) => v + 1)
+  }
+
+  const selectPage = () => {
+    displayRows.forEach((r) => selectedKeys.current.add(cacheKey(r)))
+    setSelectionRevision((v) => v + 1)
+  }
+
+  const deselectAll = () => {
+    selectedKeys.current.clear()
+    setSelectionRevision((v) => v + 1)
+  }
+
+  const updateRow = (rowKey, field, value) => {
+    if (field === '__images__') {
+      setImageRow(value)
+      return
+    }
+
     let target = null
     for (const row of editCache.current.values()) {
-      if (row._key === key) {
-        target = row
-        break
-      }
+      if (row._key === rowKey) { target = row; break }
     }
-    if (!target) target = rows.find((r) => r._key === key)
+    if (!target) target = rows.find((r) => r._key === rowKey)
     if (!target) return
 
     const next = { ...target, [field]: value }
-    if (field === 'name' && (target._isNew || !target.slug)) {
-      next.slug = slugify(value)
-    }
+    if (field === 'name' && (target._isNew || !target.slug)) next.slug = slugify(value)
+    if (field === 'tags' && typeof value === 'string') next.tags = value
 
     editCache.current.set(cacheKey(next), next)
-    setRows((prev) => prev.map((r) => (r._key === key ? next : r)))
+    setRows((prev) => prev.map((r) => (r._key === rowKey ? next : r)))
+    setEditRevision((v) => v + 1)
+    setSyncResult(null)
+  }
+
+  const applyBulkField = (field, value) => {
+    const keys = Array.from(selectedKeys.current)
+    if (!keys.length) return
+
+    for (const selKey of keys) {
+      let row = editCache.current.get(selKey)
+      if (!row) {
+        row = rows.find((r) => cacheKey(r) === selKey)
+      }
+      if (!row) continue
+      const next = { ...row, [field]: value }
+      editCache.current.set(cacheKey(next), next)
+    }
+
+    setRows((prev) => prev.map((r) => {
+      const key = cacheKey(r)
+      if (!selectedKeys.current.has(key)) return r
+      const cached = editCache.current.get(key)
+      return cached || r
+    }))
     setEditRevision((v) => v + 1)
     setSyncResult(null)
   }
@@ -387,21 +409,22 @@ export default function ProductSpreadsheet() {
   }
 
   const removeRow = (rowKey) => {
-    let target = null
     for (const row of editCache.current.values()) {
       if (row._key === rowKey) {
-        target = row
+        selectedKeys.current.delete(cacheKey(row))
+        editCache.current.delete(cacheKey(row))
         break
       }
     }
-    if (target) editCache.current.delete(cacheKey(target))
     setRows((prev) => prev.filter((r) => r._key !== rowKey))
     setEditRevision((v) => v + 1)
+    setSelectionRevision((v) => v + 1)
   }
 
   const handleReload = () => {
     if (dirtyCount > 0 && !confirm(`You have ${dirtyCount} unsaved change(s). Reload anyway?`)) return
     editCache.current.clear()
+    selectedKeys.current.clear()
     setChangedPage(1)
     setPage(1)
     loadProducts({ q: search, status: statusFilter, pg: 1, ps: pageSize })
@@ -409,11 +432,7 @@ export default function ProductSpreadsheet() {
 
   const handleSave = async () => {
     const dirtyRows = allDirtyRows
-    if (dirtyRows.length === 0) {
-      alert('No changes to save')
-      return
-    }
-
+    if (!dirtyRows.length) { alert('No changes to save'); return }
     if (!confirm(`Save ${dirtyRows.length} changed product(s) to the database?`)) return
 
     setSaving(true)
@@ -422,15 +441,7 @@ export default function ProductSpreadsheet() {
       const payload = dirtyRows.map((r) => ({
         id: r.id,
         _isNew: r._isNew,
-        name: r.name,
-        slug: r.slug,
-        sku: r.sku,
-        price: r.price,
-        discount_price: r.discount_price,
-        stock: r.stock,
-        is_active: r.is_active,
-        category_id: r.category_id || null,
-        brand_id: r.brand_id || null,
+        ...TRACKED_FIELD_KEYS.reduce((acc, k) => ({ ...acc, [k]: r[k] }), {}),
       }))
 
       const res = await fetch('/api/admin/products/bulk', {
@@ -442,6 +453,7 @@ export default function ProductSpreadsheet() {
       if (!res.ok) throw new Error(data.error || 'Sync failed')
 
       editCache.current.clear()
+      selectedKeys.current.clear()
       setSyncResult(data)
       setViewFilter('all')
       setChangedPage(1)
@@ -454,378 +466,171 @@ export default function ProductSpreadsheet() {
     }
   }
 
-  const exportCsv = () => {
-    const exportRows = dirtyCount > 0 ? allDirtyRows : rows
-    const headers = ['name', 'slug', 'sku', 'price', 'discount_price', 'stock', 'is_active', 'category_id', 'brand_id']
-    const lines = [headers.join(',')]
-    for (const r of exportRows) {
-      const vals = headers.map((h) => {
-        const v = h === 'is_active' ? (r.is_active ? 'TRUE' : 'FALSE') : (r[h] ?? '')
-        const s = String(v)
-        return s.includes(',') ? `"${s.replace(/"/g, '""')}"` : s
-      })
-      lines.push(vals.join(','))
-    }
-    const blob = new Blob([lines.join('\n')], { type: 'text/csv' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `products-export-${new Date().toISOString().slice(0, 10)}.csv`
-    a.click()
-    URL.revokeObjectURL(url)
+  const toggleGroup = (group) => {
+    setVisibleGroups((g) => ({ ...g, [group]: !g[group] }))
   }
 
-  const handlePageChange = (nextPage) => {
-    if (viewFilter === 'all') {
-      setPage(nextPage)
+  const allPageSelected = displayRows.length > 0 && displayRows.every((r) => isSelected(r))
+
+  const toggleSelectAllPage = () => {
+    if (allPageSelected) {
+      displayRows.forEach((r) => selectedKeys.current.delete(cacheKey(r)))
     } else {
-      setChangedPage(nextPage)
+      displayRows.forEach((r) => selectedKeys.current.add(cacheKey(r)))
     }
-  }
-
-  const handlePageSizeChange = (nextSize) => {
-    setPageSize(nextSize)
-    setPage(1)
-    setChangedPage(1)
-  }
-
-  const handleViewFilterChange = (value) => {
-    setViewFilter(value)
-    setChangedPage(1)
-    if (value === 'all') setPage(1)
+    setSelectionRevision((v) => v + 1)
   }
 
   return (
     <div style={{ marginBottom: '32px' }}>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center', marginBottom: '16px' }}>
         <h2 style={{ margin: 0, flex: '1 1 200px' }}>Product spreadsheet</h2>
-        <button type="button" onClick={addRow} disabled={loading || saving} style={btnStyle('#007bff')}>
-          + Add product
-        </button>
-        <button
-          type="button"
-          onClick={handleSave}
-          disabled={loading || saving || dirtyCount === 0}
-          style={btnStyle(dirtyCount === 0 ? '#ccc' : '#28a745')}
-        >
+        <button type="button" onClick={addRow} disabled={loading || saving} style={btnStyle('#007bff')}>+ Add product</button>
+        <button type="button" onClick={handleSave} disabled={loading || saving || dirtyCount === 0} style={btnStyle(dirtyCount === 0 ? '#ccc' : '#28a745')}>
           {saving ? 'Saving…' : `Save / Sync${dirtyCount > 0 ? ` (${dirtyCount})` : ''}`}
         </button>
-        <button type="button" onClick={handleReload} disabled={loading || saving} style={btnStyle('#6c757d')}>
-          Reload
-        </button>
-        <button type="button" onClick={exportCsv} disabled={rows.length === 0 && dirtyCount === 0} style={btnStyle('#17a2b8')}>
-          Export CSV
-        </button>
+        <button type="button" onClick={handleReload} disabled={loading || saving} style={btnStyle('#6c757d')}>Reload</button>
       </div>
 
       <p style={{ fontSize: '14px', color: '#555', margin: '0 0 12px' }}>
-        Changed cells turn <span style={{ background: '#fff3cd', padding: '1px 6px', borderRadius: '3px', border: '1px solid #e67e22' }}>orange</span> and show the previous value.
-        Use <strong>Show: Changed only</strong> to review edits before saving. Edits are kept when you switch pages.
+        Excel-style editor: select rows, bulk-edit fields, orange cells = unsaved changes.
+        Images use dual Supabase storage (same as CMS).
       </p>
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '16px', alignItems: 'center' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
+        {Object.entries(COLUMN_GROUPS).map(([key, g]) => (
+          <label key={key} style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}>
+            <input type="checkbox" checked={visibleGroups[key]} onChange={() => toggleGroup(key)} />
+            {g.label} columns
+          </label>
+        ))}
+      </div>
+
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '12px', alignItems: 'center' }}>
         <input
           type="search"
-          placeholder="Search name, slug, or SKU…"
+          placeholder="Search name, slug, SKU, description, material, offer…"
           value={search}
-          onChange={(e) => {
-            setSearch(e.target.value)
-            setPage(1)
-          }}
+          onChange={(e) => { setSearch(e.target.value); setPage(1) }}
           disabled={viewFilter !== 'all'}
-          style={{ ...inputStyle, flex: '1 1 220px', maxWidth: '360px', opacity: viewFilter !== 'all' ? 0.6 : 1 }}
+          style={{ ...inputStyle, flex: '1 1 260px', maxWidth: '400px' }}
         />
-        <select
-          value={statusFilter}
-          onChange={(e) => {
-            setStatusFilter(e.target.value)
-            setPage(1)
-          }}
-          disabled={viewFilter !== 'all'}
-          style={{ ...selectStyle, width: 'auto', opacity: viewFilter !== 'all' ? 0.6 : 1 }}
-        >
+        <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1) }} disabled={viewFilter !== 'all'} style={{ ...selectStyle, width: 'auto' }}>
           <option value="all">All products</option>
           <option value="active">Active only</option>
           <option value="inactive">Inactive only</option>
         </select>
-        <select
-          value={viewFilter}
-          onChange={(e) => handleViewFilterChange(e.target.value)}
-          style={{ ...selectStyle, width: 'auto', fontWeight: 600, borderColor: viewFilter !== 'all' ? '#e67e22' : '#ced4da' }}
-        >
+        <select value={viewFilter} onChange={(e) => { setViewFilter(e.target.value); setChangedPage(1) }} style={{ ...selectStyle, width: 'auto', fontWeight: 600 }}>
           <option value="all">Show: All rows</option>
           <option value="changed">Show: Changed only ({changedCount})</option>
           <option value="new">Show: New only ({newCount})</option>
         </select>
         <span style={{ fontSize: '13px', color: '#666' }}>
-          {loading ? 'Loading…' : (
-            <>
-              {dirtyCount > 0 && (
-                <span style={{ color: '#b45309', fontWeight: 600, marginRight: '8px' }}>
-                  {dirtyCount} unsaved
-                </span>
-              )}
-              {displayTotal} row(s) · page {displayPage} of {displayTotalPages}
-            </>
-          )}
+          {loading ? 'Loading…' : `${displayTotal} row(s) · page ${displayPage}/${displayTotalPages}`}
+          {dirtyCount > 0 && <span style={{ color: '#b45309', fontWeight: 600, marginLeft: 8 }}>{dirtyCount} unsaved</span>}
         </span>
       </div>
 
-      {loadError && (
-        <div style={{ padding: '12px', background: '#f8d7da', color: '#842029', borderRadius: '6px', marginBottom: '12px' }}>
-          {loadError}
-        </div>
-      )}
+      <BulkEditToolbar
+        selectedCount={selectedCount}
+        onSelectPage={selectPage}
+        onDeselectAll={deselectAll}
+        onApply={applyBulkField}
+        meta={meta}
+        disabled={loading || saving}
+      />
+
+      {loadError && <div style={{ padding: '12px', background: '#f8d7da', color: '#842029', borderRadius: '6px', marginBottom: '12px' }}>{loadError}</div>}
 
       {syncResult && (
-        <div style={{
-          padding: '12px',
-          background: syncResult.error ? '#f8d7da' : '#d1e7dd',
-          color: syncResult.error ? '#842029' : '#0f5132',
-          borderRadius: '6px',
-          marginBottom: '12px',
-          fontSize: '14px',
-        }}
-        >
-          {syncResult.error ? (
-            <>Error: {syncResult.error}</>
-          ) : (
-            <>
-              <strong>{syncResult.message}</strong>
-              {syncResult.results?.errors?.length > 0 && (
-                <ul style={{ margin: '8px 0 0', paddingLeft: '20px' }}>
-                  {syncResult.results.errors.map((e, i) => (
-                    <li key={i}>{e.name}: {e.error}</li>
-                  ))}
-                </ul>
-              )}
-            </>
-          )}
+        <div style={{ padding: '12px', background: syncResult.error ? '#f8d7da' : '#d1e7dd', color: syncResult.error ? '#842029' : '#0f5132', borderRadius: '6px', marginBottom: '12px', fontSize: '14px' }}>
+          {syncResult.error ? `Error: ${syncResult.error}` : <strong>{syncResult.message}</strong>}
         </div>
       )}
 
       {viewFilter === 'all' && total > 0 && (
-        <PaginationBar
-          page={displayPage}
-          totalPages={displayTotalPages}
-          total={displayTotal}
-          pageSize={pageSize}
-          onPageChange={handlePageChange}
-          onPageSizeChange={handlePageSizeChange}
+        <PaginationBar page={displayPage} totalPages={displayTotalPages} total={displayTotal} pageSize={pageSize}
+          onPageChange={(p) => (viewFilter === 'all' ? setPage(p) : setChangedPage(p))}
+          onPageSizeChange={(s) => { setPageSize(s); setPage(1); setChangedPage(1) }}
           disabled={loading || saving}
         />
       )}
 
       <div style={{ overflowX: 'auto', border: '1px solid #dee2e6', borderRadius: '8px', background: '#fff' }}>
-        <table style={{ width: '100%', minWidth: '1100px', borderCollapse: 'collapse', fontSize: '13px' }}>
+        <table style={{ borderCollapse: 'collapse', fontSize: '13px', minWidth: '100%' }}>
           <thead>
-            <tr style={{ background: '#f8f9fa', borderBottom: '2px solid #dee2e6', textAlign: 'left' }}>
-              <th style={thStyle}>Name</th>
-              <th style={thStyle}>Slug</th>
-              <th style={thStyle}>SKU</th>
-              <th style={{ ...thStyle, width: '90px' }}>Price (₹)</th>
-              <th style={{ ...thStyle, width: '90px' }}>Sale (₹)</th>
-              <th style={{ ...thStyle, width: '70px' }}>Stock</th>
-              <th style={{ ...thStyle, width: '70px' }}>Active</th>
-              <th style={thStyle}>Category</th>
-              <th style={thStyle}>Brand</th>
-              <th style={{ ...thStyle, width: '48px' }} />
+            <tr style={{ background: '#f8f9fa', borderBottom: '2px solid #dee2e6' }}>
+              <th style={{ ...thStyle, width: 36, position: 'sticky', left: 0, background: '#f8f9fa', zIndex: 2 }}>
+                <input type="checkbox" checked={allPageSelected} onChange={toggleSelectAllPage} title="Select all on this page" />
+              </th>
+              {visibleColumns.map((col) => (
+                <th key={col.key} style={{ ...thStyle, minWidth: col.width }}>{col.label}</th>
+              ))}
+              <th style={{ ...thStyle, width: 40 }} />
             </tr>
           </thead>
           <tbody>
             {displayRows.length === 0 && !loading && (
-              <tr>
-                <td colSpan={10} style={{ padding: '24px', textAlign: 'center', color: '#666' }}>
-                  {viewFilter === 'changed' && dirtyCount === 0
-                    ? 'No unsaved changes. Edit a product to see it here.'
-                    : viewFilter === 'new' && newCount === 0
-                      ? 'No new products. Click "+ Add product".'
-                      : 'No products found. Try a different search or click "+ Add product".'}
+              <tr><td colSpan={visibleColumns.length + 2} style={{ padding: '24px', textAlign: 'center', color: '#666' }}>No products found.</td></tr>
+            )}
+            {displayRows.map((row) => (
+              <tr key={row._key} style={{
+                borderBottom: '1px solid #eee',
+                background: isSelected(row) ? '#e8f4fd' : row._isNew ? '#f0f7ff' : isRowDirty(row) ? '#fffbeb' : 'transparent',
+              }}
+              >
+                <td style={{ ...tdStyle, position: 'sticky', left: 0, background: isSelected(row) ? '#e8f4fd' : '#fff', zIndex: 1 }}>
+                  <input type="checkbox" checked={isSelected(row)} onChange={() => toggleSelect(row)} />
+                </td>
+                {visibleColumns.map((col) => (
+                  <td key={col.key} style={tdStyle}>
+                    <CellEditor col={col} row={row} meta={meta} onChange={(f, v) => updateRow(row._key, f, v)} />
+                  </td>
+                ))}
+                <td style={tdStyle}>
+                  {row._isNew && (
+                    <button type="button" onClick={() => removeRow(row._key)} style={{ background: 'none', border: 'none', color: '#dc3545', cursor: 'pointer', fontSize: '16px' }}>×</button>
+                  )}
                 </td>
               </tr>
-            )}
-            {displayRows.map((row) => {
-              const rowDirty = isRowDirty(row)
-              return (
-                <tr
-                  key={row._key}
-                  style={{
-                    borderBottom: '1px solid #eee',
-                    background: row._isNew ? '#f0f7ff' : rowDirty ? '#fffbeb' : 'transparent',
-                  }}
-                >
-                  <td style={tdStyle}>
-                    <ChangedCell row={row} field="name" meta={meta}>
-                      <input
-                        type="text"
-                        value={row.name}
-                        onChange={(e) => updateRow(row._key, 'name', e.target.value)}
-                        style={isFieldChanged(row, 'name') ? changedInputStyle : inputStyle}
-                        placeholder="Product name"
-                      />
-                    </ChangedCell>
-                  </td>
-                  <td style={tdStyle}>
-                    <ChangedCell row={row} field="slug" meta={meta}>
-                      <input
-                        type="text"
-                        value={row.slug}
-                        onChange={(e) => updateRow(row._key, 'slug', e.target.value)}
-                        style={isFieldChanged(row, 'slug') ? changedInputStyle : { ...inputStyle, fontSize: '12px' }}
-                        placeholder="auto-from-name"
-                      />
-                    </ChangedCell>
-                  </td>
-                  <td style={tdStyle}>
-                    <ChangedCell row={row} field="sku" meta={meta}>
-                      <input
-                        type="text"
-                        value={row.sku}
-                        onChange={(e) => updateRow(row._key, 'sku', e.target.value)}
-                        style={isFieldChanged(row, 'sku') ? changedInputStyle : inputStyle}
-                      />
-                    </ChangedCell>
-                  </td>
-                  <td style={tdStyle}>
-                    <ChangedCell row={row} field="price" meta={meta}>
-                      <input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        value={row.price}
-                        onChange={(e) => updateRow(row._key, 'price', e.target.value)}
-                        style={isFieldChanged(row, 'price') ? changedInputStyle : inputStyle}
-                      />
-                    </ChangedCell>
-                  </td>
-                  <td style={tdStyle}>
-                    <ChangedCell row={row} field="discount_price" meta={meta}>
-                      <input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        value={row.discount_price}
-                        onChange={(e) => updateRow(row._key, 'discount_price', e.target.value)}
-                        style={isFieldChanged(row, 'discount_price') ? changedInputStyle : inputStyle}
-                        placeholder="—"
-                      />
-                    </ChangedCell>
-                  </td>
-                  <td style={tdStyle}>
-                    <ChangedCell row={row} field="stock" meta={meta}>
-                      <input
-                        type="number"
-                        min="0"
-                        value={row.stock}
-                        onChange={(e) => updateRow(row._key, 'stock', e.target.value)}
-                        style={isFieldChanged(row, 'stock') ? changedInputStyle : inputStyle}
-                      />
-                    </ChangedCell>
-                  </td>
-                  <td style={tdStyle}>
-                    <ChangedCell row={row} field="is_active" meta={meta}>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <input
-                          type="checkbox"
-                          checked={row.is_active}
-                          onChange={(e) => updateRow(row._key, 'is_active', e.target.checked)}
-                          style={isFieldChanged(row, 'is_active') ? { outline: '2px solid #e67e22' } : undefined}
-                        />
-                        <span style={{ fontSize: '12px', color: isFieldChanged(row, 'is_active') ? '#b45309' : '#666' }}>
-                          {row.is_active ? 'Yes' : 'No'}
-                        </span>
-                      </label>
-                    </ChangedCell>
-                  </td>
-                  <td style={tdStyle}>
-                    <ChangedCell row={row} field="category_id" meta={meta}>
-                      <select
-                        value={row.category_id}
-                        onChange={(e) => updateRow(row._key, 'category_id', e.target.value)}
-                        style={isFieldChanged(row, 'category_id') ? changedSelectStyle : selectStyle}
-                      >
-                        <option value="">—</option>
-                        {meta.categories.map((c) => (
-                          <option key={c.id} value={c.id}>{c.name}</option>
-                        ))}
-                      </select>
-                    </ChangedCell>
-                  </td>
-                  <td style={tdStyle}>
-                    <ChangedCell row={row} field="brand_id" meta={meta}>
-                      <select
-                        value={row.brand_id}
-                        onChange={(e) => updateRow(row._key, 'brand_id', e.target.value)}
-                        style={isFieldChanged(row, 'brand_id') ? changedSelectStyle : selectStyle}
-                      >
-                        <option value="">—</option>
-                        {meta.brands.map((b) => (
-                          <option key={b.id} value={b.id}>{b.name}</option>
-                        ))}
-                      </select>
-                    </ChangedCell>
-                  </td>
-                  <td style={tdStyle}>
-                    {row._isNew && (
-                      <button
-                        type="button"
-                        onClick={() => removeRow(row._key)}
-                        title="Remove new row"
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#dc3545', fontSize: '16px' }}
-                      >
-                        ×
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              )
-            })}
+            ))}
           </tbody>
         </table>
 
         {(viewFilter !== 'all' || total > 0) && (
-          <PaginationBar
-            page={displayPage}
-            totalPages={displayTotalPages}
-            total={displayTotal}
-            pageSize={pageSize}
-            onPageChange={handlePageChange}
-            onPageSizeChange={handlePageSizeChange}
+          <PaginationBar page={displayPage} totalPages={displayTotalPages} total={displayTotal} pageSize={pageSize}
+            onPageChange={(p) => (viewFilter === 'all' ? setPage(p) : setChangedPage(p))}
+            onPageSizeChange={(s) => { setPageSize(s); setPage(1); setChangedPage(1) }}
             disabled={loading || saving}
           />
         )}
       </div>
+
+      {imageRow && (
+        <ImageEditorModal
+          row={imageRow}
+          onClose={() => setImageRow(null)}
+          onUpdated={() => {
+            setEditRevision((v) => v + 1)
+            if (viewFilter === 'all') loadProducts({ q: search, status: statusFilter, pg: page, ps: pageSize })
+          }}
+        />
+      )}
     </div>
   )
 }
 
 function btnStyle(bg) {
-  return {
-    padding: '8px 16px',
-    background: bg,
-    color: '#fff',
-    border: 'none',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    fontSize: '14px',
-    fontWeight: 600,
-  }
+  return { padding: '8px 16px', background: bg, color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 }
 }
 
 function pageBtnStyle(active, disabled) {
   return {
-    minWidth: '36px',
-    padding: '6px 10px',
-    background: active ? '#007bff' : '#fff',
-    color: active ? '#fff' : '#333',
-    border: `1px solid ${active ? '#007bff' : '#ced4da'}`,
-    borderRadius: '4px',
-    cursor: disabled ? 'not-allowed' : 'pointer',
-    opacity: disabled ? 0.5 : 1,
-    fontSize: '13px',
-    fontWeight: active ? 600 : 400,
+    minWidth: '36px', padding: '6px 10px', background: active ? '#007bff' : '#fff',
+    color: active ? '#fff' : '#333', border: `1px solid ${active ? '#007bff' : '#ced4da'}`,
+    borderRadius: '4px', cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.5 : 1, fontSize: '13px',
   }
 }
 
-const thStyle = { padding: '10px 8px', whiteSpace: 'nowrap' }
+const thStyle = { padding: '10px 8px', whiteSpace: 'nowrap', textAlign: 'left' }
 const tdStyle = { padding: '6px 8px', verticalAlign: 'top' }
