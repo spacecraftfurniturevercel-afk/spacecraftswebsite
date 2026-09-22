@@ -339,13 +339,19 @@ function resolveMainCategory(csvCategory) {
   return isValidName(first) ? first : null
 }
 
+function normalizeTagSlug(tag) {
+  if (!tag) return ''
+  return String(tag)
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9\-&]/g, '')
+}
+
 // Extract sub-category tags from the CSV category string
 function extractSubCategoryTags(csvCategory) {
   if (!csvCategory) return []
-  return csvCategory.split(',').map(p => {
-    const tag = p.trim().toLowerCase().replace(/\s+/g, '-')
-    return tag
-  }).filter(Boolean)
+  return csvCategory.split(',').map((p) => normalizeTagSlug(p)).filter(Boolean)
 }
 
 async function getOrCreateCategory(supa, name) {
@@ -397,6 +403,7 @@ function buildProductData(row, { categoryId, brandId, tags, slug, isUpdate }) {
   if (row.stock) product.stock = toNum(row.stock) || 0
   if (row.material) product.material = cleanField(row.material)
   if (row.warranty_months) product.warranty_period = toNum(row.warranty_months)
+  if (row.warranty_period_months) product.warranty_period = toNum(row.warranty_period_months)
   if (row.warranty_type) product.warranty_type = cleanField(row.warranty_type)
   if (row.delivery_info) product.delivery_info = cleanField(row.delivery_info)
   if (tags && tags.length > 0) product.tags = tags
@@ -408,6 +415,18 @@ function buildProductData(row, { categoryId, brandId, tags, slug, isUpdate }) {
   if (row.assembly_cost) product.assembly_cost = toNum(row.assembly_cost)
   if (row.assembly_time_hours) product.assembly_time = toNum(row.assembly_time_hours)
   if (row.care_instructions) product.care_instructions = cleanField(row.care_instructions)
+  if (row.short_description) product.short_description = cleanField(row.short_description)
+  if (row.meta_title) product.meta_title = cleanField(row.meta_title)
+  if (row.meta_description) product.meta_description = cleanField(row.meta_description)
+  if (row.offer_name) product.offer_name = cleanField(row.offer_name)
+  if (row.is_featured !== undefined && row.is_featured !== '') product.is_featured = toBool(row.is_featured)
+  if (row.is_new_arrival !== undefined && row.is_new_arrival !== '') product.is_new_arrival = toBool(row.is_new_arrival)
+  if (row.is_offered !== undefined && row.is_offered !== '') product.is_offered = toBool(row.is_offered)
+  if (row.shipping_weight) product.shipping_weight = toNum(row.shipping_weight)
+  if (row.shipping_length) product.shipping_length = toNum(row.shipping_length)
+  if (row.shipping_width) product.shipping_width = toNum(row.shipping_width)
+  if (row.shipping_height) product.shipping_height = toNum(row.shipping_height)
+  if (row.shipping_box_count) product.shipping_box_count = toNum(row.shipping_box_count) || 1
   if (row.emi_enabled !== undefined && row.emi_enabled !== '') product.emi_enabled = toBool(row.emi_enabled)
   if (row.return_days) product.return_days = toNum(row.return_days)
   if (row.is_limited_stock) product.is_limited_stock = toBool(row.is_limited_stock)
@@ -504,7 +523,9 @@ export async function POST(req) {
           const categoryId = await getOrCreateCategory(supa, row.category || row.category_name)
           const brandId = await getOrCreateBrand(supa, row.brand || row.brand_name)
 
-          const tags = row.tags ? row.tags.split(',').map(t => t.trim()).filter(Boolean) : []
+          const tags = row.tags
+            ? row.tags.split(',').map((t) => normalizeTagSlug(t)).filter(Boolean)
+            : []
           // Add all sub-category names as tags for filtering
           const subCatTags = extractSubCategoryTags(row.category || row.category_name)
           subCatTags.forEach(tag => {
@@ -512,12 +533,19 @@ export async function POST(req) {
           })
 
           let existing = null
-          if (row.sku && row.sku.trim()) {
-            const { data } = await supa.from('products').select('id').eq('sku', row.sku.trim()).single()
+          const skuVal = row.sku?.trim() || ''
+          if (skuVal) {
+            const { data } = await supa
+              .from('products')
+              .select('id')
+              .ilike('sku', skuVal)
+              .maybeSingle()
             if (data) existing = data
           }
-          if (!existing) {
-            const { data } = await supa.from('products').select('id').eq('slug', slug).single()
+          // When a SKU is provided but not found, create a new product — do not match slug
+          // (avoids overwriting jf-5151-k when importing jf-5151, etc.)
+          if (!existing && !skuVal) {
+            const { data } = await supa.from('products').select('id').eq('slug', slug).maybeSingle()
             if (data) existing = data
           }
 
