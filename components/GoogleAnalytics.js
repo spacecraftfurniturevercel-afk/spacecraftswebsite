@@ -1,6 +1,9 @@
 import Script from 'next/script'
 
-const GA_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
+// Browser needs NEXT_PUBLIC_* — same value as GA4_MEASUREMENT_ID in .env / Vercel
+const GA_ID =
+  process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ||
+  process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID
 
 /** GA4 (gtag.js) — set NEXT_PUBLIC_GA_MEASUREMENT_ID in Vercel (e.g. G-XXXXXXXX). */
 export default function GoogleAnalytics() {

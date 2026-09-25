@@ -1,7 +1,8 @@
 import { createSupabaseServerClient } from '../../lib/supabaseClient'
+import { getPublicSiteUrl } from '../../lib/siteUrl'
 
 export async function GET() {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.spacecraftsfurniture.in'
+  const baseUrl = getPublicSiteUrl()
   
   try {
     const supabase = createSupabaseServerClient()
