@@ -10,6 +10,7 @@ export default function TopNavigationBar() {
 
   const navLinks = [
     { label: 'About Us', href: '/about' },
+    { label: 'Blog', href: '/blog' },
     { label: 'Buy In Bulk', href: '/bulk-orders' },
     { label: 'Become a Franchise', href: '/franchise' },
     { label: 'Track Your Order', href: isAuthenticated ? '/orders' : '/login?redirect=/orders' },

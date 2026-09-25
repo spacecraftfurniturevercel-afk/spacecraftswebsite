@@ -165,6 +165,7 @@ export default function ModernFooter() {
             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
               {[
                 { name: 'Our Story', href: '/about' },
+                { name: 'Blog', href: '/blog' },
                 { name: 'Careers', href: '/careers' },
                 { name: 'Privacy Policy', href: '/privacy-policy' },
                 { name: 'Terms & Conditions', href: '/terms' },

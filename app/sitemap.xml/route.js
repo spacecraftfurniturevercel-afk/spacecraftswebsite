@@ -1,4 +1,5 @@
 import { createSupabaseServerClient } from '../../lib/supabaseClient'
+import { getAllBlogSlugs } from '../../lib/blogPosts'
 import { getPublicSiteUrl } from '../../lib/siteUrl'
 
 export async function GET() {
@@ -51,7 +52,34 @@ export async function GET() {
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
+
+  <url>
+    <loc>${baseUrl}/blog</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.75</priority>
+  </url>
+
+  <url>
+    <loc>${baseUrl}/contact</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>${baseUrl}/faq</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
 `
+
+    getAllBlogSlugs().forEach((slug) => {
+      sitemap += `  <url>
+    <loc>${baseUrl}/blog/${slug}</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
+  </url>
+`
+    })
 
     // Add category pages
     categories?.forEach(cat => {

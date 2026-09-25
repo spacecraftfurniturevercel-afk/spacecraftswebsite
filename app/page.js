@@ -8,6 +8,7 @@ import MoreIdeasSection from '../components/MoreIdeasSection'
 import NewArrivalsGrid from '../components/NewArrivalsGrid'
 import CustomerReviewsSection from '../components/CustomerReviewsSection'
 import AboutFurnitureSection from '../components/AboutFurnitureSection'
+import Link from 'next/link'
 import { CATALOG_REVALIDATE_SECONDS } from '../lib/catalogCache'
 import { getCachedHomeCatalog } from '../lib/catalogData'
 
@@ -127,6 +128,31 @@ export default async function Home() {
 
         {/* About Furniture — SEO Content Block */}
         <AboutFurnitureSection />
+
+      <section style={{ maxWidth: '1200px', margin: '0 auto', padding: '48px 20px' }}>
+        <h2 style={{ fontSize: '1.75rem', fontWeight: 700, marginBottom: '8px', textAlign: 'center' }}>
+          Furniture tips & guides
+        </h2>
+        <p style={{ textAlign: 'center', color: '#555', marginBottom: '24px', maxWidth: '560px', margin: '0 auto 24px' }}>
+          Buying guides, showroom visits, and space-saving ideas from our Chennai team.
+        </p>
+        <p style={{ textAlign: 'center' }}>
+          <Link
+            href="/blog"
+            style={{
+              display: 'inline-block',
+              padding: '12px 28px',
+              background: '#e67e22',
+              color: '#fff',
+              borderRadius: '8px',
+              fontWeight: 600,
+              textDecoration: 'none',
+            }}
+          >
+            Read the blog
+          </Link>
+        </p>
+      </section>
       </main>
     </>
   )

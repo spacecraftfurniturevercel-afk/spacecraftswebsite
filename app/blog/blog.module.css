@@ -1,0 +1,165 @@
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 20px 80px;
+}
+
+.hero {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.hero h1 {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 12px;
+}
+
+.hero p {
+  color: #555;
+  font-size: 1.05rem;
+  max-width: 640px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 28px;
+}
+
+.card {
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+.cardImage {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  background: #f3f3f3;
+}
+
+.cardImage img {
+  object-fit: cover;
+}
+
+.cardBody {
+  padding: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.cardDate {
+  font-size: 0.8rem;
+  color: #888;
+  margin-bottom: 8px;
+}
+
+.cardTitle {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 10px;
+  line-height: 1.35;
+}
+
+.cardExcerpt {
+  font-size: 0.95rem;
+  color: #555;
+  line-height: 1.55;
+  flex: 1;
+  margin-bottom: 16px;
+}
+
+.cardLink {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #e67e22;
+  text-decoration: none;
+}
+
+.article {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 40px 20px 80px;
+}
+
+.articleHeader {
+  margin-bottom: 32px;
+}
+
+.articleHeader h1 {
+  font-size: clamp(1.6rem, 4vw, 2.25rem);
+  font-weight: 700;
+  line-height: 1.25;
+  margin-bottom: 12px;
+  color: #1a1a1a;
+}
+
+.meta {
+  font-size: 0.9rem;
+  color: #777;
+  margin-bottom: 24px;
+}
+
+.heroImage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 32px;
+  background: #eee;
+}
+
+.prose h2 {
+  font-size: 1.35rem;
+  font-weight: 600;
+  margin: 28px 0 12px;
+  color: #1a1a1a;
+}
+
+.prose p {
+  line-height: 1.75;
+  color: #333;
+  margin-bottom: 16px;
+}
+
+.prose ul {
+  margin: 0 0 20px 1.25rem;
+  line-height: 1.7;
+  color: #333;
+}
+
+.napBox {
+  margin-top: 40px;
+  padding: 24px;
+  background: #f8f6f3;
+  border-radius: 12px;
+  border-left: 4px solid #e67e22;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: #444;
+}
+
+.backLink {
+  display: inline-block;
+  margin-bottom: 24px;
+  color: #e67e22;
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 0.95rem;
+}
