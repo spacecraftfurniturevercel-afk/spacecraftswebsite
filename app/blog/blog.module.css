@@ -144,6 +144,31 @@
   color: #333;
 }
 
+.prose h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 20px 0 10px;
+  color: #333;
+}
+
+.figure {
+  margin: 28px 0;
+}
+
+.inlineImage {
+  border-radius: 12px;
+  overflow: hidden;
+  background: #eee;
+}
+
+.caption {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 10px;
+  text-align: center;
+  line-height: 1.5;
+}
+
 .napBox {
   margin-top: 40px;
   padding: 24px;

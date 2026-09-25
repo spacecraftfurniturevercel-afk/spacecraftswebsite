@@ -1,5 +1,5 @@
 import { createSupabaseServerClient } from '../../lib/supabaseClient'
-import { getAllBlogSlugs } from '../../lib/blogPosts'
+import { getAllBlogPosts } from '../../lib/blogPosts'
 import { getPublicSiteUrl } from '../../lib/siteUrl'
 
 export async function GET() {
@@ -55,6 +55,9 @@ export async function GET() {
 
   <url>
     <loc>${baseUrl}/blog</loc>
+    <lastmod>${new Date(
+      Math.max(...getAllBlogPosts().map((p) => new Date(p.updatedAt || p.publishedAt).getTime()), Date.now())
+    ).toISOString()}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.75</priority>
   </url>
@@ -72,9 +75,11 @@ export async function GET() {
   </url>
 `
 
-    getAllBlogSlugs().forEach((slug) => {
+    getAllBlogPosts().forEach((post) => {
+      const lastmod = post.updatedAt || post.publishedAt
       sitemap += `  <url>
-    <loc>${baseUrl}/blog/${slug}</loc>
+    <loc>${baseUrl}/blog/${post.slug}</loc>
+    <lastmod>${new Date(lastmod).toISOString()}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.65</priority>
   </url>
