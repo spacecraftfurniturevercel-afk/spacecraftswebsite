@@ -7,6 +7,14 @@ import ModernFooter from '../components/ModernFooter'
 import DelayedSignupModal from '../components/DelayedSignupModal'
 import ChatWidget from '../components/ChatWidget/ChatWidget'
 import { AuthProvider } from './providers/AuthProvider'
+import GoogleAnalytics from '../components/GoogleAnalytics'
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.spacecraftsfurniture.in'
+const GOOGLE_VERIFICATION =
+  process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ||
+  'vIUiQmIuDBTYAPEi739t9h8d-XTGzu7uv8ti6mg0Ems'
+
+const DEFAULT_OG_IMAGE = '/aboutus/exterior1.webp'
 
 export const viewport = {
   width: 'device-width',
@@ -15,7 +23,7 @@ export const viewport = {
 }
 
 export const metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://www.spacecraftsfurniture.in'),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: 'Spacecrafts Furniture | Buy Premium Furniture Online India',
     template: '%s | Spacecrafts Furniture'
@@ -33,13 +41,13 @@ export const metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_IN',
-    url: process.env.NEXT_PUBLIC_SITE_URL || 'https://www.spacecraftsfurniture.in',
+    url: SITE_URL,
     siteName: 'Spacecrafts Furniture',
     title: 'Spacecrafts Furniture | Buy Premium Furniture Online India',
     description: 'Shop sofas, beds, dining sets & office furniture online. Free delivery, best prices.',
     images: [
       {
-        url: '/og-image.jpg',
+        url: DEFAULT_OG_IMAGE,
         width: 1200,
         height: 630,
         alt: 'Spacecrafts Furniture',
@@ -50,7 +58,7 @@ export const metadata = {
     card: 'summary_large_image',
     title: 'Spacecrafts Furniture | Buy Premium Furniture Online',
     description: 'Shop sofas, beds, dining sets & office furniture online. Free delivery, best prices.',
-    images: ['/og-image.jpg'],
+    images: [DEFAULT_OG_IMAGE],
     creator: '@spacecraftsfurn',
   },
   robots: {
@@ -70,10 +78,11 @@ export const metadata = {
     apple: '/favlogo/logo-01.png',
   },
   manifest: '/site.webmanifest',
+  alternates: {
+    canonical: SITE_URL,
+  },
   verification: {
-    google: 'your-google-verification-code',
-    // yandex: 'your-yandex-verification-code',
-    // bing: 'your-bing-verification-code',
+    google: GOOGLE_VERIFICATION,
   },
 }
 
@@ -106,6 +115,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en-IN">
       <head>
+        <GoogleAnalytics />
         <GTMSnippet />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

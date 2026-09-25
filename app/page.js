@@ -26,7 +26,7 @@ export const metadata = {
     siteName: 'Spacecrafts Furniture',
     images: [
       {
-        url: '/og-image.jpg',
+        url: '/aboutus/exterior1.webp',
         width: 1200,
         height: 630,
         alt: 'Spacecrafts Furniture'
@@ -38,7 +38,7 @@ export const metadata = {
     card: 'summary_large_image',
     title: 'Spacecrafts Furniture | Buy Premium Furniture Online',
     description: 'Shop sofas, beds, dining sets & office furniture online. Free delivery, best prices.',
-    images: ['/og-image.jpg']
+    images: ['/aboutus/exterior1.webp']
   },
   alternates: {
     canonical: 'https://www.spacecraftsfurniture.in'
@@ -65,9 +65,9 @@ export default async function Home() {
     '@type': 'FurnitureStore',
     name: 'Spacecrafts Furniture',
     description: 'Premium furniture store offering sofas, beds, dining sets, office furniture and home decor',
-    url: 'https://spacecraftsfurniture.in',
-    logo: 'https://www.spacecraftsfurniture.in/logo.png',
-    image: 'https://www.spacecraftsfurniture.in/og-image.jpg',
+    url: 'https://www.spacecraftsfurniture.in',
+    logo: 'https://www.spacecraftsfurniture.in/favlogo/logo-01.png',
+    image: 'https://www.spacecraftsfurniture.in/aboutus/exterior1.webp',
     telephone: '+919003003733',
     address: {
       '@type': 'PostalAddress',
