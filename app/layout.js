@@ -8,6 +8,7 @@ import DelayedSignupModal from '../components/DelayedSignupModal'
 import ChatWidget from '../components/ChatWidget/ChatWidget'
 import { AuthProvider } from './providers/AuthProvider'
 import GoogleAnalytics from '../components/GoogleAnalytics'
+import OrganizationStructuredData from '../components/OrganizationStructuredData'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.spacecraftsfurniture.in'
 const GOOGLE_VERIFICATION =
@@ -116,6 +117,7 @@ export default function RootLayout({ children }) {
     <html lang="en-IN">
       <head>
         <GoogleAnalytics />
+        <OrganizationStructuredData />
         <GTMSnippet />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

@@ -2,6 +2,7 @@ import ProductDetailClient from '../../../components/ProductDetailClient'
 import { notFound } from 'next/navigation'
 import { CATALOG_REVALIDATE_SECONDS } from '../../../lib/catalogCache'
 import { getCachedProductMeta, getCachedProductPage } from '../../../lib/catalogData'
+import { buildProductJsonLd } from '../../../lib/productJsonLd'
 
 // Cache product pages — same slug reuses PostgREST payload for CATALOG_REVALIDATE_SECONDS
 export const revalidate = CATALOG_REVALIDATE_SECONDS
@@ -61,31 +62,7 @@ export default async function ProductPage({ params }) {
     reviews,
   } = bundle
 
-  // JSON-LD schema
-  const schema = {
-    '@context': 'https://schema.org/',
-    '@type': 'Product',
-    name: product.name,
-    image: images?.map((i) => i.url),
-    description: product.description,
-    sku: product.id?.toString(),
-    brand: brand ? { '@type': 'Brand', name: brand.name } : undefined,
-    aggregateRating:
-      product.review_count > 0
-        ? {
-            '@type': 'AggregateRating',
-            ratingValue: product.rating,
-            reviewCount: product.review_count,
-          }
-        : undefined,
-    offers: {
-      '@type': 'Offer',
-      priceCurrency: 'INR',
-      price: product.discount_price || product.price,
-      availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-      url: `https://www.spacecraftsfurniture.in/products/${product.slug}`,
-    },
-  }
+  const schema = buildProductJsonLd({ product, images, brand, reviews })
 
   return (
     <>
