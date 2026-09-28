@@ -29,7 +29,7 @@ export default function ModernFooter() {
               Premium furniture store offering the finest collection of sofas, beds, dining sets, and home decor. Transform your space with quality and style.
             </p>
             <div style={{ display: 'flex', gap: '15px' }}>
-              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" 
+              <a href="https://www.facebook.com/spacecraftsfurniture" target="_blank" rel="noopener noreferrer" 
                 style={{ 
                   width: '40px', 
                   height: '40px', 
@@ -49,7 +49,7 @@ export default function ModernFooter() {
               >
                 f
               </a>
-              <a href="https://instagram.com/spacecraftsfurniture" target="_blank" rel="noopener noreferrer"
+              <a href="https://www.instagram.com/spacecraftsfurniture" target="_blank" rel="noopener noreferrer"
                 style={{ 
                   width: '40px', 
                   height: '40px', 
