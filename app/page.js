@@ -17,12 +17,12 @@ export const revalidate = CATALOG_REVALIDATE_SECONDS
 
 // SEO Metadata
 export const metadata = {
-  title: 'Spacecrafts Furniture | Buy Premium Furniture Online India',
-  description: 'Shop sofas, beds, dining sets & office furniture online. Free delivery across India. Best prices with 30-day returns.',
-  keywords: 'furniture store, online furniture shopping, sofas, beds, dining sets, office furniture, home decor, furniture India, premium furniture',
+  title: 'Buy Furniture Online in Chennai | Sofas, Beds, Bunk Beds & More — Spacecrafts Furniture',
+  description: 'Shop premium sofas, sofa cum beds, bunk beds, metal cots, dining sets & space-saving furniture online. Showroom in Ambattur, Chennai. Pan-India delivery. Best prices, 12-month warranty.',
+  keywords: 'furniture store Chennai, buy furniture online India, sofa cum bed, bunk beds Chennai, space saving furniture, metal cots, furniture showroom Ambattur, online furniture shopping, beds Chennai, dining sets',
   openGraph: {
-    title: 'Spacecrafts Furniture | Buy Premium Furniture Online',
-    description: 'Shop sofas, beds, dining sets & office furniture online. Free delivery, best prices.',
+    title: 'Buy Furniture Online in Chennai | Spacecrafts Furniture',
+    description: 'Sofas, sofa cum beds, bunk beds, metal cots & dining sets. Showroom in Ambattur, Chennai. Pan-India delivery.',
     url: 'https://www.spacecraftsfurniture.in',
     siteName: 'Spacecrafts Furniture',
     images: [

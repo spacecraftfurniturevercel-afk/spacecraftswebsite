@@ -60,8 +60,8 @@ const SUB_CATEGORIES = [
 // SEO-friendly category descriptions
 const categoryMeta = {
   'bunk-beds': {
-    title: 'Bunk Beds',
-    description: 'Shop premium bunk beds — space-saving designs for kids rooms, hostels & small spaces. Strong metal & wooden frames with safety rails. Free delivery.',
+    title: 'Bunk Beds Online India — Kids, Hostel & Space Saving | Spacecrafts Chennai',
+    description: 'Buy bunk beds online in India. Metal & wooden bunk beds with safety rails for kids, hostels & PGs. Free pan-India delivery. Check sizes, prices & reviews. Showroom in Chennai.',
     h1: 'Bunk Beds'
   },
   'futon-beds': {
@@ -90,8 +90,8 @@ const categoryMeta = {
     h1: 'Recliner Folding Beds'
   },
   'sofa-cum-beds': {
-    title: 'Sofa Cum Beds',
-    description: 'Shop sofa cum beds — convertible sofa beds for living rooms. 2-in-1 furniture saving space & money. Top brands at best prices.',
+    title: 'Sofa Cum Beds Online India — With Storage | Spacecrafts Furniture Chennai',
+    description: 'Buy sofa cum beds online. Convertible sofa beds with & without storage for living rooms & small flats. 2-in-1 space saving furniture. Best prices, pan-India delivery.',
     h1: 'Sofa Cum Beds'
   },
   'wooden-beds': {
@@ -248,8 +248,8 @@ const categoryMeta = {
     h1: 'All Beds'
   },
   'chairs': {
-    title: 'Chairs',
-    description: 'Shop all chairs online — office chairs, study chairs, rocking chairs, lazy chairs & foldable chairs. Ergonomic & stylish designs.',
+    title: 'Chairs Online India — Office, Study, Rocking & Foldable | Spacecrafts Chennai',
+    description: 'Buy chairs online. Ergonomic office chairs, study chairs, rocking chairs & foldable chairs at best prices. Showroom in Chennai, pan-India delivery.',
     h1: 'All Chairs'
   },
   'dining-sets': {
@@ -258,8 +258,8 @@ const categoryMeta = {
     h1: 'All Dining Sets'
   },
   'sofa-sets': {
-    title: 'Sofa Sets',
-    description: 'Shop sofa sets online — corner sofas, recliner sofas, cushion sofas, diwans & 2-seater sofas. Premium comfort & style.',
+    title: 'Sofa Sets Online India — Corner, Recliner & 3+1+1 | Spacecrafts Furniture Chennai',
+    description: 'Buy sofa sets online. Corner sofas, recliner sofas, 3+1+1 sets & cushion sofas. Premium quality at best prices. Showroom in Chennai, free delivery across India.',
     h1: 'All Sofa Sets'
   },
   'tables': {

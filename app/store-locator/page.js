@@ -2,9 +2,9 @@ import styles from '../../components/StoreLocatorDetail.module.css'
 import Link from 'next/link'
 
 export const metadata = {
-  title: 'Store Locator - Visit Spacecrafts Furniture Ambattur Showroom',
-  description: 'Visit our 8,000 sq. ft. showroom and manufacturing facility in Ambattur Industrial Estate, Chennai. Experience premium furniture designs in person. Open daily. Get directions and contact info.',
-  keywords: 'furniture showroom Chennai, Ambattur furniture store, Spacecrafts Furniture location, furniture store near me, furniture showroom Ambattur',
+  title: 'Furniture Store Near Me in Chennai | Spacecrafts Furniture Showroom — Ambattur',
+  description: 'Visit Spacecrafts Furniture showroom in Ambattur Industrial Estate, Chennai. 8,000 sq. ft. of sofas, beds, bunk beds & space-saving furniture. Open daily. Easy to reach from Anna Nagar, Mogappair, Padi & Ambattur.',
+  keywords: 'furniture store near me, furniture showroom Chennai, Ambattur furniture store, furniture store Ambattur Industrial Estate, furniture shop Chennai, sofa showroom Chennai, bed showroom Chennai, spacecrafts furniture location',
   alternates: {
     canonical: 'https://www.spacecraftsfurniture.in/store-locator'
   },
