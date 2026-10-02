@@ -5,15 +5,15 @@ import { getCachedProductsListing } from '../../lib/catalogData'
 export const revalidate = CATALOG_REVALIDATE_SECONDS
 
 export const metadata = {
-  title: 'All Products - Spacecrafts Furniture | Shop Premium Furniture Online',
-  description: 'Browse our complete collection of premium furniture. Shop sofas, beds, dining sets, office furniture, sofa cum beds, space-saving furniture and more. Free delivery across India.',
-  keywords: 'furniture online, buy furniture, sofas, beds, dining sets, sofa cum beds, space saving furniture, office chairs, study tables, premium furniture India',
+  title: 'Buy Furniture Online India | Sofas, Beds, Bunk Beds, Sofa Cum Beds — Spacecrafts',
+  description: 'Shop 200+ furniture products online. Sofa cum beds, bunk beds, metal cots, dining sets, recliners & space-saving furniture. Best prices, 12-month warranty. Chennai showroom + pan-India delivery.',
+  keywords: 'buy furniture online India, sofa cum bed online, bunk beds online, metal cots, space saving furniture, furniture Chennai, dining sets, recliners, study tables',
   alternates: {
     canonical: 'https://www.spacecraftsfurniture.in/products'
   },
   openGraph: {
-    title: 'All Products - Spacecrafts Furniture',
-    description: 'Browse our complete collection of premium furniture. Best prices guaranteed.',
+    title: 'Buy Furniture Online — Sofas, Beds, Bunk Beds & More | Spacecrafts',
+    description: '200+ furniture products. Sofa cum beds, bunk beds, metal cots & space-saving furniture. Best prices, pan-India delivery.',
     url: 'https://www.spacecraftsfurniture.in/products',
     type: 'website',
   }

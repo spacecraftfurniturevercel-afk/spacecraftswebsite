@@ -7,18 +7,18 @@ export default function AboutFurnitureSection() {
 
         {/* Main Title */}
         <h2 className={styles.mainTitle}>
-          Buy Furniture Online at Space Craft Furniture &ndash; Crafted for Modern Living
+          Buy Furniture Online in Chennai &mdash; Spacecrafts Furniture, Ambattur
         </h2>
 
         {/* Intro */}
         <p className={styles.intro}>
-          Space Craft Furniture is your complete destination for thoughtfully designed, high-quality furniture that transforms houses into beautiful homes. With a wide selection of stylish, durable, and affordable pieces, we help you create spaces that reflect your personality and lifestyle.
+          Spacecrafts Furniture is your complete destination for thoughtfully designed, high-quality furniture in Chennai. With an 8,000 sq. ft. showroom in <strong>Ambattur Industrial Estate</strong> and pan-India online delivery, we make it easy to find and buy the right piece — whether you visit us in person or shop from home.
         </p>
         <p className={styles.intro}>
-          As a trusted online furniture brand in India, Space Craft Furniture offers everything you need &mdash; from elegant sofas and functional dining tables to spacious wardrobes and smart storage solutions. Our seamless online platform allows you to explore designs, compare options, and shop confidently from the comfort of your home.
+          We specialise in <strong>sofa cum beds</strong>, <strong>bunk beds</strong>, <strong>metal cots</strong>, <strong>space-saving furniture</strong>, dining sets, recliners, and more. Serving customers across Chennai — from Anna Nagar, Mogappair, and Padi to Ambattur, Avadi, and beyond — as well as pan-India delivery to your doorstep.
         </p>
         <p className={styles.intro}>
-          We believe furniture shopping should be simple and stress-free. That&rsquo;s why we offer reliable delivery, easy returns, and dedicated customer support to ensure a smooth experience from browsing to installation. Whether you&rsquo;re furnishing a new home or upgrading a few essentials, Space Craft Furniture makes it easy to shop smart and stylish.
+          Our showroom at <strong>94A/1, 3rd Main Rd, Ambattur Industrial Estate, Chennai 600058</strong> is open daily (Mon–Sun 10 AM–9:30 PM). Browse, test, and choose — then order online or in store with confidence. Call <strong>090030 03733</strong> or visit spacecraftsfurniture.in.
         </p>
 
         <hr className={styles.divider} />
@@ -149,8 +149,8 @@ export default function AboutFurnitureSection() {
 
         <hr className={styles.divider} />
 
-        {/* Why Choose Space Craft Furniture */}
-        <h2 className={styles.sectionHeading}>Why Choose Space Craft Furniture?</h2>
+        {/* Why Choose Spacecrafts Furniture */}
+        <h2 className={styles.sectionHeading}>Why Choose Spacecrafts Furniture — Chennai&apos;s Trusted Furniture Store?</h2>
         <div className={styles.highlightGrid}>
           <div className={styles.highlightCard}>
             <p className={styles.highlightTitle}>Premium Craftsmanship</p>
@@ -181,12 +181,12 @@ export default function AboutFurnitureSection() {
         <hr className={styles.divider} />
 
         {/* Closing */}
-        <h2 className={styles.sectionHeading}>Invest in Comfort, Style &amp; Durability</h2>
+        <h2 className={styles.sectionHeading}>Invest in Comfort, Style &amp; Durability — Furniture Store in Chennai</h2>
         <p className={styles.closingText}>
-          At Space Craft Furniture, we believe furniture should do more than fill a space &mdash; it should enhance the way you live. Our collections are designed to offer lasting comfort, refined style, and long-term value.
+          At Spacecrafts Furniture, we believe furniture should do more than fill a space — it should enhance the way you live. Our collections are designed to offer lasting comfort, refined style, and long-term value. Visit our showroom in <strong>Ambattur Industrial Estate, Chennai</strong> or order online at spacecraftsfurniture.in with delivery across India.
         </p>
         <p className={styles.closingTextBold}>
-          Whether you&rsquo;re furnishing a new home or refreshing your current space, Space Craft Furniture is your trusted partner in creating interiors that inspire.
+          Whether you&rsquo;re furnishing a new home or refreshing your current space, Spacecrafts Furniture — your local furniture store in Chennai — is your trusted partner in creating interiors that inspire.
         </p>
 
       </div>

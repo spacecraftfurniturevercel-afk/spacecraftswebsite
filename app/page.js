@@ -37,8 +37,8 @@ export const metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Spacecrafts Furniture | Buy Premium Furniture Online',
-    description: 'Shop sofas, beds, dining sets & office furniture online. Free delivery, best prices.',
+    title: 'Buy Furniture Online in Chennai | Spacecrafts Furniture',
+    description: 'Shop sofas, sofa cum beds, bunk beds, metal cots & dining sets. Showroom in Ambattur, Chennai. Pan-India delivery.',
     images: ['/aboutus/exterior1.webp']
   },
   alternates: {
@@ -96,6 +96,21 @@ export default async function Home() {
       />
 
       <main>
+        {/* SEO H1 — server-rendered, visually integrated above hero */}
+        <h1 style={{
+          position: 'absolute',
+          width: '1px',
+          height: '1px',
+          padding: 0,
+          margin: '-1px',
+          overflow: 'hidden',
+          clip: 'rect(0,0,0,0)',
+          whiteSpace: 'nowrap',
+          border: 0,
+        }}>
+          Furniture Store in Chennai — Buy Sofas, Beds, Bunk Beds & Space-Saving Furniture Online | Spacecrafts Furniture, Ambattur
+        </h1>
+
         {/* Hero Section */}
         <ModernHeroCarousel />
 
