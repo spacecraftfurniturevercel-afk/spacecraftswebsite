@@ -60,8 +60,8 @@ const SUB_CATEGORIES = [
 // SEO-friendly category descriptions
 const categoryMeta = {
   'bunk-beds': {
-    title: 'Bunk Beds Online India — Kids, Hostel & Space Saving | Spacecrafts Chennai',
-    description: 'Buy bunk beds online in India. Metal & wooden bunk beds with safety rails for kids, hostels & PGs. Free pan-India delivery. Check sizes, prices & reviews. Showroom in Chennai.',
+    title: 'Buy Bunk Beds Online India — Kids, Hostel & Adults | Spacecrafts Chennai',
+    description: '⭐ Buy bunk beds online India. Metal & wooden bunk beds with safety rails for kids rooms, hostels & PGs. Prices from ₹15,000. Free pan-India delivery. Visit showroom in Chennai.',
     h1: 'Bunk Beds'
   },
   'futon-beds': {
