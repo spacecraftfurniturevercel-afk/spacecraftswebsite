@@ -6,7 +6,7 @@ export const metadata = {
     absolute: 'About Spacecrafts Furniture | Furniture Manufacturer Chennai',
   },
   description: 'Spacecrafts Furniture, Ambattur Industrial Estate, Chennai — furniture manufacturer and showroom since 1997. Space-saving sofas, bunk beds, metal cots and more. Visit our 8,000 sq. ft. store.',
-  keywords: 'furniture manufacturer Chennai, Spacecrafts Furniture Ambattur, furniture company Chennai, furniture showroom Ambattur, about Spacecrafts Furniture',
+  keywords: 'furniture manufacturer Chennai, furniture store Chennai, Spacecrafts Furniture Ambattur, furniture company Chennai, furniture showroom Ambattur, about Spacecrafts Furniture',
   alternates: {
     canonical: 'https://www.spacecraftsfurniture.in/about'
   },

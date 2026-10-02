@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import styles from './AboutFurnitureSection.module.css'
 
 export default function AboutFurnitureSection() {
@@ -12,13 +13,14 @@ export default function AboutFurnitureSection() {
 
         {/* Intro */}
         <p className={styles.intro}>
-          Spacecrafts Furniture is your complete destination for thoughtfully designed, high-quality furniture in Chennai. With an 8,000 sq. ft. showroom in <strong>Ambattur Industrial Estate</strong> and pan-India online delivery, we make it easy to find and buy the right piece — whether you visit us in person or shop from home.
+          Spacecrafts Furniture is a trusted <strong>furniture store in Chennai</strong> for thoughtfully designed, high-quality furniture. With an 8,000 sq. ft. showroom in <strong>Ambattur Industrial Estate</strong> and pan-India online delivery, we make it easy to find and buy the right piece — whether you visit us in person or shop from home.
         </p>
         <p className={styles.intro}>
-          We specialise in <strong>sofa cum beds</strong>, <strong>bunk beds</strong>, <strong>metal cots</strong>, <strong>space-saving furniture</strong>, dining sets, recliners, and more. Serving customers across Chennai — from Anna Nagar, Mogappair, and Padi to Ambattur, Avadi, and beyond — as well as pan-India delivery to your doorstep.
+          We specialise in <strong>sofa cum beds</strong>, <strong>bunk beds</strong>, <strong>metal cots</strong>, <strong>space-saving furniture</strong>, dining sets, recliners, and more. Serving customers across Chennai — from Anna Nagar, Mogappair, and Padi to Ambattur, Avadi, Porur, OMR, Velachery and beyond — as well as pan-India delivery to your doorstep.
         </p>
         <p className={styles.intro}>
-          Our showroom at <strong>94A/1, 3rd Main Rd, Ambattur Industrial Estate, Chennai 600058</strong> is open daily (Mon–Sun 10 AM–9:30 PM). Browse, test, and choose — then order online or in store with confidence. Call <strong>090030 03733</strong> or visit spacecraftsfurniture.in.
+          Our showroom at <strong>94A/1, 3rd Main Rd, Ambattur Industrial Estate, Chennai 600058</strong> is open daily (Mon–Sun 10 AM–9:30 PM). Browse, test, and choose — then order online or in store with confidence. Call <strong>090030 03733</strong> or visit spacecraftsfurniture.in. Full guide:{' '}
+          <Link href="/furniture-store-chennai">furniture store in Chennai</Link>.
         </p>
 
         <hr className={styles.divider} />
@@ -29,39 +31,50 @@ export default function AboutFurnitureSection() {
           At Spacecrafts Furniture, every room deserves attention to detail and design excellence. Our curated collections bring together comfort, functionality, and aesthetics.
         </p>
 
-        <p className={styles.subHeading}>Living Room Furniture</p>
+        <p className={styles.subHeading}>Living Room Furniture in Chennai</p>
         <p className={styles.bodyText}>
-          Your living room is the heart of your home. Our collection includes comfortable sofas, sectionals, coffee tables, TV units, bookshelves, and storage solutions designed to create inviting and practical spaces. Whether you prefer contemporary minimalism or timeless elegance, we have designs that suit every interior style.
+          Your living room is the heart of your home. Our Chennai showroom collection includes comfortable sofas, sectionals, sofa cum beds, coffee tables, TV units, bookshelves, and storage solutions designed for apartment living. Whether you prefer contemporary minimalism or timeless elegance, we have designs that suit every interior style.
         </p>
 
-        <p className={styles.subHeading}>Bedroom Furniture</p>
+        <p className={styles.subHeading}>Bedroom Furniture in Chennai</p>
         <p className={styles.bodyText}>
-          Create a restful retreat with our thoughtfully designed bedroom collection. Choose from king, queen, and single beds, along with wardrobes, bedside tables, and dressers that combine beauty with functionality. Crafted in premium materials, our bedroom furniture balances comfort with sophisticated design.
+          Create a restful retreat with our bedroom collection for Chennai homes. Choose from king, queen, and single beds, metal cots, bunk beds, wardrobes, and bedside tables that balance comfort with durability in humid coastal weather.
         </p>
 
-        <p className={styles.subHeading}>Dining Furniture</p>
+        <p className={styles.subHeading}>Dining Furniture in Chennai</p>
         <p className={styles.bodyText}>
-          Dining spaces are where conversations and memories are made. Our dining tables, chairs, and storage units are crafted to elevate everyday meals and special gatherings. From compact sets for smaller homes to spacious dining ensembles for family spaces, we offer options for every need.
+          Dining spaces are where conversations and memories are made. Our dining tables, chairs, and compact sets suit both smaller flats and family homes across Chennai — from everyday meals to festive gatherings.
         </p>
 
-        <p className={styles.subHeading}>Study &amp; Home Office Furniture</p>
+        <p className={styles.subHeading}>Study &amp; Home Office Furniture in Chennai</p>
         <p className={styles.bodyText}>
-          Designed for productivity and comfort, our study and office furniture includes ergonomic chairs, functional desks, bookshelves, and storage cabinets. Whether you&rsquo;re working from home or setting up a dedicated workspace, our designs promote focus and organisation.
+          Designed for productivity and comfort, our study and office furniture includes ergonomic chairs, functional desks, bookshelves, and storage cabinets for work-from-home setups across the city.
         </p>
 
-        <p className={styles.subHeading}>Kids&rsquo; Furniture</p>
+        <p className={styles.subHeading}>Kids&rsquo; Furniture in Chennai</p>
         <p className={styles.bodyText}>
-          Our kids&rsquo; furniture collection blends safety, durability, and playful design. From beds and study tables to storage solutions, every piece is crafted to support growing needs while adding charm to your child&rsquo;s room.
+          Our kids&rsquo; furniture collection blends safety, durability, and playful design. Bunk beds, study tables, and storage solutions support growing needs while fitting real Chennai bedroom sizes.
         </p>
 
-        <p className={styles.subHeading}>Outdoor Furniture</p>
+        <p className={styles.subHeading}>Outdoor Furniture in Chennai</p>
         <p className={styles.bodyText}>
-          Enhance your balcony, patio, or garden with weather-resistant outdoor furniture. Our range includes lounge sets, chairs, and tables built to withstand the elements while maintaining style and comfort.
+          Enhance your balcony, patio, or garden with weather-aware outdoor furniture. Lounge sets, chairs, and tables built for coastal light and everyday use.
         </p>
 
         <p className={styles.subHeading}>Bar Furniture</p>
         <p className={styles.bodyText}>
           For those who love entertaining, our bar cabinets, stools, and storage units help you create a refined and welcoming space for hosting guests.
+        </p>
+
+        <hr className={styles.divider} />
+
+        <h2 className={styles.sectionHeading}>Furniture Store Near You in Chennai — Areas We Serve</h2>
+        <p className={styles.bodyText}>
+          Looking for a <strong>furniture shop near me</strong> in Chennai? Our Ambattur showroom is an easy drive from north and west Chennai, and we deliver city-wide. Popular localities include Ambattur, Anna Nagar, Mogappair, Padi, Avadi, Kolathur, Villivakkam, Koyambedu, Porur, OMR, Velachery and Tambaram.
+        </p>
+        <p className={styles.bodyText}>
+          Plan your visit on the <Link href="/store-locator">store locator</Link> page, or read our{' '}
+          <Link href="/furniture-store-chennai">furniture store Chennai guide</Link>.
         </p>
 
         <hr className={styles.divider} />
@@ -187,6 +200,22 @@ export default function AboutFurnitureSection() {
         </p>
         <p className={styles.closingTextBold}>
           Whether you&rsquo;re furnishing a new home or refreshing your current space, Spacecrafts Furniture — your local furniture store in Chennai — is your trusted partner in creating interiors that inspire.
+        </p>
+
+        <hr className={styles.divider} />
+
+        <h2 className={styles.sectionHeading}>FAQs — Furniture Store in Chennai</h2>
+        <p className={styles.subHeading}>Is Spacecrafts a furniture showroom or only an online store?</p>
+        <p className={styles.bodyText}>
+          Both. Visit our 8,000 sq. ft. Ambattur showroom to try products, then buy in store or online with delivery across Chennai and India.
+        </p>
+        <p className={styles.subHeading}>What makes this furniture store in Chennai different?</p>
+        <p className={styles.bodyText}>
+          We focus on durable, space-saving designs — sofa cum beds, bunk beds and metal cots — manufactured and displayed from the same Ambattur facility, with practical guidance for apartment layouts.
+        </p>
+        <p className={styles.subHeading}>How do I get directions to the showroom?</p>
+        <p className={styles.bodyText}>
+          Use our <Link href="/store-locator">store locator</Link> or Google Maps link on the contact page. Address: 94A/1, 3rd Main Rd, Ambattur Industrial Estate, Chennai 600058.
         </p>
 
       </div>

@@ -138,7 +138,8 @@ export default function ModernFooter() {
                 { name: 'Shipping & Delivery', href: '/shipping-info' },
                 { name: 'Returns & Refunds', href: '/returns-policy' },
                 { name: 'FAQs', href: '/faq' },
-                { name: 'Store Locator', href: '/store-locator' }
+                { name: 'Store Locator', href: '/store-locator' },
+                { name: 'Furniture Store Chennai', href: '/furniture-store-chennai' },
               ].map((link) => (
                 <li key={link.href} style={{ marginBottom: '12px' }}>
                   <Link 

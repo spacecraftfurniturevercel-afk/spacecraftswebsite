@@ -125,6 +125,7 @@ export async function GET() {
       [baseUrl, today, 'daily', '1.0'],
       [`${baseUrl}/products`, today, 'daily', '0.95'],
       [`${baseUrl}/store-locator`, today, 'monthly', '0.9'],
+      [`${baseUrl}/furniture-store-chennai`, today, 'weekly', '0.95'],
       [`${baseUrl}/blog`, latestBlogDate, 'weekly', '0.8'],
       [`${baseUrl}/about`, null, 'monthly', '0.7'],
       [`${baseUrl}/contact`, null, 'monthly', '0.7'],

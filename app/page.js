@@ -18,13 +18,16 @@ export const revalidate = CATALOG_REVALIDATE_SECONDS
 // SEO Metadata
 export const metadata = {
   title: {
-    absolute: 'Furniture Store in Chennai | Spacecrafts Ambattur',
+    absolute: 'Furniture Store in Chennai | Sofas, Beds & Showroom Ambattur',
   },
-  description: 'Furniture store in Ambattur, Chennai. Buy sofas, sofa cum beds, bunk beds, metal cots and space-saving furniture. 8,000 sq. ft. showroom. Call 90030 03733. Pan-India delivery.',
-  keywords: 'furniture store Chennai, furniture shop Ambattur, furniture store near me Chennai, bunk beds Chennai, sofa cum bed Chennai, metal cots Chennai, space saving furniture Chennai, Spacecrafts Furniture Ambattur',
+  description:
+    'Best furniture store in Chennai for sofas, bunk beds, metal cots and space-saving furniture. Visit our 8,000 sq. ft. Ambattur showroom or shop online. Call 90030 03733. Pan-India delivery.',
+  keywords:
+    'furniture store Chennai, best furniture store Chennai, furniture shop Chennai, furniture showroom Chennai, buy furniture in Chennai, furniture store near me Chennai, furniture shop Ambattur, bunk beds Chennai, sofa cum bed Chennai, metal cots Chennai, space saving furniture Chennai, Spacecrafts Furniture',
   openGraph: {
-    title: 'Furniture Store in Chennai | Spacecrafts Ambattur',
-    description: 'Showroom in Ambattur, Chennai. Sofas, bunk beds, sofa cum beds, metal cots. Visit or shop online.',
+    title: 'Furniture Store in Chennai | Sofas, Beds & Showroom Ambattur',
+    description:
+      'Ambattur showroom + online store. Sofas, bunk beds, sofa cum beds, metal cots. Visit or shop online.',
     url: 'https://www.spacecraftsfurniture.in',
     siteName: 'Spacecrafts Furniture',
     images: [
@@ -32,20 +35,21 @@ export const metadata = {
         url: '/aboutus/exterior1.webp',
         width: 1200,
         height: 630,
-        alt: 'Spacecrafts Furniture'
-      }
+        alt: 'Spacecrafts Furniture store in Chennai',
+      },
     ],
-    type: 'website'
+    type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Furniture Store in Chennai | Spacecrafts Ambattur',
-    description: 'Showroom in Ambattur, Chennai. Sofas, bunk beds, sofa cum beds, metal cots. Visit or shop online.',
-    images: ['/aboutus/exterior1.webp']
+    title: 'Furniture Store in Chennai | Sofas, Beds & Showroom Ambattur',
+    description:
+      'Ambattur showroom + online store. Sofas, bunk beds, sofa cum beds, metal cots. Visit or shop online.',
+    images: ['/aboutus/exterior1.webp'],
   },
   alternates: {
-    canonical: 'https://www.spacecraftsfurniture.in'
-  }
+    canonical: 'https://www.spacecraftsfurniture.in',
+  },
 }
 
 export default async function Home() {
@@ -114,11 +118,47 @@ export default async function Home() {
       'https://maps.app.goo.gl/sMTmsBTJBKszoP1Q7'
     ],
     hasMap: 'https://maps.app.goo.gl/sMTmsBTJBKszoP1Q7',
+    keywords:
+      'furniture store Chennai, best furniture store Chennai, bunk beds Chennai, sofa cum bed, metal cots, space saving furniture, furniture showroom Ambattur',
     areaServed: [
       { '@type': 'City', name: 'Chennai' },
-      { '@type': 'State', name: 'Tamil Nadu' }
+      { '@type': 'State', name: 'Tamil Nadu' },
+      { '@type': 'Place', name: 'Ambattur' },
+      { '@type': 'Place', name: 'Anna Nagar' },
+      { '@type': 'Place', name: 'Mogappair' },
+      { '@type': 'Place', name: 'Avadi' },
     ],
-    keywords: 'furniture store Chennai, bunk beds Chennai, sofa cum bed, metal cots, space saving furniture, furniture showroom Ambattur'
+  }
+
+  const faqLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: 'Where is a good furniture store in Chennai for bunk beds and sofa cum beds?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Spacecrafts Furniture in Ambattur Industrial Estate, Chennai offers an 8,000 sq. ft. showroom with bunk beds, sofa cum beds, metal cots and space-saving furniture. Address: 94A/1, 3rd Main Rd, Ambattur Industrial Estate, Chennai 600058.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'Does Spacecrafts Furniture deliver across Chennai?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Yes. We deliver across Chennai and pan-India from our Ambattur facility. Confirm your pin code at checkout or call 090030 03733.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'Can I visit the furniture showroom before buying online?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Yes. Visit our Ambattur showroom to try sofas, beds and bunk beds, then order in store or online at spacecraftsfurniture.in.',
+        },
+      },
+    ],
   }
 
   return (
@@ -127,6 +167,10 @@ export default async function Home() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
       />
 
       <main>
@@ -168,7 +212,14 @@ export default async function Home() {
           Furniture tips & guides
         </h2>
         <p style={{ textAlign: 'center', color: '#555', marginBottom: '24px', maxWidth: '560px', margin: '0 auto 24px' }}>
-          Buying guides, showroom visits, and space-saving ideas from our Chennai team.
+          Buying guides for furniture stores in Chennai, showroom visits, and space-saving ideas.
+        </p>
+        <p style={{ textAlign: 'center', marginBottom: 16, lineHeight: 1.7 }}>
+          <Link href="/furniture-store-chennai">Furniture store in Chennai</Link>
+          {' · '}
+          <Link href="/blog/best-furniture-store-chennai-buying-guide">Best store buying guide</Link>
+          {' · '}
+          <Link href="/blog/furniture-shopping-in-chennai-showroom-vs-online">Showroom vs online</Link>
         </p>
         <p style={{ textAlign: 'center' }}>
           <Link

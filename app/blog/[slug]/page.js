@@ -12,6 +12,12 @@ export function generateStaticParams() {
   return getAllBlogSlugs().map((slug) => ({ slug }))
 }
 
+function absoluteImageUrl(src) {
+  if (!src) return `${SITE}/aboutus/exterior1.webp`
+  if (src.startsWith('http://') || src.startsWith('https://')) return src
+  return `${SITE}${src.startsWith('/') ? src : `/${src}`}`
+}
+
 export async function generateMetadata({ params }) {
   const post = getBlogPostBySlug(params.slug)
   if (!post) return { title: 'Article not found' }
@@ -19,6 +25,7 @@ export async function generateMetadata({ params }) {
   return {
     title: post.title,
     description: post.description,
+    keywords: Array.isArray(post.tags) ? post.tags.join(', ') : undefined,
     alternates: {
       canonical: `${SITE}/blog/${post.slug}`,
     },
@@ -29,7 +36,7 @@ export async function generateMetadata({ params }) {
       type: 'article',
       publishedTime: post.publishedAt,
       modifiedTime: post.updatedAt,
-      images: [{ url: post.image, alt: post.imageAlt }],
+      images: [{ url: absoluteImageUrl(post.image), alt: post.imageAlt }],
     },
   }
 }
@@ -43,7 +50,7 @@ export default function BlogPostPage({ params }) {
     '@type': 'BlogPosting',
     headline: post.title,
     description: post.description,
-    image: `${SITE}${post.image}`,
+    image: absoluteImageUrl(post.image),
     datePublished: post.publishedAt,
     dateModified: post.updatedAt,
     author: {
