@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { COMPANY } from '../../lib/companyInfo'
-import styles from '../../components/AboutFurnitureSection.module.css'
+import styles from './chennai.module.css'
 
 const SITE = COMPANY.url
 
@@ -105,7 +105,7 @@ export default function FurnitureStoreChennaiPage() {
   }
 
   return (
-    <main>
+    <main className={styles.page}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
@@ -131,30 +131,22 @@ export default function FurnitureStoreChennaiPage() {
             Unlike pure catalogue marketplaces, we design and stock durable, space-saving furniture
             built for Indian apartments — from compact sofa cum beds to metal cots that handle
             Chennai humidity. Visit us, call {COMPANY.phoneDisplay}, or browse{' '}
-            <Link href="/products">all products</Link>.
+            <Link href="/products" className={styles.inlineLink}>
+              all products
+            </Link>
+            .
           </p>
 
-          <div
-            style={{
-              position: 'relative',
-              width: '100%',
-              maxWidth: 960,
-              aspectRatio: '16 / 9',
-              margin: '20px 0 8px',
-              borderRadius: 8,
-              overflow: 'hidden',
-            }}
-          >
+          <div className={styles.media}>
             <Image
               src="/aboutus/exterior1.webp"
               alt="Spacecrafts Furniture store exterior in Ambattur, Chennai"
               fill
               priority
-              sizes="(max-width: 960px) 100vw, 960px"
-              style={{ objectFit: 'cover' }}
+              sizes="(max-width: 920px) 100vw, 920px"
             />
           </div>
-          <p className={styles.bodyText} style={{ fontSize: '0.8rem', color: '#777' }}>
+          <p className={styles.caption}>
             Our Ambattur showroom — a practical furniture shopping destination in Chennai.
           </p>
 
@@ -179,86 +171,95 @@ export default function FurnitureStoreChennaiPage() {
             <li className={styles.bulletItem}>
               Manufacturer-backed quality from our Ambattur facility
             </li>
-            <li className={styles.bulletItem}>
-              No-cost EMI options and pan-India shipping
-            </li>
+            <li className={styles.bulletItem}>No-cost EMI options and pan-India shipping</li>
           </ul>
 
           <hr className={styles.divider} />
 
-          <h2 className={styles.sectionHeading}>
-            Furniture for every room — shop in Chennai
-          </h2>
+          <h2 className={styles.sectionHeading}>Furniture for every room — shop in Chennai</h2>
 
           <h3 className={styles.subHeading}>Living room furniture in Chennai</h3>
           <p className={styles.bodyText}>
             Sofas, sofa cum beds, recliners and centre tables for Anna Nagar apartments to OMR
             villas. Start with our{' '}
-            <Link href="/products/category/sofa-cum-beds">sofa cum beds</Link> and{' '}
-            <Link href="/products/category/recliner-sofas">recliner sofas</Link>.
+            <Link href="/products/category/sofa-cum-beds" className={styles.inlineLink}>
+              sofa cum beds
+            </Link>{' '}
+            and{' '}
+            <Link href="/products/category/recliner-sofas" className={styles.inlineLink}>
+              recliner sofas
+            </Link>
+            .
           </p>
 
           <h3 className={styles.subHeading}>Bedroom furniture in Chennai</h3>
           <p className={styles.bodyText}>
             Metal cots, wooden beds, bunk beds and mattresses suited to humid coastal weather.
-            Explore <Link href="/products/category/metal-cots">metal cots</Link>,{' '}
-            <Link href="/products/category/wooden-beds">wooden beds</Link> and{' '}
-            <Link href="/products/category/bunk-beds">bunk beds</Link>.
+            Explore{' '}
+            <Link href="/products/category/metal-cots" className={styles.inlineLink}>
+              metal cots
+            </Link>
+            ,{' '}
+            <Link href="/products/category/wooden-beds" className={styles.inlineLink}>
+              wooden beds
+            </Link>{' '}
+            and{' '}
+            <Link href="/products/category/bunk-beds" className={styles.inlineLink}>
+              bunk beds
+            </Link>
+            .
           </p>
 
           <h3 className={styles.subHeading}>Dining furniture in Chennai</h3>
           <p className={styles.bodyText}>
             Compact and family dining sets for everyday meals. Browse{' '}
-            <Link href="/products/category/dining-sets">dining sets</Link>.
+            <Link href="/products/category/dining-sets" className={styles.inlineLink}>
+              dining sets
+            </Link>
+            .
           </p>
 
           <h3 className={styles.subHeading}>Study &amp; office furniture in Chennai</h3>
           <p className={styles.bodyText}>
             Study tables and chairs for WFH setups. See{' '}
-            <Link href="/products">full catalogue</Link> for office and workspace pieces.
+            <Link href="/products" className={styles.inlineLink}>
+              full catalogue
+            </Link>{' '}
+            for office and workspace pieces.
           </p>
 
-          <div
-            style={{
-              position: 'relative',
-              width: '100%',
-              maxWidth: 960,
-              aspectRatio: '16 / 9',
-              margin: '20px 0 8px',
-              borderRadius: 8,
-              overflow: 'hidden',
-            }}
-          >
+          <div className={styles.media}>
             <Image
-              src="https://images.unsplash.com/photo-1555041469-a586c61e9bc7?w=1200&q=80"
+              src="/aboutus/inner1.webp"
               alt="Modern living room sofa — furniture shopping inspiration for Chennai homes"
               fill
-              sizes="(max-width: 960px) 100vw, 960px"
-              style={{ objectFit: 'cover' }}
+              sizes="(max-width: 920px) 100vw, 920px"
             />
           </div>
-          <p className={styles.bodyText} style={{ fontSize: '0.8rem', color: '#777' }}>
+          <p className={styles.caption}>
             Living room inspiration — compare styles in our showroom before you buy.
           </p>
 
           <hr className={styles.divider} />
 
-          <h2 className={styles.sectionHeading}>
-            Areas we serve across Chennai
-          </h2>
+          <h2 className={styles.sectionHeading}>Areas we serve across Chennai</h2>
           <p className={styles.bodyText}>
             Customers visit from across the city and order online for delivery. Popular areas
             include:
           </p>
-          <ul className={styles.bulletList}>
+          <ul className={styles.areaGrid}>
             {areas.map((area) => (
-              <li key={area} className={styles.bulletItem}>
-                Furniture delivery &amp; showroom visits for {area}, Chennai
+              <li key={area} className={styles.areaItem}>
+                {area}, Chennai
               </li>
             ))}
           </ul>
           <p className={styles.bodyText}>
-            Get directions on our <Link href="/store-locator">store locator</Link> page.
+            Get directions on our{' '}
+            <Link href="/store-locator" className={styles.inlineLink}>
+              store locator
+            </Link>{' '}
+            page.
           </p>
 
           <hr className={styles.divider} />
@@ -267,7 +268,7 @@ export default function FurnitureStoreChennaiPage() {
             Frequently asked questions — furniture store Chennai
           </h2>
           {faqs.map((item) => (
-            <div key={item.q} style={{ marginBottom: 16 }}>
+            <div key={item.q} className={styles.faqBlock}>
               <h3 className={styles.subHeading}>{item.q}</h3>
               <p className={styles.bodyText}>{item.a}</p>
             </div>
@@ -285,49 +286,40 @@ export default function FurnitureStoreChennaiPage() {
             <br />
             Phone: {COMPANY.phoneDisplay}
             <br />
-            Maps: <a href={COMPANY.mapsUrl} target="_blank" rel="noopener noreferrer">Open in Google Maps</a>
+            Maps:{' '}
+            <a
+              href={COMPANY.mapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.inlineLink}
+            >
+              Open in Google Maps
+            </a>
           </p>
           <p className={styles.closingTextBold}>
             Read guides:{' '}
-            <Link href="/blog/best-furniture-store-chennai-buying-guide">
+            <Link
+              href="/blog/best-furniture-store-chennai-buying-guide"
+              className={styles.inlineLink}
+            >
               Best furniture store in Chennai — buying guide
             </Link>
             {' · '}
-            <Link href="/blog/furniture-shopping-in-chennai-showroom-vs-online">
+            <Link
+              href="/blog/furniture-shopping-in-chennai-showroom-vs-online"
+              className={styles.inlineLink}
+            >
               Showroom vs online furniture shopping in Chennai
             </Link>
           </p>
-          <p style={{ marginTop: 20 }}>
-            <Link
-              href="/products"
-              style={{
-                display: 'inline-block',
-                padding: '12px 24px',
-                background: '#e67e22',
-                color: '#fff',
-                borderRadius: 8,
-                fontWeight: 600,
-                textDecoration: 'none',
-                marginRight: 12,
-              }}
-            >
+          <div className={styles.ctaRow}>
+            <Link href="/products" className={styles.ctaPrimary}>
               Shop furniture
             </Link>
-            <Link
-              href="/store-locator"
-              style={{
-                display: 'inline-block',
-                padding: '12px 24px',
-                border: '1px solid #e67e22',
-                color: '#e67e22',
-                borderRadius: 8,
-                fontWeight: 600,
-                textDecoration: 'none',
-              }}
-            >
+            <Link href="/store-locator" className={styles.ctaSecondary}>
               Visit showroom
             </Link>
-          </p>
+          </div>
         </div>
       </section>
     </main>
