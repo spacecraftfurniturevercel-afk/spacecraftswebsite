@@ -89,6 +89,57 @@ const nextConfig = {
         source: '/home',
         destination: '/',
         permanent: true
+      },
+      // SKU slug → keyword slug redirects (301 permanent)
+      {
+        source: '/products/jf-5270-3f',
+        destination: '/products/3feet-recliner-folding-cot',
+        permanent: true
+      },
+      {
+        source: '/products/jf-5210-5f',
+        destination: '/products/ancient-folding-cot-5-feet-jf-5210-5f',
+        permanent: true
+      },
+      {
+        source: '/products/jf-5210-4f',
+        destination: '/products/apollo-folding-cot-4-feet-jf-5210-4f',
+        permanent: true
+      },
+      {
+        source: '/products/jf-1155d',
+        destination: '/products/cosmo-sofa-cum-bed-double-jf-1155d',
+        permanent: true
+      },
+      {
+        source: '/products/jf-9090',
+        destination: '/products/fontanka-bunker-cot-jf-9090',
+        permanent: true
+      },
+      {
+        source: '/products/fw-4545',
+        destination: '/products/jinli-sliding-study-desk-fw-4545',
+        permanent: true
+      },
+      {
+        source: '/products/fw-4656',
+        destination: '/products/lombard-pull-out-table',
+        permanent: true
+      },
+      {
+        source: '/products/jf-5909',
+        destination: '/products/luminous-steel-cot-jf-5909',
+        permanent: true
+      },
+      {
+        source: '/products/jf-5151',
+        destination: '/products/mercury-steel-cot-jf-5151',
+        permanent: true
+      },
+      {
+        source: '/products/jf-5555',
+        destination: '/products/metal-leg-double-cot-jf-5555',
+        permanent: true
       }
     ]
   }
