@@ -45,6 +45,20 @@ function safeIso(value) {
   return d.toISOString()
 }
 
+/** Escape XML special chars so bare & in slugs (e.g. study-&-office-tables) does not break the sitemap */
+function escapeXml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;')
+}
+
+function locTag(url) {
+  return `<loc>${escapeXml(url)}</loc>`
+}
+
 async function fetchAllActiveProductSlugs(supabase) {
   const pageSize = 1000
   let from = 0
@@ -107,87 +121,44 @@ export async function GET() {
       )
     )
 
+    const staticUrls = [
+      [baseUrl, today, 'daily', '1.0'],
+      [`${baseUrl}/products`, today, 'daily', '0.95'],
+      [`${baseUrl}/store-locator`, today, 'monthly', '0.9'],
+      [`${baseUrl}/blog`, latestBlogDate, 'weekly', '0.8'],
+      [`${baseUrl}/about`, null, 'monthly', '0.7'],
+      [`${baseUrl}/contact`, null, 'monthly', '0.7'],
+      [`${baseUrl}/faq`, null, 'monthly', '0.6'],
+      [`${baseUrl}/bulk-orders`, null, 'monthly', '0.6'],
+      [`${baseUrl}/franchise`, null, 'monthly', '0.5'],
+      [`${baseUrl}/shipping-info`, null, 'monthly', '0.5'],
+      [`${baseUrl}/returns-policy`, null, 'monthly', '0.5'],
+      [`${baseUrl}/terms`, null, 'yearly', '0.4'],
+      [`${baseUrl}/privacy-policy`, null, 'yearly', '0.4'],
+    ]
+
+    const urlEntry = (url, lastmod, changefreq, priority) => {
+      let entry = `  <url>\n    ${locTag(url)}\n`
+      if (lastmod) entry += `    <lastmod>${lastmod}</lastmod>\n`
+      entry += `    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>\n`
+      return entry
+    }
+
     let sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>${baseUrl}</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/products</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.95</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/store-locator</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/blog</loc>
-    <lastmod>${latestBlogDate}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/about</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/contact</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/faq</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/bulk-orders</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/franchise</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/shipping-info</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/returns-policy</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/terms</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.4</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/privacy-policy</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.4</priority>
-  </url>
 `
 
+    staticUrls.forEach(([url, lastmod, changefreq, priority]) => {
+      sitemap += urlEntry(url, lastmod, changefreq, priority)
+    })
+
     blogPosts.forEach((post) => {
-      sitemap += `  <url>
-    <loc>${baseUrl}/blog/${post.slug}</loc>
-    <lastmod>${safeIso(post.updatedAt || post.publishedAt)}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-`
+      sitemap += urlEntry(
+        `${baseUrl}/blog/${post.slug}`,
+        safeIso(post.updatedAt || post.publishedAt),
+        'monthly',
+        '0.7'
+      )
     })
 
     const categorySlugs = new Set([
@@ -196,24 +167,22 @@ export async function GET() {
     ])
 
     ;[...categorySlugs].forEach((slug) => {
-      sitemap += `  <url>
-    <loc>${baseUrl}/products/category/${encodeURI(slug)}</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-`
+      sitemap += urlEntry(
+        `${baseUrl}/products/category/${slug}`,
+        today,
+        'weekly',
+        '0.8'
+      )
     })
 
     products.forEach((product) => {
       if (!product?.slug) return
-      sitemap += `  <url>
-    <loc>${baseUrl}/products/${product.slug}</loc>
-    <lastmod>${safeIso(product.created_at)}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-`
+      sitemap += urlEntry(
+        `${baseUrl}/products/${product.slug}`,
+        safeIso(product.created_at),
+        'weekly',
+        '0.7'
+      )
     })
 
     sitemap += '</urlset>'
@@ -222,7 +191,7 @@ export async function GET() {
       status: 200,
       headers: {
         'Content-Type': 'application/xml; charset=utf-8',
-        'Cache-Control': 'public, max-age=300, s-maxage=300, stale-while-revalidate=3600',
+        'Cache-Control': 'public, max-age=60, s-maxage=60, stale-while-revalidate=300',
       },
     })
   } catch (error) {
@@ -231,13 +200,13 @@ export async function GET() {
     const basicSitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>${baseUrl}</loc>
+    ${locTag(baseUrl)}
     <lastmod>${today}</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>${baseUrl}/products</loc>
+    ${locTag(`${baseUrl}/products`)}
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
