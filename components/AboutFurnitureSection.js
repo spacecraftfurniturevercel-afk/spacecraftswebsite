@@ -69,7 +69,7 @@ export default function AboutFurnitureSection() {
         {/* Premium Furniture Materials */}
         <h2 className={styles.sectionHeading}>Premium Furniture Materials We Offer</h2>
         <p className={styles.bodyText}>
-          At Space Craft Furniture, we use carefully selected materials to ensure durability and elegance.
+          At Spacecrafts Furniture, we use carefully selected materials to ensure durability and elegance.
         </p>
 
         <p className={styles.subHeading}>Solid Wood (Sheesham, Mango, Teak)</p>
@@ -97,7 +97,7 @@ export default function AboutFurnitureSection() {
         {/* More Than Just Furniture */}
         <h2 className={styles.sectionHeading}>More Than Just Furniture</h2>
         <p className={styles.bodyText}>
-          Space Craft Furniture also offers:
+          Spacecrafts Furniture also offers:
         </p>
         <ul className={styles.bulletList}>
           <li className={styles.bulletItem}>Home decor and furnishings</li>
