@@ -7,15 +7,17 @@ import styles from './blog.module.css'
 const SITE = COMPANY.url
 
 export const metadata = {
-  title: 'Furniture Blog & Buying Guides',
+  title: {
+    absolute: 'Furniture Tips & Buying Guides Chennai | Spacecrafts Blog',
+  },
   description:
-    'Tips on buying sofas, beds, and space-saving furniture online in India. Visit our Chennai showroom guides, delivery info, and care advice from Spacecrafts Furniture.',
+    'Furniture buying guides from Spacecrafts Furniture, Ambattur, Chennai. Sofas, bunk beds, metal cots, space-saving furniture tips and showroom visit advice.',
   alternates: {
     canonical: `${SITE}/blog`,
   },
   openGraph: {
-    title: 'Spacecrafts Furniture Blog',
-    description: 'Buying guides, showroom visits, and furniture tips from Chennai.',
+    title: 'Furniture Tips & Buying Guides Chennai | Spacecrafts Blog',
+    description: 'Buying guides and showroom tips from Ambattur, Chennai.',
     url: `${SITE}/blog`,
     type: 'website',
     images: [{ url: '/aboutus/exterior1.webp', width: 1200, height: 630 }],

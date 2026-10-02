@@ -2,15 +2,17 @@ import styles from '../../components/AboutPage.module.css'
 import Link from 'next/link'
 
 export const metadata = {
-  title: 'About Us - Spacecrafts Furniture | Premium Furniture Manufacturer Chennai',
-  description: 'Learn about Spacecrafts Furniture - A leading furniture manufacturer in Chennai since 1997. Over 25 years of expertise in space-saving, innovative furniture design and manufacturing.',
-  keywords: 'about furniture company, furniture manufacturer Chennai, Spacecrafts Furniture history, furniture design expertise, Indian furniture brand',
+  title: {
+    absolute: 'About Spacecrafts Furniture | Furniture Manufacturer Chennai',
+  },
+  description: 'Spacecrafts Furniture, Ambattur Industrial Estate, Chennai — furniture manufacturer and showroom since 1997. Space-saving sofas, bunk beds, metal cots and more. Visit our 8,000 sq. ft. store.',
+  keywords: 'furniture manufacturer Chennai, Spacecrafts Furniture Ambattur, furniture company Chennai, furniture showroom Ambattur, about Spacecrafts Furniture',
   alternates: {
     canonical: 'https://www.spacecraftsfurniture.in/about'
   },
   openGraph: {
-    title: 'About Spacecrafts Furniture - Premium Furniture Solutions',
-    description: 'Over 25 years of expertise in designing and manufacturing premium quality furniture.',
+    title: 'About Spacecrafts Furniture | Chennai Showroom',
+    description: 'Furniture manufacturer and showroom in Ambattur, Chennai since 1997.',
     url: 'https://www.spacecraftsfurniture.in/about',
     type: 'website'
   }

@@ -69,8 +69,8 @@ const SUB_CATEGORIES = [
 // SEO-friendly category descriptions
 const categoryMeta = {
   'bunk-beds': {
-    title: 'Buy Bunk Beds Online India — Kids, Hostel & Adults',
-    description: 'Buy bunk beds online India. Metal & wooden bunk beds with safety rails for kids rooms, hostels & PGs. Prices from Rs. 15,000. Free pan-India delivery. Visit showroom in Chennai.',
+    title: 'Bunk Beds in Chennai — Kids, Hostel & Adults',
+    description: 'Buy bunk beds in Chennai. Metal and wooden bunk beds with safety rails for kids rooms, hostels and PGs. Visit our Ambattur showroom or order online with pan-India delivery.',
     h1: 'Bunk Beds'
   },
   'futon-beds': {
@@ -89,8 +89,8 @@ const categoryMeta = {
     h1: 'Folding Beds'
   },
   'metal-cots': {
-    title: 'Metal Cots',
-    description: 'Shop metal cots — durable iron & steel bed frames. Classic & modern designs at factory prices. Strong, long-lasting & affordable.',
+    title: 'Metal Cots & Steel Cots in Chennai',
+    description: 'Buy metal cots and steel cots in Chennai. Durable iron and steel bed frames at factory prices. Showroom in Ambattur. Strong, long-lasting and affordable. Pan-India delivery.',
     h1: 'Metal Cots'
   },
   'recliner-folding-beds': {
@@ -99,8 +99,8 @@ const categoryMeta = {
     h1: 'Recliner Folding Beds'
   },
   'sofa-cum-beds': {
-    title: 'Sofa Cum Beds Online India — With Storage',
-    description: 'Buy sofa cum beds online. Convertible sofa beds with and without storage for living rooms and small flats. 2-in-1 space saving furniture. Best prices, pan-India delivery.',
+    title: 'Sofa Cum Beds in Chennai — With Storage',
+    description: 'Buy sofa cum beds in Chennai. Convertible sofa beds with and without storage for living rooms and small flats. Visit Ambattur showroom or order online. Pan-India delivery.',
     h1: 'Sofa Cum Beds'
   },
   'wooden-beds': {

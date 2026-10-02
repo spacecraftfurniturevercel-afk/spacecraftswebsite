@@ -66,8 +66,8 @@ export default function StoreLocator() {
       {/* Hero Section */}
       <section className={styles.heroSection}>
         <div className={styles.heroContent}>
-          <h1 className={styles.heroTitle}>Visit Our Showroom</h1>
-          <p className={styles.heroSubtitle}>Experience premium furniture at our modern 8,000 sq. ft. facility in Ambattur Industrial Estate, Chennai</p>
+          <h1 className={styles.heroTitle}>Furniture Showroom in Ambattur, Chennai</h1>
+          <p className={styles.heroSubtitle}>Visit Spacecrafts Furniture — 8,000 sq. ft. showroom in Ambattur Industrial Estate. Sofas, bunk beds, metal cots and space-saving furniture.</p>
         </div>
         <div className={styles.heroOverlay}></div>
       </section>

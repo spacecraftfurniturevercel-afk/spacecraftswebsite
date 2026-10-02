@@ -18,13 +18,13 @@ export const revalidate = CATALOG_REVALIDATE_SECONDS
 // SEO Metadata
 export const metadata = {
   title: {
-    absolute: 'Buy Furniture Online in Chennai | Spacecrafts Furniture',
+    absolute: 'Furniture Store in Chennai | Spacecrafts Ambattur',
   },
-  description: 'Shop premium sofas, sofa cum beds, bunk beds, metal cots, dining sets & space-saving furniture online. Showroom in Ambattur, Chennai. Pan-India delivery. Best prices, 12-month warranty.',
-  keywords: 'furniture store Chennai, buy furniture online India, sofa cum bed, bunk beds Chennai, space saving furniture, metal cots, furniture showroom Ambattur, online furniture shopping, beds Chennai, dining sets',
+  description: 'Furniture store in Ambattur, Chennai. Buy sofas, sofa cum beds, bunk beds, metal cots and space-saving furniture. 8,000 sq. ft. showroom. Call 90030 03733. Pan-India delivery.',
+  keywords: 'furniture store Chennai, furniture shop Ambattur, furniture store near me Chennai, bunk beds Chennai, sofa cum bed Chennai, metal cots Chennai, space saving furniture Chennai, Spacecrafts Furniture Ambattur',
   openGraph: {
-    title: 'Buy Furniture Online in Chennai | Spacecrafts Furniture',
-    description: 'Sofas, sofa cum beds, bunk beds, metal cots & dining sets. Showroom in Ambattur, Chennai. Pan-India delivery.',
+    title: 'Furniture Store in Chennai | Spacecrafts Ambattur',
+    description: 'Showroom in Ambattur, Chennai. Sofas, bunk beds, sofa cum beds, metal cots. Visit or shop online.',
     url: 'https://www.spacecraftsfurniture.in',
     siteName: 'Spacecrafts Furniture',
     images: [
@@ -39,8 +39,8 @@ export const metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Buy Furniture Online in Chennai | Spacecrafts Furniture',
-    description: 'Shop sofas, sofa cum beds, bunk beds, metal cots & dining sets. Showroom in Ambattur, Chennai. Pan-India delivery.',
+    title: 'Furniture Store in Chennai | Spacecrafts Ambattur',
+    description: 'Showroom in Ambattur, Chennai. Sofas, bunk beds, sofa cum beds, metal cots. Visit or shop online.',
     images: ['/aboutus/exterior1.webp']
   },
   alternates: {
