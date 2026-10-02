@@ -65,11 +65,16 @@ export default async function Home() {
     '@context': 'https://schema.org',
     '@type': 'FurnitureStore',
     name: 'Spacecrafts Furniture',
-    description: 'Premium furniture store offering sofas, beds, dining sets, office furniture and home decor',
+    description: 'Premium furniture store in Ambattur, Chennai offering sofas, sofa cum beds, bunk beds, metal cots, dining sets and space-saving furniture. 8,000 sq. ft. showroom open daily.',
     url: 'https://www.spacecraftsfurniture.in',
     logo: 'https://www.spacecraftsfurniture.in/favlogo/logo-01.png',
-    image: 'https://www.spacecraftsfurniture.in/aboutus/exterior1.webp',
+    image: [
+      'https://www.spacecraftsfurniture.in/aboutus/exterior1.webp',
+      'https://www.spacecraftsfurniture.in/aboutus/exterior2.webp',
+      'https://www.spacecraftsfurniture.in/aboutus/inner1.webp'
+    ],
     telephone: '+919003003733',
+    email: 'support@spacecraftsfurniture.in',
     address: {
       '@type': 'PostalAddress',
       streetAddress: '94A/1, 3rd Main Rd, Old Ambattur, Attipattu',
@@ -78,13 +83,39 @@ export default async function Home() {
       postalCode: '600058',
       addressCountry: 'IN'
     },
-    priceRange: '₹₹₹',
-    openingHours: 'Mo-Sa 10:00-20:00',
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: 13.0910641,
+      longitude: 80.1586599
+    },
+    priceRange: '₹₹',
+    currenciesAccepted: 'INR',
+    paymentAccepted: 'Cash, Credit Card, Debit Card, UPI, Net Banking',
+    openingHoursSpecification: [
+      {
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+        opens: '10:00',
+        closes: '21:30'
+      },
+      {
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: ['Saturday', 'Sunday'],
+        opens: '10:00',
+        closes: '22:00'
+      }
+    ],
     sameAs: [
       'https://www.facebook.com/spacecraftsfurniture',
       'https://www.instagram.com/spacecraftsfurniture',
-      'https://twitter.com/spacecraftsfurn'
-    ]
+      'https://maps.app.goo.gl/sMTmsBTJBKszoP1Q7'
+    ],
+    hasMap: 'https://maps.app.goo.gl/sMTmsBTJBKszoP1Q7',
+    areaServed: [
+      { '@type': 'City', name: 'Chennai' },
+      { '@type': 'State', name: 'Tamil Nadu' }
+    ],
+    keywords: 'furniture store Chennai, bunk beds Chennai, sofa cum bed, metal cots, space saving furniture, furniture showroom Ambattur'
   }
 
   return (

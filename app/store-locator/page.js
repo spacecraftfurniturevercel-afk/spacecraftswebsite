@@ -178,9 +178,14 @@ export default function StoreLocator() {
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             '@context': 'https://schema.org',
-            '@type': 'LocalBusiness',
+            '@type': 'FurnitureStore',
             'name': 'Spacecrafts Furniture',
-            'image': 'https://www.spacecraftsfurniture.in/aboutus/exterior1.webp',
+            'image': [
+              'https://www.spacecraftsfurniture.in/aboutus/exterior1.webp',
+              'https://www.spacecraftsfurniture.in/aboutus/exterior2.webp',
+              'https://www.spacecraftsfurniture.in/aboutus/inner1.webp'
+            ],
+            'description': 'Premium furniture store in Ambattur, Chennai offering sofas, sofa cum beds, bunk beds, metal cots, dining sets and space-saving furniture. 8,000 sq. ft. showroom open daily.',
             'address': {
               '@type': 'PostalAddress',
               'streetAddress': '94A/1, 3rd Main Rd, Old Ambattur, Attipattu',
@@ -189,24 +194,41 @@ export default function StoreLocator() {
               'postalCode': '600058',
               'addressCountry': 'IN'
             },
+            'geo': {
+              '@type': 'GeoCoordinates',
+              'latitude': 13.0910641,
+              'longitude': 80.1586599
+            },
             'telephone': '+919003003733',
             'email': 'support@spacecraftsfurniture.in',
-            'url': 'https://spacecraftsfurniture.in',
+            'url': 'https://www.spacecraftsfurniture.in',
+            'sameAs': [
+              'https://www.facebook.com/spacecraftsfurniture',
+              'https://www.instagram.com/spacecraftsfurniture',
+              'https://maps.app.goo.gl/sMTmsBTJBKszoP1Q7'
+            ],
             'openingHoursSpecification': [
               {
                 '@type': 'OpeningHoursSpecification',
-                'dayOfWeek': ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+                'dayOfWeek': ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
                 'opens': '10:00',
-                'closes': '20:00'
+                'closes': '21:30'
               },
               {
                 '@type': 'OpeningHoursSpecification',
-                'dayOfWeek': 'Sunday',
-                'opens': '11:00',
-                'closes': '18:00'
+                'dayOfWeek': ['Saturday', 'Sunday'],
+                'opens': '10:00',
+                'closes': '22:00'
               }
             ],
-            'priceRange': '₹₹₹'
+            'priceRange': '₹₹',
+            'currenciesAccepted': 'INR',
+            'paymentAccepted': 'Cash, Credit Card, Debit Card, UPI, Net Banking',
+            'areaServed': {
+              '@type': 'State',
+              'name': 'Tamil Nadu'
+            },
+            'hasMap': 'https://maps.app.goo.gl/sMTmsBTJBKszoP1Q7'
           })
         }}
       />
