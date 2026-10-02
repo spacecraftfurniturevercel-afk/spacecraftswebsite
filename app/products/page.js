@@ -5,7 +5,9 @@ import { getCachedProductsListing } from '../../lib/catalogData'
 export const revalidate = CATALOG_REVALIDATE_SECONDS
 
 export const metadata = {
-  title: 'Buy Furniture Online India | Sofas, Beds, Bunk Beds, Sofa Cum Beds — Spacecrafts',
+  title: {
+    absolute: 'Buy Furniture Online India | Sofas, Beds & Bunk Beds | Spacecrafts',
+  },
   description: 'Shop 200+ furniture products online. Sofa cum beds, bunk beds, metal cots, dining sets, recliners & space-saving furniture. Best prices, 12-month warranty. Chennai showroom + pan-India delivery.',
   keywords: 'buy furniture online India, sofa cum bed online, bunk beds online, metal cots, space saving furniture, furniture Chennai, dining sets, recliners, study tables',
   alternates: {
@@ -16,7 +18,14 @@ export const metadata = {
     description: '200+ furniture products. Sofa cum beds, bunk beds, metal cots & space-saving furniture. Best prices, pan-India delivery.',
     url: 'https://www.spacecraftsfurniture.in/products',
     type: 'website',
-  }
+    images: [{ url: '/aboutus/exterior1.webp', width: 1200, height: 630, alt: 'Spacecrafts Furniture' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Buy Furniture Online — Sofas, Beds, Bunk Beds & More | Spacecrafts',
+    description: '200+ furniture products. Best prices, pan-India delivery.',
+    images: ['/aboutus/exterior1.webp'],
+  },
 }
 
 const PRODUCTS_PER_PAGE = 16
@@ -109,7 +118,7 @@ export default async function ProductsPage({ searchParams }) {
             isPartOf: {
               '@type': 'WebSite',
               name: 'Spacecrafts Furniture',
-              url: 'https://spacecraftsfurniture.in'
+              url: 'https://www.spacecraftsfurniture.in'
             },
             numberOfItems: totalCount
           })

@@ -5,10 +5,10 @@ export default function AboutFurnitureSection() {
     <section className={styles.section}>
       <div className={styles.container}>
 
-        {/* Main Title */}
-        <h2 className={styles.mainTitle}>
-          Buy Furniture Online in Chennai &mdash; Spacecrafts Furniture, Ambattur
-        </h2>
+        {/* Main page H1 — visible for SEO (homepage) */}
+        <h1 className={styles.mainTitle}>
+          Furniture Store in Chennai — Sofas, Beds &amp; Bunk Beds | Spacecrafts Furniture, Ambattur
+        </h1>
 
         {/* Intro */}
         <p className={styles.intro}>
@@ -26,7 +26,7 @@ export default function AboutFurnitureSection() {
         {/* Explore Furniture for Every Room */}
         <h2 className={styles.sectionHeading}>Explore Furniture for Every Room</h2>
         <p className={styles.bodyText}>
-          At Space Craft Furniture, every room deserves attention to detail and design excellence. Our curated collections bring together comfort, functionality, and aesthetics.
+          At Spacecrafts Furniture, every room deserves attention to detail and design excellence. Our curated collections bring together comfort, functionality, and aesthetics.
         </p>
 
         <p className={styles.subHeading}>Living Room Furniture</p>

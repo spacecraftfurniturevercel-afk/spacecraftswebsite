@@ -79,9 +79,6 @@ export const metadata = {
     apple: '/favlogo/logo-01.png',
   },
   manifest: '/site.webmanifest',
-  alternates: {
-    canonical: SITE_URL,
-  },
   verification: {
     google: GOOGLE_VERIFICATION,
   },

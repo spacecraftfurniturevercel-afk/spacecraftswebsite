@@ -27,7 +27,7 @@ const EXTRA_CATEGORY_SLUGS = [
   'coffee-tables',
   'foldable-tables',
   'study-tables',
-  'study-&-office-tables',
+  'study-office-tables',
   'dressing-tables',
   'shoe-racks',
   'book-shelves',

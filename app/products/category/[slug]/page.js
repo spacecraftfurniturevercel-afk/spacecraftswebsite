@@ -2,6 +2,15 @@ import ProductsClient from '../../../../components/ProductsClient'
 import { notFound } from 'next/navigation'
 import { CATALOG_REVALIDATE_SECONDS } from '../../../../lib/catalogCache'
 import { getCachedCategoryBySlug, getCachedCategoryListing } from '../../../../lib/catalogData'
+import { getPublicSiteUrl } from '../../../../lib/siteUrl'
+
+function resolveCategoryTitle(metaTitle) {
+  const cleaned = String(metaTitle || 'Products')
+    .replace(/\s*[|—]\s*Spacecrafts[^|]*/gi, '')
+    .replace(/\s*-\s*Buy Online at Best Prices.*/i, '')
+    .trim()
+  return { absolute: `${cleaned} | Spacecrafts Furniture` }
+}
 
 export const revalidate = CATALOG_REVALIDATE_SECONDS
 
@@ -60,8 +69,8 @@ const SUB_CATEGORIES = [
 // SEO-friendly category descriptions
 const categoryMeta = {
   'bunk-beds': {
-    title: 'Buy Bunk Beds Online India — Kids, Hostel & Adults | Spacecrafts Chennai',
-    description: '⭐ Buy bunk beds online India. Metal & wooden bunk beds with safety rails for kids rooms, hostels & PGs. Prices from ₹15,000. Free pan-India delivery. Visit showroom in Chennai.',
+    title: 'Buy Bunk Beds Online India — Kids, Hostel & Adults',
+    description: 'Buy bunk beds online India. Metal & wooden bunk beds with safety rails for kids rooms, hostels & PGs. Prices from Rs. 15,000. Free pan-India delivery. Visit showroom in Chennai.',
     h1: 'Bunk Beds'
   },
   'futon-beds': {
@@ -90,8 +99,8 @@ const categoryMeta = {
     h1: 'Recliner Folding Beds'
   },
   'sofa-cum-beds': {
-    title: 'Sofa Cum Beds Online India — With Storage | Spacecrafts Furniture Chennai',
-    description: 'Buy sofa cum beds online. Convertible sofa beds with & without storage for living rooms & small flats. 2-in-1 space saving furniture. Best prices, pan-India delivery.',
+    title: 'Sofa Cum Beds Online India — With Storage',
+    description: 'Buy sofa cum beds online. Convertible sofa beds with and without storage for living rooms and small flats. 2-in-1 space saving furniture. Best prices, pan-India delivery.',
     h1: 'Sofa Cum Beds'
   },
   'wooden-beds': {
@@ -248,8 +257,8 @@ const categoryMeta = {
     h1: 'All Beds'
   },
   'chairs': {
-    title: 'Chairs Online India — Office, Study, Rocking & Foldable | Spacecrafts Chennai',
-    description: 'Buy chairs online. Ergonomic office chairs, study chairs, rocking chairs & foldable chairs at best prices. Showroom in Chennai, pan-India delivery.',
+    title: 'Chairs Online India — Office, Study, Rocking & Foldable',
+    description: 'Buy chairs online. Ergonomic office chairs, study chairs, rocking chairs and foldable chairs at best prices. Showroom in Chennai, pan-India delivery.',
     h1: 'All Chairs'
   },
   'dining-sets': {
@@ -258,8 +267,8 @@ const categoryMeta = {
     h1: 'All Dining Sets'
   },
   'sofa-sets': {
-    title: 'Sofa Sets Online India — Corner, Recliner & 3+1+1 | Spacecrafts Furniture Chennai',
-    description: 'Buy sofa sets online. Corner sofas, recliner sofas, 3+1+1 sets & cushion sofas. Premium quality at best prices. Showroom in Chennai, free delivery across India.',
+    title: 'Sofa Sets Online India — Corner, Recliner & 3+1+1',
+    description: 'Buy sofa sets online. Corner sofas, recliner sofas, 3+1+1 sets and cushion sofas. Premium quality at best prices. Showroom in Chennai, free delivery across India.',
     h1: 'All Sofa Sets'
   },
   'tables': {
@@ -282,29 +291,37 @@ const categoryMeta = {
 export async function generateMetadata({ params }) {
   const { slug } = params
   const meta = categoryMeta[slug]
-  
   const siteName = 'Spacecrafts Furniture'
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://spacecraftsfurniture.in'
-  
+  const baseUrl = getPublicSiteUrl()
+  const ogImage = {
+    url: '/aboutus/exterior1.webp',
+    width: 1200,
+    height: 630,
+    alt: siteName,
+  }
+
   if (meta) {
+    const title = resolveCategoryTitle(meta.title)
     return {
-      title: `${meta.title} - Buy Online at Best Prices | ${siteName}`,
+      title,
       description: meta.description,
       alternates: {
-        canonical: `${baseUrl}/products/category/${slug}`
+        canonical: `${baseUrl}/products/category/${encodeURI(slug)}`,
       },
       openGraph: {
-        title: `${meta.title} - ${siteName}`,
+        title: title.absolute,
         description: meta.description,
         url: `${baseUrl}/products/category/${slug}`,
         siteName,
-        type: 'website'
+        type: 'website',
+        images: [ogImage],
       },
       twitter: {
         card: 'summary_large_image',
-        title: `${meta.title} - ${siteName}`,
-        description: meta.description
-      }
+        title: title.absolute,
+        description: meta.description,
+        images: [ogImage.url],
+      },
     }
   }
 
@@ -313,21 +330,28 @@ export async function generateMetadata({ params }) {
     const cat = await getCachedCategoryBySlug(slug)
 
     if (cat) {
-      const title = cat.name
-      const description = `Shop ${cat.name} online at ${siteName}. Browse our curated collection with best prices, premium quality & free delivery across India.`
+      const title = resolveCategoryTitle(cat.name)
+      const description = `Shop ${cat.name} online at ${siteName}. Browse our curated collection with best prices, premium quality and free delivery across India.`
       return {
-        title: `${title} - Buy Online at Best Prices | ${siteName}`,
+        title,
         description,
         alternates: {
-          canonical: `${baseUrl}/products/category/${slug}`
+          canonical: `${baseUrl}/products/category/${encodeURI(slug)}`,
         },
         openGraph: {
-          title: `${title} - ${siteName}`,
+          title: title.absolute,
           description,
           url: `${baseUrl}/products/category/${slug}`,
           siteName,
-          type: 'website'
-        }
+          type: 'website',
+          images: [ogImage],
+        },
+        twitter: {
+          card: 'summary_large_image',
+          title: title.absolute,
+          description,
+          images: [ogImage.url],
+        },
       }
     }
   } catch (e) {
@@ -335,8 +359,8 @@ export async function generateMetadata({ params }) {
   }
 
   return {
-    title: `Products | ${siteName}`,
-    description: `Shop furniture online at ${siteName}`
+    title: { absolute: `Products | ${siteName}` },
+    description: `Shop furniture online at ${siteName}`,
   }
 }
 

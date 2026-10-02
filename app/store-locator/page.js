@@ -2,18 +2,27 @@ import styles from '../../components/StoreLocatorDetail.module.css'
 import Link from 'next/link'
 
 export const metadata = {
-  title: 'Furniture Store Near Me in Chennai | Spacecrafts Furniture Showroom — Ambattur',
-  description: '⭐ Visit our 8,000 sq. ft. showroom in Ambattur, Chennai. Sofas, sofa cum beds, bunk beds, metal cots & more. Open daily 10AM–9:30PM. Free parking. Call 090030 03733 for directions.',
+  title: {
+    absolute: 'Furniture Store Near Me in Chennai | Spacecrafts Showroom Ambattur',
+  },
+  description: 'Visit our 8,000 sq. ft. showroom in Ambattur, Chennai. Sofas, sofa cum beds, bunk beds, metal cots and more. Open Mon-Fri 10AM-9:30PM, Sat-Sun 10AM-10PM. Free parking. Call 090030 03733.',
   keywords: 'furniture store near me, furniture showroom Chennai, Ambattur furniture store, furniture store Ambattur Industrial Estate, furniture shop Chennai, sofa showroom Chennai, bed showroom Chennai, spacecrafts furniture location',
   alternates: {
     canonical: 'https://www.spacecraftsfurniture.in/store-locator'
   },
   openGraph: {
     title: 'Visit Spacecrafts Furniture Showroom — Ambattur, Chennai',
-    description: '8,000 sq. ft. showroom open daily. Sofas, bunk beds, sofa cum beds & more. Get directions, hours & contact.',
+    description: '8,000 sq. ft. showroom open daily. Sofas, bunk beds, sofa cum beds and more. Get directions, hours and contact.',
     url: 'https://www.spacecraftsfurniture.in/store-locator',
-    type: 'website'
-  }
+    type: 'website',
+    images: [{ url: '/aboutus/exterior1.webp', width: 1200, height: 630, alt: 'Spacecrafts Furniture Ambattur showroom' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Visit Spacecrafts Furniture Showroom — Ambattur, Chennai',
+    description: '8,000 sq. ft. showroom open daily. Get directions, hours and contact.',
+    images: ['/aboutus/exterior1.webp'],
+  },
 }
 
 export default function StoreLocator() {
@@ -179,6 +188,7 @@ export default function StoreLocator() {
           __html: JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'FurnitureStore',
+            '@id': 'https://www.spacecraftsfurniture.in/#furniture-store',
             'name': 'Spacecrafts Furniture',
             'image': [
               'https://www.spacecraftsfurniture.in/aboutus/exterior1.webp',

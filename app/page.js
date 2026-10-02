@@ -17,7 +17,9 @@ export const revalidate = CATALOG_REVALIDATE_SECONDS
 
 // SEO Metadata
 export const metadata = {
-  title: 'Buy Furniture Online in Chennai | Sofas, Beds, Bunk Beds & More — Spacecrafts Furniture',
+  title: {
+    absolute: 'Buy Furniture Online in Chennai | Spacecrafts Furniture',
+  },
   description: 'Shop premium sofas, sofa cum beds, bunk beds, metal cots, dining sets & space-saving furniture online. Showroom in Ambattur, Chennai. Pan-India delivery. Best prices, 12-month warranty.',
   keywords: 'furniture store Chennai, buy furniture online India, sofa cum bed, bunk beds Chennai, space saving furniture, metal cots, furniture showroom Ambattur, online furniture shopping, beds Chennai, dining sets',
   openGraph: {
@@ -64,6 +66,7 @@ export default async function Home() {
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'FurnitureStore',
+    '@id': 'https://www.spacecraftsfurniture.in/#furniture-store',
     name: 'Spacecrafts Furniture',
     description: 'Premium furniture store in Ambattur, Chennai offering sofas, sofa cum beds, bunk beds, metal cots, dining sets and space-saving furniture. 8,000 sq. ft. showroom open daily.',
     url: 'https://www.spacecraftsfurniture.in',
@@ -127,21 +130,6 @@ export default async function Home() {
       />
 
       <main>
-        {/* SEO H1 — server-rendered, visually integrated above hero */}
-        <h1 style={{
-          position: 'absolute',
-          width: '1px',
-          height: '1px',
-          padding: 0,
-          margin: '-1px',
-          overflow: 'hidden',
-          clip: 'rect(0,0,0,0)',
-          whiteSpace: 'nowrap',
-          border: 0,
-        }}>
-          Furniture Store in Chennai — Buy Sofas, Beds, Bunk Beds & Space-Saving Furniture Online | Spacecrafts Furniture, Ambattur
-        </h1>
-
         {/* Hero Section */}
         <ModernHeroCarousel />
 

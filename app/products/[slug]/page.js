@@ -14,17 +14,28 @@ export async function generateMetadata({ params }) {
     if (!meta?.product) return { title: 'Product not found' }
 
     const { product, imageUrl } = meta
+    const description =
+      product.description ||
+      `Buy ${product.name} online at Spacecrafts Furniture. Premium quality furniture at best prices.`
     return {
-      title: `${product.name} - Spacecrafts Furniture`,
-      description: product.description || `Buy ${product.name} online. Premium quality furniture at best prices.`,
+      title: product.name,
+      description,
       alternates: {
         canonical: `https://www.spacecraftsfurniture.in/products/${slug}`,
       },
       openGraph: {
         title: product.name,
-        description: product.description,
+        description,
         url: `https://www.spacecraftsfurniture.in/products/${slug}`,
-        images: imageUrl ? [imageUrl] : [],
+        images: imageUrl
+          ? [{ url: imageUrl, width: 800, height: 800, alt: product.name }]
+          : undefined,
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: product.name,
+        description,
+        images: imageUrl ? [imageUrl] : undefined,
       },
     }
   } catch (e) {

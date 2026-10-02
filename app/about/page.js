@@ -234,10 +234,11 @@ export default function About() {
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             '@context': 'https://schema.org',
-            '@type': 'Organization',
+            '@type': ['Organization', 'OnlineStore'],
+            '@id': 'https://www.spacecraftsfurniture.in/#organization',
             'name': 'Spacecrafts Furniture',
-            'url': 'https://spacecraftsfurniture.in',
-            'logo': 'https://www.spacecraftsfurniture.in/logo.png',
+            'url': 'https://www.spacecraftsfurniture.in',
+            'logo': 'https://www.spacecraftsfurniture.in/favlogo/logo-01.png',
             'description': 'Premium furniture manufacturer and dealer in Chennai with 25+ years of expertise.',
             'founder': 'Spacecrafts Furniture',
             'foundingDate': '1997',
@@ -258,7 +259,7 @@ export default function About() {
             'sameAs': [
               'https://www.facebook.com/spacecraftsfurniture',
               'https://www.instagram.com/spacecraftsfurniture',
-              'https://www.youtube.com/@spacecraftsfurniture'
+              'https://maps.app.goo.gl/sMTmsBTJBKszoP1Q7'
             ]
           })
         }}
