@@ -90,6 +90,17 @@ const nextConfig = {
         destination: '/',
         permanent: true
       },
+      // Fix GSC 404s
+      {
+        source: '/$',
+        destination: '/',
+        permanent: true
+      },
+      {
+        source: '/products/mcarthur-sofa',
+        destination: '/products',
+        permanent: true
+      },
       // SKU slug → keyword slug redirects (301 permanent)
       {
         source: '/products/jf-5270-3f',

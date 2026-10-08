@@ -13,6 +13,15 @@ Disallow: /cart/
 Disallow: /checkout/
 Disallow: /orders/
 Disallow: /wishlist/
+Disallow: /login/
+Disallow: /login?
+
+# Disallow Next.js internals — not useful in search results
+Disallow: /_next/image
+Disallow: /_next/static/
+
+# Disallow manifest and service worker files
+Disallow: /site.webmanifest
 
 # Allow crawling of product pages
 Allow: /products/

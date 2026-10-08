@@ -74,13 +74,13 @@ const categoryMeta = {
     h1: 'Bunk Beds & Bunker Beds in Chennai'
   },
   'futon-beds': {
-    title: 'Futon Beds',
-    description: 'Buy futon beds online — versatile sofa-to-bed furniture. Compact, stylish & perfect for guest rooms. Premium quality at best prices.',
+    title: 'Futon Beds in Chennai — Sofa-to-Bed Furniture',
+    description: 'Buy futon beds in Chennai. Versatile sofa-to-bed furniture, compact and stylish for guest rooms and small flats. Spacecrafts Furniture, Ambattur. Pan-India delivery.',
     h1: 'Futon Beds'
   },
   'diwan-cum-beds': {
-    title: 'Diwan Cum Beds',
-    description: 'Shop diwan cum beds — multipurpose daybed furniture with storage. Elegant designs for living rooms & bedrooms. Best prices online.',
+    title: 'Diwan Cum Beds — Multipurpose Daybed with Storage',
+    description: 'Shop diwan cum beds. Multipurpose daybed furniture with storage for living rooms and bedrooms. Elegant designs. Spacecrafts Furniture, Chennai. Pan-India delivery.',
     h1: 'Diwan Cum Beds'
   },
   'folding-beds': {
@@ -104,8 +104,8 @@ const categoryMeta = {
     h1: 'Sofa Cum Beds'
   },
   'wooden-beds': {
-    title: 'Wooden Beds',
-    description: 'Buy wooden beds online — solid sheesham, teak & engineered wood bed frames. King, queen & single sizes. Premium craftsmanship.',
+    title: 'Wooden Beds in Chennai — Solid Wood & Engineered Wood',
+    description: 'Buy wooden beds in Chennai. Solid sheesham, teak and engineered wood bed frames. King, queen and single sizes. Spacecrafts Furniture, Ambattur. Pan-India delivery.',
     h1: 'Wooden Beds'
   },
   'foldable-chairs': {
@@ -150,13 +150,13 @@ const categoryMeta = {
     h1: 'Dining Chairs'
   },
   'folding-dinings': {
-    title: 'Folding Dining Sets',
-    description: 'Shop folding dining sets — space-saving foldable dining tables & chairs. Perfect for small apartments & kitchens.',
+    title: 'Folding Dining Sets in Chennai — Space-Saving Dining Tables',
+    description: 'Buy folding dining sets in Chennai. Space-saving foldable dining tables and chairs for small apartments and kitchens. Visit Ambattur showroom or order online.',
     h1: 'Folding Dining Sets'
   },
   'shoe-racks': {
-    title: 'Shoe Racks',
-    description: 'Buy shoe racks online — organize your footwear with metal, wooden & foldable shoe stands. Multiple tiers & modern designs.',
+    title: 'Shoe Racks — Metal & Wooden Shoe Organisers',
+    description: 'Buy shoe racks online. Metal, wooden and foldable shoe stands in multiple tiers. Organise your footwear neatly. Best prices, pan-India delivery from Chennai.',
     h1: 'Shoe Racks'
   },
   '2-seater': {
@@ -165,38 +165,38 @@ const categoryMeta = {
     h1: '2 Seater Sofas'
   },
   '3-1-1-sofas': {
-    title: '3+1+1 Sofa Sets',
-    description: 'Buy 3+1+1 sofa sets online — complete living room sofa sets with 3-seater & two single seats. Best prices & free delivery.',
+    title: '3+1+1 Sofa Sets in Chennai — Complete Living Room Sets',
+    description: 'Buy 3+1+1 sofa sets in Chennai. Complete living room sofa sets with 3-seater and two single seats. Fabric and leatherette options. Spacecrafts Furniture, Ambattur. Pan-India delivery.',
     h1: '3+1+1 Sofa Sets'
   },
   'corner-sofas': {
-    title: 'Corner Sofas',
-    description: 'Shop corner sofas — L-shaped sectional sofas for living rooms. Space-efficient designs with premium cushioning & fabrics.',
+    title: 'Corner Sofas in Chennai — L-Shaped Sectional Sofas',
+    description: 'Shop corner sofas in Chennai. L-shaped sectional sofas for living rooms. Space-efficient designs with premium cushioning and fabrics. Ambattur showroom. Pan-India delivery.',
     h1: 'Corner Sofas'
   },
   'cushion-sofas': {
-    title: 'Cushion Sofas',
-    description: 'Buy cushion sofas online — extra-soft cushioned sofa sets for ultimate comfort. Modern designs at affordable prices.',
+    title: 'Cushion Sofas — Extra-Soft Sofa Sets',
+    description: 'Buy cushion sofas online. Extra-soft cushioned sofa sets for ultimate comfort. Modern designs at affordable prices. Pan-India delivery from Spacecrafts Furniture, Chennai.',
     h1: 'Cushion Sofas'
   },
   'diwans': {
-    title: 'Diwans',
-    description: 'Shop diwans online — traditional & modern diwan sets with mattress & cushions. Perfect for living rooms & guest rooms.',
+    title: 'Diwans in Chennai — Traditional & Modern Diwan Sets',
+    description: 'Shop diwans in Chennai. Traditional and modern diwan sets with mattress and cushions. Perfect for living rooms and guest rooms. Spacecrafts Furniture, Ambattur.',
     h1: 'Diwans'
   },
   'recliner-sofas': {
-    title: 'Recliner Sofas',
-    description: 'Buy recliner sofas online — manual & motorized recliner sofa sets. Luxury comfort with footrest & adjustable backrest.',
+    title: 'Recliner Sofas in Chennai — Manual & Motorized Recliners',
+    description: 'Buy recliner sofas in Chennai. Manual and motorized recliner sofa sets with footrest and adjustable backrest. Test in our Ambattur showroom. Pan-India delivery.',
     h1: 'Recliner Sofas'
   },
   'coffee-tables': {
-    title: 'Coffee Tables',
-    description: 'Shop coffee tables — modern centre tables for living room. Glass, wooden & marble top designs. Affordable prices.',
+    title: 'Coffee Tables & Centre Tables — Chennai',
+    description: 'Shop coffee tables and centre tables in Chennai. Modern glass, wooden and marble top designs for living rooms. Spacecrafts Furniture, Ambattur. Pan-India delivery.',
     h1: 'Coffee Tables'
   },
   'dressing-tables': {
-    title: 'Dressing Tables',
-    description: 'Buy dressing tables online — vanity tables with mirror & storage. Modern & classic designs for bedrooms. Best prices.',
+    title: 'Dressing Tables in Chennai — Vanity Tables with Mirror',
+    description: 'Buy dressing tables in Chennai. Vanity tables with mirror and storage. Modern and classic designs for bedrooms. Spacecrafts Furniture, Ambattur. Pan-India delivery.',
     h1: 'Dressing Tables'
   },
   'foldable-tables': {
@@ -205,24 +205,24 @@ const categoryMeta = {
     h1: 'Foldable Tables'
   },
   'study-office-tables': {
-    title: 'Study & Office Tables',
-    description: 'Buy study & office tables online — work desks, computer tables & writing desks. Ergonomic designs for productivity.',
+    title: 'Study & Office Tables in Chennai — Work Desks & Computer Tables',
+    description: 'Buy study and office tables in Chennai. Work desks, computer tables and writing desks for home and office. Ergonomic designs. Spacecrafts Furniture, Ambattur. Pan-India delivery.',
     h1: 'Study & Office Tables',
     tagSlug: 'study-&-office-tables'
   },
   'wardrobes': {
-    title: 'Wardrobes',
-    description: 'Shop wardrobes online — single, double & triple door wardrobes. Wooden & engineered wood with mirror & drawers.',
+    title: 'Wardrobes in Chennai — Single, Double & Triple Door',
+    description: 'Shop wardrobes in Chennai. Single, double and triple door wardrobes in wood and engineered wood with mirror and drawers. Spacecrafts Furniture, Ambattur showroom. Pan-India delivery.',
     h1: 'Wardrobes'
   },
   'book-shelves': {
-    title: 'Book Shelves',
-    description: 'Buy book shelves online — open, wall-mounted & ladder bookshelves. Organize your books in style. Modern designs.',
+    title: 'Book Shelves — Open & Ladder Bookshelves',
+    description: 'Buy book shelves online. Open, wall-mounted and ladder bookshelves. Organise your books in style. Modern designs from Spacecrafts Furniture. Pan-India delivery.',
     h1: 'Book Shelves'
   },
   'book-racks': {
-    title: 'Book Racks',
-    description: 'Shop book racks — compact & freestanding book storage solutions. Metal & wooden options for home & office.',
+    title: 'Book Racks — Compact Book Storage',
+    description: 'Shop book racks. Compact and freestanding book storage solutions. Metal and wooden options for home and office. Spacecrafts Furniture, Chennai. Pan-India delivery.',
     h1: 'Book Racks'
   },
   'tv-racks': {
@@ -241,8 +241,8 @@ const categoryMeta = {
     h1: 'Study Tables'
   },
   'sofa-beds': {
-    title: 'Sofa Beds',
-    description: 'Buy sofa beds online — convertible sofa-to-bed furniture. Space saving & multipurpose designs for small apartments.',
+    title: 'Sofa Beds in Chennai — Convertible Sofa-to-Bed',
+    description: 'Buy sofa beds in Chennai. Convertible sofa-to-bed furniture for small apartments. Space-saving and multipurpose designs. Spacecrafts Furniture, Ambattur. Pan-India delivery.',
     h1: 'Sofa Beds'
   },
   'wooden-dinings': {
@@ -262,8 +262,8 @@ const categoryMeta = {
     h1: 'All Chairs'
   },
   'dining-sets': {
-    title: 'Dining Sets',
-    description: 'Shop dining sets online — dining tables, dining chairs & folding dining sets. 2, 4, 6 & 8 seater options at best prices.',
+    title: 'Dining Sets in Chennai — 4, 6 & 8 Seater Dining Tables',
+    description: 'Shop dining sets in Chennai. Dining tables and chairs in 4, 6 and 8 seater options. Wood, glass and marble finishes. Spacecrafts Furniture, Ambattur showroom. Pan-India delivery.',
     h1: 'All Dining Sets'
   },
   'sofa-sets': {
@@ -300,6 +300,7 @@ export async function generateMetadata({ params }) {
     alt: siteName,
   }
 
+  // Dynamic noindex for empty category pages — prevents Soft 404 in GSC
   if (meta) {
     const title = resolveCategoryTitle(meta.title)
     return {
