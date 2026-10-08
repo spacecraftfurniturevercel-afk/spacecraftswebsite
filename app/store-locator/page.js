@@ -3,10 +3,10 @@ import Link from 'next/link'
 
 export const metadata = {
   title: {
-    absolute: 'Furniture Store Near Me in Chennai | Spacecrafts Showroom Ambattur',
+    absolute: 'Furniture Shop Near Me in Chennai | Spacecrafts Showroom Ambattur',
   },
-  description: 'Visit our 8,000 sq. ft. showroom in Ambattur, Chennai. Sofas, sofa cum beds, bunk beds, metal cots and more. Open Mon-Fri 10AM-9:30PM, Sat-Sun 10AM-10PM. Free parking. Call 090030 03733.',
-  keywords: 'furniture store near me, furniture store Chennai, best furniture store Chennai, furniture showroom Chennai, Ambattur furniture store, furniture store Ambattur Industrial Estate, furniture shop Chennai, sofa showroom Chennai, bed showroom Chennai, spacecrafts furniture location',
+  description: 'Looking for a furniture shop near you in Chennai? Visit Spacecrafts Furniture — 8,000 sq. ft. showroom in Ambattur. Sofas, bunk beds, metal cots & more. Open daily 10AM–10PM. Call 090030 03733.',
+  keywords: 'furniture shop near me, furniture store near me, furniture near me, furniture store Chennai, best furniture store Chennai, furniture showroom Chennai, Ambattur furniture store, furniture shop Chennai, sofa showroom Chennai, bed showroom Chennai, spacecrafts furniture location',
   alternates: {
     canonical: 'https://www.spacecraftsfurniture.in/store-locator'
   },

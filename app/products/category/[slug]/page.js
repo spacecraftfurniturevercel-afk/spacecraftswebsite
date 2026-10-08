@@ -69,9 +69,9 @@ const SUB_CATEGORIES = [
 // SEO-friendly category descriptions
 const categoryMeta = {
   'bunk-beds': {
-    title: 'Bunk Beds in Chennai — Kids, Hostel & Adults',
-    description: 'Buy bunk beds in Chennai. Metal and wooden bunk beds with safety rails for kids rooms, hostels and PGs. Visit our Ambattur showroom or order online with pan-India delivery.',
-    h1: 'Bunk Beds'
+    title: 'Bunk Beds in Chennai | Bunker Beds Near Me — Spacecrafts Ambattur',
+    description: 'Buy bunk beds & bunker beds in Chennai. Metal and wooden bunk beds with safety rails for kids, hostels and adults. Visit our Ambattur showroom or order online. Pan-India delivery from ₹16,999.',
+    h1: 'Bunk Beds & Bunker Beds in Chennai'
   },
   'futon-beds': {
     title: 'Futon Beds',
