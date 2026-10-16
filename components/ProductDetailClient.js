@@ -26,7 +26,8 @@ export default function ProductDetailClient({
   stores, 
   specifications,
   relatedProducts, 
-  reviews 
+  reviews,
+  pageSeo,
 }) {
   const router = useRouter()
   const { isAuthenticated } = useAuth()
@@ -789,7 +790,7 @@ export default function ProductDetailClient({
 
             {/* Product Title + Share */}
             <div className="product-title-row">
-              <h1 className="product-title">{product.name}</h1>
+              <h1 className="product-title">{pageSeo?.h1 || product.name}</h1>
               <button type="button" className="share-btn" onClick={() => setShowShareModal(true)} aria-label="Share product">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
@@ -799,6 +800,20 @@ export default function ProductDetailClient({
                 Share
               </button>
             </div>
+
+            {pageSeo?.subtitle && (
+              <p className="product-seo-subtitle">{pageSeo.subtitle}</p>
+            )}
+            {pageSeo?.relatedLinks?.length > 0 && (
+              <p className="product-seo-links">
+                {pageSeo.relatedLinks.map((link, index) => (
+                  <Fragment key={link.href}>
+                    {index > 0 && ' · '}
+                    <Link href={link.href}>{link.label}</Link>
+                  </Fragment>
+                ))}
+              </p>
+            )}
             
             {/* Rating */}
             <div className="product-rating">
@@ -1951,6 +1966,26 @@ export default function ProductDetailClient({
 
         .product-brand a:hover {
           color: #d35400;
+        }
+
+        .product-seo-subtitle {
+          font-size: 15px;
+          line-height: 1.55;
+          color: #555;
+          margin: 0 0 10px;
+          max-width: 52ch;
+        }
+
+        .product-seo-links {
+          font-size: 13px;
+          margin: 0 0 14px;
+          color: #666;
+        }
+
+        .product-seo-links a {
+          color: #c45c26;
+          text-decoration: underline;
+          text-underline-offset: 2px;
         }
 
         .product-title-row {

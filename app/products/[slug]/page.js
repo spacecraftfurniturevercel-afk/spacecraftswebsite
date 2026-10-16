@@ -3,6 +3,11 @@ import { notFound } from 'next/navigation'
 import { CATALOG_REVALIDATE_SECONDS } from '../../../lib/catalogCache'
 import { getCachedProductMeta, getCachedProductPage } from '../../../lib/catalogData'
 import { buildProductJsonLd } from '../../../lib/productJsonLd'
+import {
+  buildProductFaqJsonLd,
+  resolveProductPageSeo,
+  PRODUCT_SEO_SITE,
+} from '../../../lib/productSeoOverrides'
 
 // Cache product pages — same slug reuses PostgREST payload for CATALOG_REVALIDATE_SECONDS
 export const revalidate = CATALOG_REVALIDATE_SECONDS
@@ -14,26 +19,34 @@ export async function generateMetadata({ params }) {
     if (!meta?.product) return { title: 'Product not found' }
 
     const { product, imageUrl } = meta
-    const description =
+    const seo = resolveProductPageSeo(slug, product)
+    const defaultDescription =
       product.description ||
       `Buy ${product.name} online at Spacecrafts Furniture. Premium quality furniture at best prices.`
+    const description = seo?.description || defaultDescription
+    const title = seo
+      ? { absolute: `${seo.title} | Spacecrafts Furniture` }
+      : product.name
+    const ogTitle = seo?.title || product.name
+
     return {
-      title: product.name,
+      title,
       description,
+      keywords: seo?.keywords,
       alternates: {
-        canonical: `https://www.spacecraftsfurniture.in/products/${slug}`,
+        canonical: `${PRODUCT_SEO_SITE}/products/${slug}`,
       },
       openGraph: {
-        title: product.name,
+        title: ogTitle,
         description,
-        url: `https://www.spacecraftsfurniture.in/products/${slug}`,
+        url: `${PRODUCT_SEO_SITE}/products/${slug}`,
         images: imageUrl
-          ? [{ url: imageUrl, width: 800, height: 800, alt: product.name }]
+          ? [{ url: imageUrl, width: 800, height: 800, alt: seo?.h1 || product.name }]
           : undefined,
       },
       twitter: {
         card: 'summary_large_image',
-        title: product.name,
+        title: ogTitle,
         description,
         images: imageUrl ? [imageUrl] : undefined,
       },
@@ -73,11 +86,16 @@ export default async function ProductPage({ params }) {
     reviews,
   } = bundle
 
+  const pageSeo = resolveProductPageSeo(slug, product)
   const schema = buildProductJsonLd({ product, images, brand, reviews })
+  const faqJsonLd = buildProductFaqJsonLd(slug, product)
 
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
+      {faqJsonLd && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+      )}
       <ProductDetailClient
         product={product}
         images={images}
@@ -91,6 +109,7 @@ export default async function ProductPage({ params }) {
         specifications={specifications}
         relatedProducts={relatedProducts}
         reviews={reviews}
+        pageSeo={pageSeo}
       />
     </>
   )
