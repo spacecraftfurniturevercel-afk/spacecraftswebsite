@@ -203,10 +203,10 @@ export default function ProductsClient({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.1 }}
           >
-            {categoryPage 
-              ? `Browse our ${categoryPage.name.toLowerCase()} collection`
-              : 'Discover premium furniture for every room'
-            }
+            {categoryPage
+              ? categoryPage.subtitle ||
+                `Browse our ${categoryPage.name.toLowerCase()} collection`
+              : 'Discover premium furniture for every room'}
             {totalCount > 0 && <span className="total-badge">{totalCount} items</span>}
           </motion.p>
         </div>

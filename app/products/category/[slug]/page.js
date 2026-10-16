@@ -69,9 +69,15 @@ const SUB_CATEGORIES = [
 // SEO-friendly category descriptions
 const categoryMeta = {
   'bunk-beds': {
-    title: 'Bunk Beds in Chennai | Bunker Beds Near Me — Spacecrafts Ambattur',
-    description: 'Buy bunk beds & bunker beds in Chennai. Metal and wooden bunk beds with safety rails for kids, hostels and adults. Visit our Ambattur showroom or order online. Pan-India delivery from ₹16,999.',
-    h1: 'Bunk Beds & Bunker Beds in Chennai'
+    title: 'Bunk Beds & Bunker Beds in Chennai | From ₹16,999',
+    description:
+      'Shop bunk beds & bunker cots in Chennai. Metal bunk beds with safety rails for kids, hostels & adults. Try Delta Bunk in our Ambattur showroom. Order online with delivery across India.',
+    h1: 'Bunk Beds & Bunker Beds in Chennai',
+    subtitle:
+      'Metal & wooden bunker beds with safety rails — from ₹16,999. Visit our Ambattur showroom or shop online with pan-India delivery.',
+    ogImage: '/blogs/jf-9090-1.avif',
+    keywords:
+      'bunk beds Chennai, bunker beds, bunker cot, bunk beds near me, bunk beds in Chennai, kids bunk bed, metal bunk bed',
   },
   'futon-beds': {
     title: 'Futon Beds in Chennai — Sofa-to-Bed Furniture',
@@ -300,12 +306,15 @@ export async function generateMetadata({ params }) {
     alt: siteName,
   }
 
-  // Dynamic noindex for empty category pages — prevents Soft 404 in GSC
   if (meta) {
     const title = resolveCategoryTitle(meta.title)
+    const shareImage = meta.ogImage
+      ? { url: meta.ogImage, width: 1200, height: 630, alt: meta.h1 || meta.title }
+      : ogImage
     return {
       title,
       description: meta.description,
+      keywords: meta.keywords,
       alternates: {
         canonical: `${baseUrl}/products/category/${encodeURI(slug)}`,
       },
@@ -315,13 +324,13 @@ export async function generateMetadata({ params }) {
         url: `${baseUrl}/products/category/${slug}`,
         siteName,
         type: 'website',
-        images: [ogImage],
+        images: [shareImage],
       },
       twitter: {
         card: 'summary_large_image',
         title: title.absolute,
         description: meta.description,
-        images: [ogImage.url],
+        images: [shareImage.url],
       },
     }
   }
@@ -445,7 +454,30 @@ export default async function CategoryPage({ params, searchParams }) {
   const currentSubCat = isSubCategory ? SUB_CATEGORIES.find(sc => sc.slug === slug || sc.slug === tagSlugResolved) : null
   const relevantSubCategories = SUB_CATEGORIES
 
+  const collectionJsonLd =
+    slug === 'bunk-beds' && meta
+      ? {
+          '@context': 'https://schema.org',
+          '@type': 'CollectionPage',
+          name: meta.h1,
+          description: meta.description,
+          url: `${getPublicSiteUrl()}/products/category/bunk-beds`,
+          isPartOf: {
+            '@type': 'WebSite',
+            name: 'Spacecrafts Furniture',
+            url: getPublicSiteUrl(),
+          },
+        }
+      : null
+
   return (
+    <>
+      {collectionJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionJsonLd) }}
+        />
+      )}
     <ProductsClient 
       initialProducts={products}
       categories={categories}
@@ -460,11 +492,13 @@ export default async function CategoryPage({ params, searchParams }) {
         tagSlug: meta2?.tagSlug || currentCategory.slug,
         name: categoryTitle,
         description: meta?.description || `Browse our collection of ${currentCategory.name}`,
+        subtitle: meta?.subtitle,
         isSubCategory: isSubCategory
       }}
       currentPage={currentPage}
       totalPages={totalPages}
       totalCount={totalCount}
     />
+    </>
   )
 }
