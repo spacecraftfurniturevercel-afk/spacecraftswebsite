@@ -18,19 +18,44 @@ function absoluteImageUrl(src) {
   return `${SITE}${src.startsWith('/') ? src : `/${src}`}`
 }
 
+function resolveBlogTitle(post) {
+  if (post.metaTitle) {
+    return { absolute: `${post.metaTitle} | Spacecrafts Furniture` }
+  }
+  return post.title
+}
+
+function buildBlogFaqJsonLd(post) {
+  if (!post.faqs?.length) return null
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: post.faqs.map((item) => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.answer,
+      },
+    })),
+  }
+}
+
 export async function generateMetadata({ params }) {
   const post = getBlogPostBySlug(params.slug)
   if (!post) return { title: 'Article not found' }
 
+  const ogTitle = post.metaTitle || post.title
+
   return {
-    title: post.title,
+    title: resolveBlogTitle(post),
     description: post.description,
     keywords: Array.isArray(post.tags) ? post.tags.join(', ') : undefined,
     alternates: {
       canonical: `${SITE}/blog/${post.slug}`,
     },
     openGraph: {
-      title: post.title,
+      title: ogTitle,
       description: post.description,
       url: `${SITE}/blog/${post.slug}`,
       type: 'article',
@@ -45,10 +70,13 @@ export default function BlogPostPage({ params }) {
   const post = getBlogPostBySlug(params.slug)
   if (!post) notFound()
 
+  const headline = post.headline || post.title
+  const faqJsonLd = buildBlogFaqJsonLd(post)
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
-    headline: post.title,
+    headline,
     description: post.description,
     image: absoluteImageUrl(post.image),
     datePublished: post.publishedAt,
@@ -76,9 +104,26 @@ export default function BlogPostPage({ params }) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      {faqJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        />
+      )}
       <Link href="/blog" className={styles.backLink}>← All articles</Link>
       <header className={styles.articleHeader}>
-        <h1>{post.title}</h1>
+        <h1>{headline}</h1>
+        {post.subtitle && <p className={styles.articleDeck}>{post.subtitle}</p>}
+        {post.quickLinks?.length > 0 && (
+          <p className={styles.articleQuickLinks}>
+            {post.quickLinks.map((link, index) => (
+              <span key={link.href}>
+                {index > 0 && ' · '}
+                <Link href={link.href}>{link.label}</Link>
+              </span>
+            ))}
+          </p>
+        )}
         <p className={styles.meta}>
           <time dateTime={post.publishedAt}>
             {new Date(post.publishedAt).toLocaleDateString('en-IN', {
