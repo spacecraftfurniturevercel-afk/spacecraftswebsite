@@ -215,7 +215,7 @@ export default async function Home() {
           Buying guides for furniture stores in Chennai, showroom visits, and space-saving ideas.
         </p>
         <p style={{ textAlign: 'center', marginBottom: 16, lineHeight: 1.7 }}>
-          <Link href="/furniture-store-chennai">Furniture store in Chennai</Link>
+          <Link href="/furniture-store-chennai">Best furniture stores in Chennai</Link>
           {' · '}
           <Link href="/blog/best-furniture-store-chennai-buying-guide">Best store buying guide</Link>
           {' · '}
