@@ -196,8 +196,10 @@ export default function StoreLocator() {
             <li>Porur, OMR, Velachery and Tambaram (delivery available)</li>
           </ul>
           <p>
-            More on shopping locally:{' '}
-            <Link href="/furniture-store-chennai">furniture store in Chennai</Link>
+            Comparing the{' '}
+            <Link href="/furniture-store-chennai">best furniture stores in Chennai</Link>
+            {' '}
+            (mall chains vs our Ambattur manufacturer-showroom): see the city store page.
             {' · '}
             <Link href="/blog/furniture-shop-near-me-chennai-ambattur">furniture shop near me guide</Link>
           </p>
