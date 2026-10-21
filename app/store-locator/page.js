@@ -127,7 +127,7 @@ export default function StoreLocator() {
       {
         '@type': 'OpeningHoursSpecification',
         dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-        opens: '10:00',
+        opens: '09:30',
         closes: '21:30',
       },
       {

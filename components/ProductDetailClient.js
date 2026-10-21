@@ -1235,7 +1235,7 @@ export default function ProductDetailClient({
                   </div>
                   <div className="store-details">
                     <p className="store-address">94A/1, 3rd Main Rd, Old Ambattur, Attipattu, Ambattur Industrial Estate, Chennai, Tamil Nadu 600058</p>
-                    <div className="store-hours">Mon–Fri 10 AM – 9:30 PM · Sat–Sun 10 AM – 10 PM</div>
+                    <div className="store-hours">Mon–Fri 9:30 AM – 9:30 PM · Sat–Sun 10 AM – 10 PM</div>
                     <div className="store-phone">
                       <span>Call:</span>
                       <a href="tel:09003003733">090030 03733</a>
