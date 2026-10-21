@@ -139,7 +139,7 @@ export default function ModernFooter() {
                 { name: 'Returns & Refunds', href: '/returns-policy' },
                 { name: 'FAQs', href: '/faq' },
                 { name: 'Store Locator', href: '/store-locator' },
-                { name: 'Furniture Store Chennai', href: '/furniture-store-chennai' },
+                { name: 'Best furniture stores in Chennai', href: '/furniture-store-chennai' },
               ].map((link) => (
                 <li key={link.href} style={{ marginBottom: '12px' }}>
                   <Link 
