@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { COMPANY } from '../lib/companyInfo'
 import styles from './ContactPage.module.css'
 
 export default function ContactClient() {
@@ -48,9 +49,9 @@ export default function ContactClient() {
     {
       icon: '📞',
       title: 'Call Us',
-      value: '090030 03733 / 98402 22779',
-      link: 'tel:09003003733',
-      desc: 'Mon-Fri: 10 AM - 9:30 PM, Sat-Sun: 10 AM - 10 PM'
+      value: COMPANY.phoneDisplay,
+      link: `tel:${COMPANY.phoneTel.replace('+91', '0')}`,
+      desc: COMPANY.hours
     },
     {
       icon: '📧',
@@ -62,8 +63,8 @@ export default function ContactClient() {
     {
       icon: '📍',
       title: 'Visit Us',
-      value: 'Ambattur Industrial Estate',
-      link: 'https://maps.google.com/?q=94A/1+3rd+Main+Rd+Ambattur+Chennai',
+      value: COMPANY.address.full,
+      link: COMPANY.mapsUrl,
       desc: '8,000 sq. ft. Modern Showroom'
     }
   ]

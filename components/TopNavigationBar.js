@@ -2,6 +2,7 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { useAuth } from '../app/providers/AuthProvider'
+import { COMPANY } from '../lib/companyInfo'
 import styles from './TopNavigationBar.module.css'
 
 export default function TopNavigationBar() {
@@ -24,8 +25,12 @@ export default function TopNavigationBar() {
         <div className={styles.nav_left}>
           <div className={styles.contact_info}>
             <span className={styles.info_icon}>📞</span>
-            <a href="tel:+91984222779" className={styles.phone_link} aria-label="Call Ambattur store">
-              98402 22779
+            <a href={`tel:${COMPANY.phoneTel}`} className={styles.phone_link} aria-label="Call Ambattur store">
+              {COMPANY.phonePrimaryDisplay}
+            </a>
+            <span className={styles.phone_sep}> / </span>
+            <a href={`tel:${COMPANY.phoneTelSecondary}`} className={styles.phone_link} aria-label="Call Ambattur store second line">
+              {COMPANY.phoneSecondaryDisplay}
             </a>
           </div>
 

@@ -46,7 +46,7 @@ const localFaqs = [
   },
   {
     q: 'What are the showroom opening hours?',
-    a: 'Monday to Friday 10:00 AM – 9:30 PM. Saturday and Sunday 10:00 AM – 10:00 PM. Open on holidays.',
+    a: COMPANY.hours,
   },
   {
     q: 'What furniture can I see in the showroom?',
@@ -62,8 +62,8 @@ export default function StoreLocator() {
     email: COMPANY.email,
     gst: COMPANY.gst,
     hours: {
-      weekday: '10:00 AM - 9:30 PM',
-      weekend: '10:00 AM - 10:00 PM',
+      weekday: COMPANY.hoursWeekday,
+      weekend: COMPANY.hoursWeekend,
     },
     facilities: [
       { icon: '📐', label: '8,000 sq. ft. Modern Facility' },

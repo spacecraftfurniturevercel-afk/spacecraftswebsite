@@ -314,7 +314,7 @@ export async function GET(request, { params }) {
         <div class="inv-brand-tag">Premium Furniture &amp; Home Decor</div>
         <div class="inv-brand-contact">
           94A/1, 3rd Main Road, Ambattur<br>
-          Chennai &ndash; 600053, Tamil Nadu, India<br>
+          Chennai &ndash; 600058, Tamil Nadu, India<br>
           <a href="tel:09003003733">09003003733</a> &nbsp;|&nbsp;
           <a href="mailto:spacecraftsdigital@gmail.com">spacecraftsdigital@gmail.com</a><br>
           <a href="https://www.spacecraftsfurniture.in">www.spacecraftsfurniture.in</a>
@@ -341,7 +341,7 @@ export async function GET(request, { params }) {
           <div class="addr-name">Spacecrafts Furniture</div>
           <div class="addr-line">
             94A/1, 3rd Main Road, Ambattur<br>
-            Chennai &ndash; 600053, Tamil Nadu<br>
+            Chennai &ndash; 600058, Tamil Nadu<br>
             GSTIN: 33ABCDE1234F1Z5<br>
             Ph: 09003003733
           </div>
@@ -448,7 +448,7 @@ export async function GET(request, { params }) {
     <div class="inv-footer">
       <div class="inv-footer-left">
         Spacecrafts Furniture &nbsp;|&nbsp; GSTIN: 33ABCDE1234F1Z5<br>
-        94A/1, 3rd Main Road, Ambattur, Chennai &ndash; 600053, Tamil Nadu
+        94A/1, 3rd Main Road, Ambattur, Chennai &ndash; 600058, Tamil Nadu
       </div>
       <div class="inv-footer-right">
         www.spacecraftsfurniture.in<br>

@@ -72,9 +72,9 @@ export default function TermsPage() {
           body: `For any questions regarding these Terms & Conditions:
 
           Spacecrafts Furniture
-          94A/1, 3rd Main Road, Ambattur, Chennai – 600053, Tamil Nadu
-          Email: spacecraftsdigital@gmail.com
-          Phone: 09003003733`
+          94A/1, 3rd Main Rd, Old Ambattur, Attipattu, Ambattur Industrial Estate, Chennai, Tamil Nadu 600058
+          Email: support@spacecraftsfurniture.in
+          Phone: 090030 03733 / 98402 22779`
         },
       ].map((section) => (
         <section key={section.title} style={{ marginBottom: 36 }}>

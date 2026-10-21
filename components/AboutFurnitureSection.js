@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { COMPANY } from '../lib/companyInfo'
 import styles from './AboutFurnitureSection.module.css'
 
 export default function AboutFurnitureSection() {
@@ -19,7 +20,7 @@ export default function AboutFurnitureSection() {
           We specialise in <strong>sofa cum beds</strong>, <strong>bunk beds</strong>, <strong>metal cots</strong>, <strong>space-saving furniture</strong>, dining sets, recliners, and more. Serving customers across Chennai — from Anna Nagar, Mogappair, and Padi to Ambattur, Avadi, Porur, OMR, Velachery and beyond — as well as pan-India delivery to your doorstep.
         </p>
         <p className={styles.intro}>
-          Our showroom at <strong>94A/1, 3rd Main Rd, Ambattur Industrial Estate, Chennai 600058</strong> is open daily (Mon–Sun 10 AM–9:30 PM). Browse, test, and choose — then order online or in store with confidence. Call <strong>090030 03733</strong> or visit spacecraftsfurniture.in. Full guide:{' '}
+          Our showroom at <strong>{COMPANY.address.full}</strong> is open {COMPANY.hours}. Browse, test, and choose — then order online or in store with confidence. Call <strong>{COMPANY.phoneDisplay}</strong>. Full guide:{' '}
           <Link href="/furniture-store-chennai">furniture store in Chennai</Link>.
         </p>
 
