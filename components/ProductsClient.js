@@ -195,7 +195,7 @@ export default function ProductsClient({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
           >
-            {categoryPage ? categoryPage.name : 'All Products'}
+            {categoryPage ? categoryPage.name : 'Shop Furniture Online'}
           </motion.h1>
           <motion.p 
             className="page-subtitle"
@@ -206,7 +206,7 @@ export default function ProductsClient({
             {categoryPage
               ? categoryPage.subtitle ||
                 `Browse our ${categoryPage.name.toLowerCase()} collection`
-              : 'Discover premium furniture for every room'}
+              : '200+ sofas, bunk beds, metal cots and dining — factory prices, pan-India delivery'}
             {totalCount > 0 && <span className="total-badge">{totalCount} items</span>}
           </motion.p>
         </div>

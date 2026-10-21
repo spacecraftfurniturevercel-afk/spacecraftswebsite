@@ -3,16 +3,16 @@ import Link from 'next/link'
 
 export const metadata = {
   title: {
-    absolute: 'About Spacecrafts Furniture | Furniture Manufacturer Chennai',
+    absolute: 'About Spacecrafts | Furniture Maker Since 1997, Chennai',
   },
-  description: 'Spacecrafts Furniture, Ambattur Industrial Estate, Chennai — furniture manufacturer and showroom since 1997. Space-saving sofas, bunk beds, metal cots and more. Visit our 8,000 sq. ft. store.',
+  description: 'Furniture manufacturer since 1997 in Ambattur, Chennai. 8,000 sq. ft. showroom — sofas, bunk beds, metal cots and space-saving designs. Factory prices, GST billing, 12-month warranty.',
   keywords: 'furniture manufacturer Chennai, furniture store Chennai, Spacecrafts Furniture Ambattur, furniture company Chennai, furniture showroom Ambattur, about Spacecrafts Furniture',
   alternates: {
     canonical: 'https://www.spacecraftsfurniture.in/about'
   },
   openGraph: {
-    title: 'About Spacecrafts Furniture | Chennai Showroom',
-    description: 'Furniture manufacturer and showroom in Ambattur, Chennai since 1997.',
+    title: 'About Spacecrafts | Furniture Maker Since 1997, Chennai',
+    description: 'Furniture manufacturer since 1997 in Ambattur. 8,000 sq. ft. showroom — sofas, bunk beds and metal cots.',
     url: 'https://www.spacecraftsfurniture.in/about',
     type: 'website'
   }

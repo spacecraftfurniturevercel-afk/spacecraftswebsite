@@ -95,9 +95,9 @@ const categoryMeta = {
     h1: 'Folding Beds'
   },
   'metal-cots': {
-    title: 'Metal Cots & Steel Cots in Chennai',
-    description: 'Buy metal cots and steel cots in Chennai. Durable iron and steel bed frames at factory prices. Showroom in Ambattur. Strong, long-lasting and affordable. Pan-India delivery.',
-    h1: 'Metal Cots'
+    title: 'Steel Cots & Metal Cots | Factory Price',
+    description: 'Buy steel cots and metal cots in Chennai — heavy-gauge frames for humid homes. Factory prices, 12-month warranty. Try in Ambattur or order online with pan-India delivery.',
+    h1: 'Steel Cots & Metal Cots in Chennai'
   },
   'recliner-folding-beds': {
     title: 'Recliner Folding Beds',

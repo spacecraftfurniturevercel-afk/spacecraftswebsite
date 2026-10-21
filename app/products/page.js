@@ -6,24 +6,24 @@ export const revalidate = CATALOG_REVALIDATE_SECONDS
 
 export const metadata = {
   title: {
-    absolute: 'Buy Furniture Online India | Sofas, Beds & Bunk Beds | Spacecrafts',
+    absolute: 'Buy Furniture Online | 200+ Sofas, Beds & Bunks',
   },
-  description: 'Shop 200+ furniture products online. Sofa cum beds, bunk beds, metal cots, dining sets, recliners & space-saving furniture. Best prices, 12-month warranty. Chennai showroom + pan-India delivery.',
+  description: 'Factory prices on 200+ products — sofa cum beds, bunk beds, metal cots, dining & recliners. 12-month warranty. Try in Ambattur, Chennai or order online with pan-India delivery.',
   keywords: 'buy furniture online India, sofa cum bed online, bunk beds online, metal cots, space saving furniture, furniture Chennai, dining sets, recliners, study tables',
   alternates: {
     canonical: 'https://www.spacecraftsfurniture.in/products'
   },
   openGraph: {
-    title: 'Buy Furniture Online — Sofas, Beds, Bunk Beds & More | Spacecrafts',
-    description: '200+ furniture products. Sofa cum beds, bunk beds, metal cots & space-saving furniture. Best prices, pan-India delivery.',
+    title: 'Buy Furniture Online | 200+ Sofas, Beds & Bunks',
+    description: 'Factory prices on 200+ sofas, bunk beds, metal cots and dining. Ambattur showroom + pan-India delivery.',
     url: 'https://www.spacecraftsfurniture.in/products',
     type: 'website',
     images: [{ url: '/aboutus/exterior1.webp', width: 1200, height: 630, alt: 'Spacecrafts Furniture' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Buy Furniture Online — Sofas, Beds, Bunk Beds & More | Spacecrafts',
-    description: '200+ furniture products. Best prices, pan-India delivery.',
+    title: 'Buy Furniture Online | 200+ Sofas, Beds & Bunks',
+    description: 'Factory prices on 200+ furniture products. Showroom in Chennai, delivery across India.',
     images: ['/aboutus/exterior1.webp'],
   },
 }
@@ -112,8 +112,8 @@ export default async function ProductsPage({ searchParams }) {
           __html: JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'CollectionPage',
-            name: 'All Products - Spacecrafts Furniture',
-            description: 'Browse our complete collection of premium furniture.',
+            name: 'Buy Furniture Online — Sofas, Beds & Bunks',
+            description: 'Shop 200+ furniture products at factory prices. Sofa cum beds, bunk beds, metal cots and more.',
             url: 'https://www.spacecraftsfurniture.in/products',
             isPartOf: {
               '@type': 'WebSite',

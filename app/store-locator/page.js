@@ -7,19 +7,19 @@ const PAGE_URL = `${SITE}/store-locator`
 
 export const metadata = {
   title: {
-    absolute: 'Furniture Shop Near Me | Ambattur Chennai Showroom',
+    absolute: 'Furniture Shop Near Me | Open 7 Days, Ambattur Map',
   },
   description:
-    'Looking for a furniture shop near you in Chennai? Visit Spacecrafts — 8,000 sq. ft. showroom in Ambattur. Try sofas, bunk beds & sofa cum beds. Open daily. Directions, hours & map on this page.',
+    'Furniture shop near you in Chennai? Spacecrafts Ambattur — map, hours & directions on this page. Open Mon–Fri 9:30 AM–9:30 PM, Sat–Sun 10 AM–10 PM. Try sofas, bunk beds & sofa cum beds. Free parking.',
   keywords:
     'furniture shop near me, furniture store near me, furniture near me, furniture showroom Chennai, furniture shop Ambattur, furniture store Chennai, best furniture store Chennai, sofa showroom Chennai, bed showroom Chennai',
   alternates: {
     canonical: PAGE_URL,
   },
   openGraph: {
-    title: 'Furniture Shop Near Me | Spacecrafts Ambattur, Chennai',
+    title: 'Furniture Shop Near Me | Open 7 Days, Ambattur Map',
     description:
-      '8,000 sq. ft. furniture showroom in Ambattur. Sofas, bunk beds, metal cots & space-saving designs. Open daily — get directions and hours.',
+      'Map, hours and directions to Spacecrafts in Ambattur. Open 7 days. Sofas, bunk beds, sofa cum beds — try before you buy.',
     url: PAGE_URL,
     type: 'website',
     images: [
@@ -33,8 +33,8 @@ export const metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Furniture Shop Near Me | Spacecrafts Ambattur, Chennai',
-    description: '8,000 sq. ft. showroom in Ambattur. Directions, hours and contact.',
+    title: 'Furniture Shop Near Me | Open 7 Days, Ambattur Map',
+    description: 'Map, hours and directions. Open 7 days. Try sofas, bunks and sofa cum beds in Ambattur.',
     images: ['/aboutus/exterior1.webp'],
   },
 }
@@ -168,11 +168,11 @@ export default function StoreLocator() {
       <section className={styles.heroSection}>
         <div className={styles.heroContent}>
           <h1 className={styles.heroTitle}>
-            Furniture Shop Near Me in Chennai — Ambattur Showroom
+            Furniture Shop Near Me — Ambattur Map, Hours & Directions
           </h1>
           <p className={styles.heroSubtitle}>
-            Visit {COMPANY.name} — 8,000 sq. ft. in Ambattur Industrial Estate. Try sofas,
-            bunk beds, sofa cum beds and metal cots before you buy. Open daily.
+            Visit {COMPANY.name} — 8,000 sq. ft. in Ambattur Industrial Estate. Open{' '}
+            {COMPANY.hours}. Try sofas, bunk beds, sofa cum beds and metal cots before you buy.
           </p>
         </div>
         <div className={styles.heroOverlay}></div>
