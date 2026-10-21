@@ -80,8 +80,12 @@ export default function ContactClient() {
       {/* Hero Section */}
       <section className={styles.heroSection}>
         <div className={styles.heroContent}>
-          <h1 className={styles.heroTitle}>Get in Touch</h1>
-          <p className={styles.heroSubtitle}>We'd love to hear from you. Reach out to us for any inquiries or custom furniture solutions.</p>
+          <h1 className={styles.heroTitle}>Contact us — enquiry form, phone &amp; WhatsApp</h1>
+          <p className={styles.heroSubtitle}>
+            Use this page to message the team. We reply within 24 hours. For Ambattur showroom
+            directions and hours, go to the{' '}
+            <Link href="/store-locator">store locator</Link>.
+          </p>
         </div>
         <div className={styles.heroOverlay}></div>
       </section>

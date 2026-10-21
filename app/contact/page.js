@@ -2,25 +2,26 @@ import ContactClient from '../../components/ContactClient'
 
 export const metadata = {
   title: {
-    absolute: 'Contact Spacecrafts Furniture Chennai | Call 90030 03733',
+    absolute: 'Contact Us | Enquiry Form, Phone & WhatsApp',
   },
   description:
-    'Contact Spacecrafts Furniture, Ambattur, Chennai. Call 90030 03733 or visit our 8,000 sq. ft. showroom. Enquire about sofas, beds, bunk beds and bulk orders. We reply within 24 hours.',
+    'Send an enquiry to Spacecrafts Furniture. Use the form, phone or WhatsApp — we reply within 24 hours. For Ambattur showroom map and hours, use the store locator.',
   keywords:
-    'contact furniture store, spacecrafts furniture contact, furniture inquiry, custom furniture solutions, furniture store Chennai',
+    'contact spacecrafts furniture, furniture enquiry, furniture whatsapp, bulk order enquiry',
   alternates: {
     canonical: 'https://www.spacecraftsfurniture.in/contact',
   },
   openGraph: {
-    title: 'Contact Spacecrafts Furniture',
-    description: 'Get in touch with our team for furniture inquiries and custom solutions.',
+    title: 'Contact Us | Enquiry Form, Phone & WhatsApp',
+    description:
+      'Message Spacecrafts Furniture by form, phone or WhatsApp. We reply within 24 hours.',
     url: 'https://www.spacecraftsfurniture.in/contact',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Contact Spacecrafts Furniture',
-    description: 'Call 90030 03733 or visit our Ambattur showroom.',
+    title: 'Contact Us | Enquiry Form, Phone & WhatsApp',
+    description: 'Form, phone or WhatsApp — we reply within 24 hours.',
   },
 }
 
