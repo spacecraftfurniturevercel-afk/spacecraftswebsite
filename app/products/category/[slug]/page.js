@@ -273,9 +273,12 @@ const categoryMeta = {
     h1: 'All Dining Sets'
   },
   'sofa-sets': {
-    title: 'Sofa Sets Online India — Corner, Recliner & 3+1+1',
-    description: 'Buy sofa sets online. Corner sofas, recliner sofas, 3+1+1 sets and cushion sofas. Premium quality at best prices. Showroom in Chennai, free delivery across India.',
-    h1: 'All Sofa Sets'
+    title: 'Sofa Sets in Chennai | Corner, 3+1+1 & Recliner',
+    description:
+      'Try sofa sets in Ambattur before you buy — corner, 3+1+1, recliner and 2-seater. Factory prices, 12-month warranty. Chennai showroom or pan-India delivery.',
+    h1: 'Sofa Sets in Chennai — Corner, 3+1+1 & Recliner',
+    subtitle:
+      'Sit and compare at our Ambattur showroom, or order online at factory prices.',
   },
   'tables': {
     title: 'Tables',
