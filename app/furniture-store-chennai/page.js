@@ -7,19 +7,19 @@ const SITE = COMPANY.url
 
 export const metadata = {
   title: {
-    absolute: 'Best Furniture Stores in Chennai | Ambattur Showroom',
+    absolute: 'Best Furniture Stores in Chennai | Try Before You Buy',
   },
   description:
-    'Best furniture stores in Chennai for space-saving homes: visit Spacecrafts Furniture in Ambattur — 8,000 sq. ft. showroom for sofas, bunk beds, sofa cum beds and metal cots. Try before you buy.',
+    'Best furniture stores in Chennai: visit Spacecrafts Ambattur — 8,000 sq. ft. Open Mon–Fri 9:30 AM–9:30 PM, Sat–Sun 10 AM–10 PM. Try sofas, bunk beds and sofa cum beds. Factory prices.',
   keywords:
     'best furniture stores in Chennai, best furniture store Chennai, furniture stores in Chennai, furniture store Chennai, furniture shop Chennai, furniture showroom Chennai, Ambattur furniture store, sofa store Chennai, bunk beds Chennai, Spacecrafts Furniture',
   alternates: {
     canonical: `${SITE}/furniture-store-chennai`,
   },
   openGraph: {
-    title: 'Best Furniture Stores in Chennai | Ambattur Showroom',
+    title: 'Best Furniture Stores in Chennai | Try Before You Buy',
     description:
-      'Manufacturer-showroom in Ambattur — sofas, bunk beds, sofa cum beds and metal cots. Visit or shop online.',
+      '8,000 sq. ft. Ambattur showroom. Open 7 days. Try sofas, bunk beds and sofa cum beds before you buy.',
     url: `${SITE}/furniture-store-chennai`,
     type: 'website',
     images: [
@@ -122,7 +122,7 @@ export default function FurnitureStoreChennaiPage() {
       <section className={styles.section}>
         <div className={styles.container}>
           <h1 className={styles.mainTitle}>
-            Best furniture stores in Chennai — visit our Ambattur showroom
+            Best furniture stores in Chennai — try sofas and bunks in Ambattur
           </h1>
           <p className={styles.intro}>
             Searching for the <strong>best furniture stores in Chennai</strong>? Mall brands cover
