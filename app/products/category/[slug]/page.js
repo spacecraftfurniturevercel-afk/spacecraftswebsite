@@ -105,9 +105,14 @@ const categoryMeta = {
     h1: 'Recliner Folding Beds'
   },
   'sofa-cum-beds': {
-    title: 'Sofa Cum Beds in Chennai — With Storage',
-    description: 'Buy sofa cum beds in Chennai. Convertible sofa beds with and without storage for living rooms and small flats. Visit Ambattur showroom or order online. Pan-India delivery.',
-    h1: 'Sofa Cum Beds'
+    title: 'Sofa Cum Bed in Chennai | From ₹18,999',
+    description:
+      'Sofa cum bed in Chennai from ₹18,999. Fold-flat sofa beds including Rio — with and without storage. Try them in Ambattur or order online with pan-India delivery.',
+    h1: 'Sofa Cum Beds in Chennai',
+    subtitle:
+      'Convertible sofa cum beds for small flats and guest use. Sit and fold them in our Ambattur showroom, or buy online.',
+    keywords:
+      'sofa cum bed chennai, sofa cum bed in chennai, sofa cum bed shop near me, sofa cum bed near me, rio sofa bed, sofa bed Chennai',
   },
   'wooden-beds': {
     title: 'Wooden Beds in Chennai — Solid Wood & Engineered Wood',
