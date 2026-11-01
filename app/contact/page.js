@@ -2,26 +2,26 @@ import ContactClient from '../../components/ContactClient'
 
 export const metadata = {
   title: {
-    absolute: 'Contact Us | Enquiry Form, Phone & WhatsApp',
+    absolute: 'Contact Spacecrafts | Visit or Enquire in Ambattur',
   },
   description:
-    'Send an enquiry to Spacecrafts Furniture. Use the form, phone or WhatsApp — we reply within 24 hours. For Ambattur showroom map and hours, use the store locator.',
+    'Visit or enquire at Spacecrafts Furniture, Ambattur, Chennai. Form, phone or WhatsApp — we reply within 24 hours. Map and opening hours are on the store locator.',
   keywords:
-    'contact spacecrafts furniture, furniture enquiry, furniture whatsapp, bulk order enquiry',
+    'contact spacecrafts furniture, furniture enquiry Ambattur, furniture showroom Chennai contact, furniture whatsapp, bulk order enquiry',
   alternates: {
     canonical: 'https://www.spacecraftsfurniture.in/contact',
   },
   openGraph: {
-    title: 'Contact Us | Enquiry Form, Phone & WhatsApp',
+    title: 'Contact Spacecrafts | Visit or Enquire in Ambattur',
     description:
-      'Message Spacecrafts Furniture by form, phone or WhatsApp. We reply within 24 hours.',
+      'Visit or enquire at our Ambattur, Chennai showroom. Form, phone or WhatsApp — reply within 24 hours.',
     url: 'https://www.spacecraftsfurniture.in/contact',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Contact Us | Enquiry Form, Phone & WhatsApp',
-    description: 'Form, phone or WhatsApp — we reply within 24 hours.',
+    title: 'Contact Spacecrafts | Visit or Enquire in Ambattur',
+    description: 'Visit or enquire in Ambattur. Form, phone or WhatsApp.',
   },
 }
 

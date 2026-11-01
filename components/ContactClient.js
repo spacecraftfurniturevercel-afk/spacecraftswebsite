@@ -80,7 +80,7 @@ export default function ContactClient() {
       {/* Hero Section */}
       <section className={styles.heroSection}>
         <div className={styles.heroContent}>
-          <h1 className={styles.heroTitle}>Contact us — enquiry form, phone &amp; WhatsApp</h1>
+          <h1 className={styles.heroTitle}>Contact us — visit or enquire at Ambattur</h1>
           <p className={styles.heroSubtitle}>
             Use this page to message the team. We reply within 24 hours. For Ambattur showroom
             directions and hours, go to the{' '}
