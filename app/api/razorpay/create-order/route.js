@@ -260,7 +260,7 @@ export async function POST(request) {
         currency: 'INR',
         customer_email: profile.email,
         customer_name: profile.full_name,
-        razorpay_key_id: process.env.RAZORPAY_KEY_ID,
+        razorpay_key_id: process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         delivery_charge: safeDeliveryCharge,
         subtotal: subtotal,
         gst: gst
