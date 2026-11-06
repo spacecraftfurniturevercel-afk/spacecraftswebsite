@@ -323,8 +323,15 @@ export default function CartClient() {
 
       let paymentHandled = false
 
+      const razorpayKey = orderData.razorpay_key_id || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID
+      if (!razorpayKey) {
+        setPaymentError('Payment is not configured. Please contact support.')
+        setIsProcessing(false)
+        return
+      }
+
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_SNZPmHU5RD7fq8',
+        key: razorpayKey,
         order_id: orderData.razorpay_order_id,
         amount: orderData.amount_paise,
         currency: 'INR',
