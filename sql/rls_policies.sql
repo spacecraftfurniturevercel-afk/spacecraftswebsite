@@ -53,4 +53,8 @@ CREATE POLICY "Product images: insert server only" ON product_images FOR INSERT 
 CREATE POLICY "Product images: update server only" ON product_images FOR UPDATE USING (auth.role() = 'service_role') WITH CHECK (auth.role() = 'service_role');
 CREATE POLICY "Product images: delete server only" ON product_images FOR DELETE USING (auth.role() = 'service_role');
 
+-- Catalog (products, categories, brands, images, variants, …):
+-- public SELECT only. Run sql/fix_sec01_catalog_rls.sql in the SQL editor.
+-- Admin/API writes must use SUPABASE_SERVICE_ROLE_KEY (bypasses RLS).
+
 -- Note: Replace or refine policies as per your app roles (admin, staff). Server-side admin operations should use the SUPABASE_SERVICE_ROLE_KEY and not be exposed to clients.
