@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createRazorpayOrder, formatAmountToPaise } from '../../../../lib/razorpay'
 import { createSupabaseRouteHandlerClient, createSupabaseServerClient } from '../../../../lib/supabaseClient'
+import { PRODUCT_SHIPPING_SELECT, resolveServerDeliveryCharge } from '../../../../lib/deliveryCharge'
 
 /**
  * Create a Razorpay order for checkout or direct payment
@@ -31,7 +32,6 @@ export async function POST(request) {
       paymentType, payment_type,
       productId, product_id,
       quantity = 1,
-      delivery_charge = 0
     } = body
 
     const resolvedPaymentType = paymentType || payment_type || 'cart'
@@ -61,12 +61,13 @@ export async function POST(request) {
     // Determine items for order
     let orderItems = items
     let subtotal = 0
+    const pricedItems = []
 
     // If direct payment (from product page)
     if (resolvedPaymentType === 'direct' && resolvedProductId) {
       const { data: product } = await supabase
         .from('products')
-        .select('id, name, price, discount_price, stock')
+        .select(PRODUCT_SHIPPING_SELECT)
         .eq('id', resolvedProductId)
         .eq('is_active', true)
         .single()
@@ -85,15 +86,16 @@ export async function POST(request) {
         )
       }
 
-      orderItems = [{ product_id: resolvedProductId, quantity }]
+      orderItems = [{ product_id: resolvedProductId, quantity, product }]
       subtotal = (product.discount_price || product.price) * quantity
+      pricedItems.push({ ...product, quantity })
     } 
     // Cart checkout
     else if (resolvedPaymentType === 'cart' && items.length > 0) {
       for (const item of items) {
         const { data: product } = await supabase
           .from('products')
-          .select('id, name, price, discount_price, stock')
+          .select(PRODUCT_SHIPPING_SELECT)
           .eq('id', item.product_id)
           .eq('is_active', true)
           .single()
@@ -108,7 +110,9 @@ export async function POST(request) {
         }
 
         subtotal += (product.discount_price || product.price) * item.quantity
+        pricedItems.push({ ...product, quantity: item.quantity })
       }
+      orderItems = pricedItems.map((p) => ({ product_id: p.id, quantity: p.quantity, product: p }))
     } else {
       return NextResponse.json(
         { error: 'Invalid order parameters' },
@@ -116,9 +120,32 @@ export async function POST(request) {
       )
     }
 
-    // Add 18% GST to subtotal + delivery charges
+    if (!pricedItems.length || subtotal <= 0) {
+      return NextResponse.json(
+        { error: 'No valid products in this order' },
+        { status: 400 }
+      )
+    }
+
+    const deliveryResult = await resolveServerDeliveryCharge({
+      supabase,
+      profileId: profile.id,
+      addressId: address_id,
+      items: pricedItems,
+      invoiceAmount: subtotal,
+      paymentType: 'Prepaid',
+    })
+
+    if (deliveryResult.error) {
+      return NextResponse.json(
+        { error: deliveryResult.error },
+        { status: deliveryResult.status || 400 }
+      )
+    }
+
+    // Add 18% GST to subtotal + server-calculated delivery
     const gst = Math.round(subtotal * 0.18)
-    const safeDeliveryCharge = Math.max(0, Math.round(Number(delivery_charge) || 0))
+    const safeDeliveryCharge = deliveryResult.deliveryCharge
     const totalAmount = subtotal + gst + safeDeliveryCharge
 
     if (totalAmount <= 0) {
@@ -173,14 +200,9 @@ export async function POST(request) {
       order = orderData
     }
 
-    // Create order items
+    // Create order items from already-loaded catalog rows
     for (const item of orderItems) {
-      const { data: product } = await supabase
-        .from('products')
-        .select('id, name, price, discount_price, shipping_weight, shipping_length, shipping_width, shipping_height, shipping_box_count')
-        .eq('id', item.product_id)
-        .single()
-
+      const product = item.product
       if (!product) continue
 
       await supabase

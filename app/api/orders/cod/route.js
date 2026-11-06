@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createSupabaseRouteHandlerClient, createSupabaseServerClient } from '../../../../lib/supabaseClient'
+import { resolveServerDeliveryCharge } from '../../../../lib/deliveryCharge'
 
 /**
  * POST /api/orders/cod
@@ -10,7 +11,7 @@ import { createSupabaseRouteHandlerClient, createSupabaseServerClient } from '..
  *   product_id     – product being purchased
  *   quantity       – number of units
  *   address_id     – delivery address
- *   delivery_charge – COD delivery charge (from /api/delivery-charges)
+ *   Delivery charge is calculated on the server from the address pincode.
  */
 export async function POST(request) {
   try {
@@ -22,7 +23,7 @@ export async function POST(request) {
     }
 
     const body = await request.json()
-    const { product_id, quantity = 1, address_id, delivery_charge = 0 } = body
+    const { product_id, quantity = 1, address_id } = body
 
     if (!product_id || !address_id) {
       return NextResponse.json({ error: 'product_id and address_id are required' }, { status: 400 })
@@ -75,7 +76,24 @@ export async function POST(request) {
     const unitPrice = product.discount_price || product.price
     const subtotal = unitPrice * quantity
     const gst = Math.round(subtotal * 0.18)
-    const safeDeliveryCharge = Math.max(0, Math.round(Number(delivery_charge) || 0))
+
+    const deliveryResult = await resolveServerDeliveryCharge({
+      supabase,
+      profileId: profile.id,
+      addressId: address_id,
+      items: [{ ...product, quantity }],
+      invoiceAmount: subtotal,
+      paymentType: 'COD',
+    })
+
+    if (deliveryResult.error) {
+      return NextResponse.json(
+        { error: deliveryResult.error },
+        { status: deliveryResult.status || 400 }
+      )
+    }
+
+    const safeDeliveryCharge = deliveryResult.deliveryCharge
     const totalAmount = subtotal + gst + safeDeliveryCharge
 
     const adminSupabase = createSupabaseServerClient()
