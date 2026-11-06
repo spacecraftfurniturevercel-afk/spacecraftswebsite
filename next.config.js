@@ -1,3 +1,33 @@
+/** CSP + defense headers (SEC 04). Next/GTM/Razorpay need inline scripts. */
+const contentSecurityPolicy = [
+  "default-src 'self'",
+  "base-uri 'self'",
+  "object-src 'none'",
+  "frame-ancestors 'self'",
+  "form-action 'self' https://checkout.razorpay.com https://api.razorpay.com https://js.stripe.com",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://www.google.com https://www.gstatic.com https://checkout.razorpay.com https://*.razorpay.com https://js.stripe.com",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "font-src 'self' data: https://fonts.gstatic.com",
+  "img-src 'self' data: blob: https:",
+  "media-src 'self' blob:",
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com https://*.googletagmanager.com https://stats.g.doubleclick.net https://www.google.com https://*.razorpay.com https://lumberjack.razorpay.com https://api.razorpay.com https://checkout.razorpay.com https://nominatim.openstreetmap.org https://api.stripe.com https://*.googleapis.com",
+  "frame-src 'self' https://www.google.com https://maps.google.com https://www.googletagmanager.com https://checkout.razorpay.com https://api.razorpay.com https://js.stripe.com",
+  "worker-src 'self' blob:",
+  "upgrade-insecure-requests",
+].join('; ')
+
+const securityHeaders = [
+  { key: 'Content-Security-Policy', value: contentSecurityPolicy },
+  { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
+  { key: 'X-Content-Type-Options', value: 'nosniff' },
+  { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+  { key: 'Permissions-Policy', value: 'camera=(), microphone=(), usb=(), geolocation=(self), payment=(self), interest-cohort=()' },
+  { key: 'Cross-Origin-Opener-Policy', value: 'same-origin-allow-popups' },
+  { key: 'X-DNS-Prefetch-Control', value: 'on' },
+  { key: 'X-Permitted-Cross-Domain-Policies', value: 'none' },
+]
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -60,24 +90,7 @@ const nextConfig = {
       },
       {
         source: '/:path*',
-        headers: [
-          {
-            key: 'X-DNS-Prefetch-Control',
-            value: 'on'
-          },
-          {
-            key: 'X-Frame-Options',
-            value: 'SAMEORIGIN'
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff'
-          },
-          {
-            key: 'Referrer-Policy',
-            value: 'origin-when-cross-origin'
-          }
-        ]
+        headers: securityHeaders,
       }
     ]
   },
