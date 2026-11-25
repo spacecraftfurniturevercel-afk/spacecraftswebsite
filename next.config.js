@@ -28,6 +28,56 @@ const securityHeaders = [
   { key: 'X-Permitted-Cross-Domain-Policies', value: 'none' },
 ]
 
+/** Old Woo-style /shop and /product URLs still get GA landings (404s). */
+const legacyShopRedirects = [
+  { source: '/contact-us', destination: '/contact', permanent: true },
+  { source: '/refund_returns', destination: '/returns-policy', permanent: true },
+  { source: '/best-furniture-in-chennai', destination: '/furniture-store-chennai', permanent: true },
+  { source: '/shop', destination: '/products', permanent: true },
+  { source: '/shop/page/:n', destination: '/products', permanent: true },
+  { source: '/product/:slug', destination: '/products/:slug', permanent: true },
+  { source: '/products/jinli-sliding-study-desk', destination: '/products/jinli-sliding-study-desk-fw-4545', permanent: true },
+  { source: '/products/apollo-folding-cot-4-feet', destination: '/products/apollo-folding-cot-4-feet-jf-5210-4f', permanent: true },
+  { source: '/products/lombard-space-saving-table', destination: '/products/lombard-pull-out-table', permanent: true },
+  { source: '/shop/space-saving-furniture', destination: '/products/category/space-saving-furniture', permanent: true },
+  { source: '/shop/sofa-sets', destination: '/products/category/sofa-sets', permanent: true },
+  { source: '/shop/sofasets', destination: '/products/category/sofa-sets', permanent: true },
+  { source: '/shop/chairs', destination: '/products/category/chairs', permanent: true },
+  { source: '/shop/beds', destination: '/products/category/beds', permanent: true },
+  { source: '/shop/tables', destination: '/products/category/tables', permanent: true },
+  { source: '/shop/dining-sets', destination: '/products/category/dining-sets', permanent: true },
+  { source: '/shop/wardrobe-racks', destination: '/products/category/wardrobe-racks', permanent: true },
+  { source: '/shop/beds/bunk-beds', destination: '/products/category/bunk-beds', permanent: true },
+  { source: '/shop/beds/sofa-cum-beds', destination: '/products/category/sofa-cum-beds', permanent: true },
+  { source: '/shop/beds/sofa-beds', destination: '/products/category/sofa-cum-beds', permanent: true },
+  { source: '/shop/beds/metal-cots', destination: '/products/category/metal-cots', permanent: true },
+  { source: '/shop/beds/folding-beds', destination: '/products/category/folding-beds', permanent: true },
+  { source: '/shop/beds/wooden-beds', destination: '/products/category/wooden-beds', permanent: true },
+  { source: '/shop/beds/diwan-beds', destination: '/products/category/diwan-cum-beds', permanent: true },
+  { source: '/shop/chairs/study-chairs', destination: '/products/category/study-chairs', permanent: true },
+  { source: '/shop/chairs/foldable-chairs', destination: '/products/category/foldable-chairs', permanent: true },
+  { source: '/shop/chairs/lazy-chairs', destination: '/products/category/lazy-chairs', permanent: true },
+  { source: '/shop/chairs/office-chairs', destination: '/products/category/office-chairs', permanent: true },
+  { source: '/shop/tables/foldable-tables', destination: '/products/category/foldable-tables', permanent: true },
+  { source: '/shop/tables/study-office-tables', destination: '/products/category/study-tables', permanent: true },
+  { source: '/shop/tables/dressing-tables', destination: '/products/category/dressing-tables', permanent: true },
+  { source: '/shop/dining-sets/wooden-dinings', destination: '/products/category/wooden-dinings', permanent: true },
+  { source: '/shop/wardrobe-racks/shoe-racks', destination: '/products/category/shoe-racks', permanent: true },
+  { source: '/shop/wardrobe-racks/wardrobes', destination: '/products/category/wardrobes', permanent: true },
+  { source: '/shop/wardrobe-racks/book-racks', destination: '/products/category/book-racks', permanent: true },
+  { source: '/shop/sofa-sets/311-sofas', destination: '/products/category/sofa-sets', permanent: true },
+  { source: '/shop/sofa-sets/corner-sofas', destination: '/products/category/sofa-sets', permanent: true },
+  { source: '/shop/sofa-sets/diwans', destination: '/products/category/sofa-sets', permanent: true },
+  { source: '/shop/sofa-sets/recliner-sofas', destination: '/products/category/sofa-sets', permanent: true },
+  { source: '/shop/sofa-sets/2-seater', destination: '/products/category/sofa-sets', permanent: true },
+  { source: '/shop/sofa-sets/2-seater-sofa', destination: '/products/category/sofa-sets', permanent: true },
+  { source: '/shop/sofasets/corner-sofas', destination: '/products/category/sofa-sets', permanent: true },
+  { source: '/shop/sofasets/recliner-sofas', destination: '/products/category/sofa-sets', permanent: true },
+  { source: '/shop/sofasets/diwans', destination: '/products/category/sofa-sets', permanent: true },
+  { source: '/shop/:cat/:sub/:slug', destination: '/products/:slug', permanent: true },
+  { source: '/shop/:cat/:slug', destination: '/products/:slug', permanent: true },
+]
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -98,6 +148,7 @@ const nextConfig = {
   // Redirects for SEO
   async redirects() {
     return [
+      ...legacyShopRedirects,
       {
         source: '/home',
         destination: '/',
