@@ -79,7 +79,7 @@ export default function PrivacyPolicyPage() {
 
           Spacecrafts Furniture
           94A/1, 3rd Main Rd, Old Ambattur, Attipattu, Ambattur Industrial Estate, Chennai, Tamil Nadu 600058
-          Email: support@spacecraftsfurniture.in
+          Email: spacecraftsdigital@gmail.com
           Phone: 090030 03733 / 98402 22779
           Website: www.spacecraftsfurniture.in`
         },

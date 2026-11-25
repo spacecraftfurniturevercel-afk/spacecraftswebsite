@@ -81,7 +81,7 @@ export default async function Home() {
       'https://www.spacecraftsfurniture.in/aboutus/inner1.webp'
     ],
     telephone: '+919003003733',
-    email: 'support@spacecraftsfurniture.in',
+    email: 'spacecraftsdigital@gmail.com',
     address: {
       '@type': 'PostalAddress',
       streetAddress: '94A/1, 3rd Main Rd, Old Ambattur, Attipattu',

@@ -56,8 +56,8 @@ export default function ContactClient() {
     {
       icon: '📧',
       title: 'Email Us',
-      value: 'support@spacecraftsfurniture.in',
-      link: 'mailto:support@spacecraftsfurniture.in',
+      value: 'spacecraftsdigital@gmail.com',
+      link: 'mailto:spacecraftsdigital@gmail.com',
       desc: 'We respond within 24 hours'
     },
     {
@@ -272,7 +272,7 @@ export default function ContactClient() {
               '@type': 'LocalBusiness',
               'name': 'Spacecrafts Furniture',
               'telephone': '+919003003733',
-              'email': 'support@spacecraftsfurniture.in',
+              'email': 'spacecraftsdigital@gmail.com',
               'address': {
                 '@type': 'PostalAddress',
                 'streetAddress': '94A/1, 3rd Main Rd, Old Ambattur, Attipattu',

@@ -256,7 +256,7 @@ export default function About() {
               '@type': 'ContactPoint',
               'contactType': 'Customer Service',
               'telephone': '+919003003733',
-              'email': 'support@spacecraftsfurniture.in'
+              'email': 'spacecraftsdigital@gmail.com'
             },
             'sameAs': [
               'https://www.facebook.com/spacecraftsfurniture',

@@ -108,7 +108,7 @@ export async function POST(request) {
   </div>
 </td></tr>
 <tr><td style="background:#fafafa;padding:16px 32px;text-align:center;border-top:1px solid #eee;">
-  <p style="margin:0;font-size:12px;color:#999;">For queries: <a href="mailto:support@spacecraftsfurniture.in" style="color:#666;">support@spacecraftsfurniture.in</a></p>
+  <p style="margin:0;font-size:12px;color:#999;">For queries: <a href="mailto:spacecraftsdigital@gmail.com" style="color:#666;">spacecraftsdigital@gmail.com</a></p>
 </td></tr>
 </table>
 </td></tr></table></body></html>`
