@@ -2,26 +2,26 @@ import ContactClient from '../../components/ContactClient'
 
 export const metadata = {
   title: {
-    absolute: 'Contact Spacecrafts | Visit or Enquire in Ambattur',
+    absolute: 'Contact Spacecrafts Ambattur | Furniture Showroom Chennai',
   },
   description:
-    'Visit or enquire at Spacecrafts Furniture, Ambattur, Chennai. Form, phone or WhatsApp — we reply within 24 hours. Map and opening hours are on the store locator.',
+    'Contact Spacecrafts - Ambattur, Chennai furniture showroom. Space-saving furniture factory — sofa cum beds, bunks, custom sizes. Form, phone or WhatsApp. Hours and map on store locator.',
   keywords:
-    'contact spacecrafts furniture, furniture enquiry Ambattur, furniture showroom Chennai contact, furniture whatsapp, bulk order enquiry',
+    'contact spacecrafts furniture, furniture shop Ambattur contact, furniture showroom Chennai, space saving furniture Ambattur, bulk order enquiry',
   alternates: {
     canonical: 'https://www.spacecraftsfurniture.in/contact',
   },
   openGraph: {
-    title: 'Contact Spacecrafts | Visit or Enquire in Ambattur',
+    title: 'Contact Spacecrafts Ambattur | Furniture Showroom Chennai',
     description:
-      'Visit or enquire at our Ambattur, Chennai showroom. Form, phone or WhatsApp — reply within 24 hours.',
+      'Contact the Ambattur factory-showroom. Space-saving furniture, custom sizes, sold direct. Form, phone or WhatsApp.',
     url: 'https://www.spacecraftsfurniture.in/contact',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Contact Spacecrafts | Visit or Enquire in Ambattur',
-    description: 'Visit or enquire in Ambattur. Form, phone or WhatsApp.',
+    title: 'Contact Spacecrafts Ambattur | Furniture Showroom Chennai',
+    description: 'Ambattur, Chennai showroom. Space-saving furniture, factory-direct. Form, phone or WhatsApp.',
   },
 }
 
