@@ -215,6 +215,12 @@ const nextConfig = {
         source: '/products/jf-5555',
         destination: '/products/metal-leg-double-cot-jf-5555',
         permanent: true
+      },
+      // Dead slug: Taman was never a catalog product; GSC crawled a 404
+      {
+        source: '/products/taman-bunker-cot',
+        destination: '/products/category/bunk-beds',
+        permanent: true
       }
     ]
   }
