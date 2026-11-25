@@ -278,12 +278,14 @@ const categoryMeta = {
     h1: 'All Dining Sets'
   },
   'sofa-sets': {
-    title: 'Sofa Sets in Chennai | Corner, 3+1+1 & Recliner',
+    title: '3+1+1 Sofa Sets in Chennai | Ambattur Factory',
     description:
-      'Try sofa sets in Ambattur before you buy — corner, 3+1+1, recliner and 2-seater. Factory prices, 12-month warranty. Chennai showroom or pan-India delivery.',
-    h1: 'Sofa Sets in Chennai — Corner, 3+1+1 & Recliner',
+      '3+1+1, corner and compact sofa sets from our Ambattur factory. Sit in the Chennai showroom, custom sizes for 1BHK halls, factory-direct prices. Pan-India delivery.',
+    h1: 'Sofa Sets in Chennai — 3+1+1, Corner & Compact',
     subtitle:
-      'Sit and compare at our Ambattur showroom, or order online at factory prices.',
+      'Space-saving sofa sets made in Ambattur Industrial Estate. Try 3+1+1 and corner sets on the floor, or order online with no middleman.',
+    keywords:
+      'sofa sets Chennai, 3+1+1 sofa set, sofa set Ambattur, compact sofa Chennai, corner sofa Chennai, factory sofa sets',
   },
   'tables': {
     title: 'Tables',
