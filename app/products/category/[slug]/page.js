@@ -69,15 +69,15 @@ const SUB_CATEGORIES = [
 // SEO-friendly category descriptions
 const categoryMeta = {
   'bunk-beds': {
-    title: 'Bunker Beds in Chennai | Bunk Beds From ₹16,999',
+    title: 'Bunker Cot & Bunk Bed in Chennai | Ambattur Factory',
     description:
-      'Bunker bed, bunker beds and bunk beds from ₹16,999. Metal frames with safety rails for kids, hostels and adults. Try Delta and other bunks in Ambattur, Chennai. Pan-India delivery.',
-    h1: 'Bunker Beds, Bunker Cots & Bunk Beds in Chennai',
+      'Bunker bed, bunker cot and bunk beds from ₹16,999. Metal space-saving frames with rails for kids, hostels and adults. Made in Ambattur, sold direct. Try Delta and Taman in Chennai.',
+    h1: 'Bunker Cots, Bunker Beds & Bunk Beds in Chennai',
     subtitle:
-      'Metal bunker cots and bunk beds with safety rails — from ₹16,999. See Delta and other bunks in our Ambattur showroom or buy online with delivery across India.',
+      'Factory-direct metal bunk / bunker beds from Ambattur Industrial Estate. Check rails and height on the floor, or order pan-India.',
     ogImage: '/blogs/jf-9090-1.avif',
     keywords:
-      'bunker bed, bunker beds, bunker cot, bunkar bed, bunk beds, bunk beds in Chennai, bunk beds near me, delta bunk bed, metal bunk bed',
+      'bunker bed, bunker beds, bunker cot, bunkar bed, bunk beds, bunk beds in Chennai, bunk beds near me, delta bunk bed, taman bunker cot, metal bunk bed',
   },
   'futon-beds': {
     title: 'Futon Beds in Chennai — Sofa-to-Bed Furniture',
