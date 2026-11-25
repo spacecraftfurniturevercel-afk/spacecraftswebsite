@@ -296,9 +296,14 @@ const categoryMeta = {
     h1: 'Wardrobe & Racks'
   },
   'space-saving-furniture': {
-    title: 'Space Saving Furniture',
-    description: 'Shop space saving furniture — folding beds, foldable tables, sofa cum beds & compact furniture for small spaces.',
-    h1: 'Space Saving Furniture'
+    title: 'Space Saving Furniture in Chennai | Factory Direct',
+    description:
+      'Space saving furniture from our Ambattur factory — sofa cum beds, bunk beds, folding cots, compact dining. Custom sizes, no middleman. Try in Chennai or order pan-India.',
+    h1: 'Space Saving Furniture in Chennai — Made in Ambattur',
+    subtitle:
+      'Factory-direct sofa cum beds, bunker beds, folding cots and compact dining. Custom sizes for 1BHK and 2BHK. Showroom in Ambattur Industrial Estate; delivery across India.',
+    keywords:
+      'space saving furniture Chennai, space saving furniture India, sofa cum bed Chennai, bunk beds Chennai, folding furniture, custom space saving furniture Ambattur, factory direct furniture',
   },
 }
 
@@ -463,13 +468,13 @@ export default async function CategoryPage({ params, searchParams }) {
   const relevantSubCategories = SUB_CATEGORIES
 
   const collectionJsonLd =
-    slug === 'bunk-beds' && meta
+    (slug === 'bunk-beds' || slug === 'space-saving-furniture') && meta
       ? {
           '@context': 'https://schema.org',
           '@type': 'CollectionPage',
           name: meta.h1,
           description: meta.description,
-          url: `${getPublicSiteUrl()}/products/category/bunk-beds`,
+          url: `${getPublicSiteUrl()}/products/category/${slug}`,
           isPartOf: {
             '@type': 'WebSite',
             name: 'Spacecrafts Furniture',
