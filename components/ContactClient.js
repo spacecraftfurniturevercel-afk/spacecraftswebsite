@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { COMPANY } from '../lib/companyInfo'
+import { trackGenerateLead } from '../lib/gtagClient'
 import styles from './ContactPage.module.css'
 
 export default function ContactClient() {
@@ -34,6 +35,7 @@ export default function ContactClient() {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Failed to send message')
+      trackGenerateLead('contact_form')
       setSubmitted(true)
       setFormData({ name: '', email: '', phone: '', subject: '', message: '' })
       setTimeout(() => setSubmitted(false), 5000)

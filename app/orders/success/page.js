@@ -6,6 +6,7 @@ import { Suspense } from 'react'
 import { motion } from 'framer-motion'
 import { authenticatedFetch } from '../../../lib/authenticatedFetch'
 import { supabase } from '../../../lib/supabaseClient'
+import { trackPurchase } from '../../../lib/gtagClient'
 
 const STEPS = [
   { key: 'confirmed', label: 'Order Confirmed', icon: 'check' },
@@ -49,12 +50,9 @@ function OrderSuccessContent() {
     const fetchOrder = async () => {
       try {
         try {
-          window.dataLayer = window.dataLayer || []
           localStorage.removeItem('cart')
           localStorage.removeItem('wishlist')
-          window.dataLayer.push({ event: 'purchase', ecommerce: { transaction_id: searchParams.get('order_id') || 'TBD', value: 0 } })
-          if (window.gtag) window.gtag('event', 'conversion', { send_to: 'AW-CONVERSION_ID/label', value: 0 })
-        } catch (e) { console.warn('GTM tracking error:', e) }
+        } catch (e) { console.warn('Cart clear error:', e) }
 
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) { router.push('/login'); return }
@@ -67,6 +65,18 @@ function OrderSuccessContent() {
           const data = await response.json()
           setOrder(data.order)
           setAddress(data.address)
+          if (data.order?.id) {
+            trackPurchase({
+              transactionId: data.order.id,
+              value: data.order.total,
+              currency: data.order.currency || 'INR',
+            })
+            fetch('/api/track/conversion', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ order_id: data.order.id }),
+            }).catch(() => {})
+          }
 
           // If order is still pending, try to confirm it via the verify-confirm API
           if (data.order && (data.order.payment_status === 'pending' || data.order.status === 'pending')) {

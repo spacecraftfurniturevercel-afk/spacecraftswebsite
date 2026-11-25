@@ -8,6 +8,7 @@ import DelayedSignupModal from '../components/DelayedSignupModal'
 import ChatWidget from '../components/ChatWidget/ChatWidget'
 import { AuthProvider } from './providers/AuthProvider'
 import GoogleAnalytics from '../components/GoogleAnalytics'
+import ConversionClicks from '../components/ConversionClicks'
 import OrganizationStructuredData from '../components/OrganizationStructuredData'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.spacecraftsfurniture.in'
@@ -158,6 +159,7 @@ export default function RootLayout({ children }) {
           <ModernFooter />
           <DelayedSignupModal />
           <ChatWidget />
+          <ConversionClicks />
         </AuthProvider>
       </body>
     </html>
